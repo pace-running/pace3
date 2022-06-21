@@ -1,20 +1,28 @@
-fn main() {
-    let a = 1;
-    let b = 1;
-    println!("I can add: {} + {} = {}", a,b,add(1,1));
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Hello world!")
 }
 
-pub fn add(a: i32, b:i32) -> i32 {
-    a + b
+#[post("/echo")]
+async fn echo(req_body: String) -> impl Responder {
+    HttpResponse::Ok().body(req_body)
 }
 
-#[cfg(test)]
-mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::*;
+async fn manual_hello() -> impl Responder {
+    HttpResponse::Ok().body("Hey there!")
+}
 
-    #[test]
-    fn test_add() {
-        assert_eq!(add(1, 2), 3);
-    }
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(hello)
+            .service(echo)
+            .route("/hey", web::get().to(manual_hello))
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
