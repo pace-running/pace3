@@ -1,4 +1,4 @@
-[![Build](https://github.com/pace-running/pace3/actions/workflows/test.yml/badge.svg)](https://github.com/pace-running/pace3/actions/workflows/test.yml)
+[![BuildTestDeploy](https://github.com/pace-running/pace3/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/pace-running/pace3/actions/workflows/build-test-deploy.yml)
 [![Dependencies](https://github.com/pace-running/pace3/actions/workflows/dependencies.yml/badge.svg)](https://github.com/pace-running/pace3/actions/workflows/dependencies.yml)
 # pace
 
