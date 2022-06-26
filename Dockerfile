@@ -37,7 +37,7 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /pace
 
 # Copy our build
-COPY --from=builder /pace/target/release/pace ./
+COPY --from=builder /pace/target/release/main ./pace
 
 # Use an unprivileged user.
 USER pace:pace
