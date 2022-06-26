@@ -19,3 +19,5 @@ spec:
           image: registry.k3s.colodeck.de/pace3:latest
           ports:
             - containerPort: 8080
+      imagePullSecrets:
+        - name: regcred
