@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pace3-ingress
+  namespace: pace3
+  labels:
+    app: pace3
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+    - host: pace3.lauf-gegen-rechts.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pace3
+                port:
+                  number: 8080
+  tls:
+    - secretName: pace3-tls
+      hosts:
+        - pace3.lauf-gegen-rechts.de
+

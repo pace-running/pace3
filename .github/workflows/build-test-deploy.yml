@@ -40,6 +40,13 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: docker
+    env:
+      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
     steps:
       - uses: actions/checkout@v3
-
+      - name: deploy
+        run: kubectl apply -f infra-setup
+      - name: reload
+        run: kubectl -n pace3 rollout restart deployment pace3-deployment
+      - name: wait
+        run: kubectl -n pace3 rollout status deployment pace3-deployment --timeout=90s

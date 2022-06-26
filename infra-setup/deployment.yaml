@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pace3-deployment
+  labels:
+    app: pace3
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pace3
+  template:
+    metadata:
+      labels:
+        app: pace3
+    spec:
+      containers:
+        - name: pace
+          image: registry.k3s.colodeck.de/pace3:latest
+          ports:
+            - containerPort: 8080
