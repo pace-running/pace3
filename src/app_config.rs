@@ -7,7 +7,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("")
             .service(
                 web::resource("/")
-                    .route(web::get().to(hello::hello_world))
+                    .route(web::get().to(hello::index))
             )
             .service(
                 web::resource("/hey")

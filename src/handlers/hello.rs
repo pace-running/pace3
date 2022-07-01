@@ -1,13 +1,15 @@
 use actix_web::{Error, HttpResponse};
+use std::path::PathBuf;
+use actix_files::NamedFile;
+use actix_web::{HttpRequest, Result};
 
-pub async fn hello_world() -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok().body("Hello World!"))
-}
+pub async fn index(_req: HttpRequest) -> Result<NamedFile> {
+    let path: PathBuf = "./static/index.html".parse().unwrap();
+    Ok(NamedFile::open(path)?) }
 
 pub async fn hey() -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().body("Hey There!"))
 }
-
 pub async fn echo(req_body: String ) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().body(req_body))
 }
@@ -23,7 +25,7 @@ mod tests {
     use actix_web::body::to_bytes;
 
     #[actix_web::test]
-    async fn hello_world() {
+    async fn index() {
         let app = test::init_service(App::new().configure(routes)).await;
 
         let req = test::TestRequest::get()
