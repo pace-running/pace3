@@ -16,6 +16,8 @@ pub async fn echo(req_body: String ) -> Result<HttpResponse, Error> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs::File;
+    use std::io::Read;
     use crate::app_config::routes;
     use actix_web::dev::Service;
     use actix_web::{
@@ -36,8 +38,12 @@ mod tests {
 
         assert_eq!(resp.status(), StatusCode::OK);
 
+        let mut index_as_string = String::new();
+        let mut f = File::open("./static/index.html").expect("Unable to read file");
+        f.read_to_string(&mut index_as_string).expect("Unable to read string");
+
         let body = to_bytes(resp.into_body()).await.unwrap();
-        assert_eq!(body ,"Hello World!")
+        assert_eq!(body ,index_as_string)
     }
     #[actix_web::test]
     async fn echo() {
