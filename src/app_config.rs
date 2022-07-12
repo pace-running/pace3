@@ -21,5 +21,13 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                 web::resource("/health")
                     .route(web::get().to(health::health_endpoint))
             )
+            .service(
+                web::resource("/{page:[^{}/.]+}")
+                    .route(web::get().to(hello::template))
+            )
+            .service(
+                web::resource("/{file:([^{}/.]+/)*[^{}/.]+\\.[^{}/]+}")
+                    .route(web::get().to(hello::file))
+            )
     );
 }

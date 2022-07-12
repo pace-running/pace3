@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Anmeldung zum Lauf gegen Rechts 2022. Organisiert von FC St. Pauli Marathon">
+    <title>{% block title %}{% endblock title %} - Lauf gegen Rechts 2022</title>
+    <link rel="stylesheet" href="/fonts.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/materialdesignicons.min.css">
+    {% endblock head %}
+</head>
+<body>
+<div id="content">{% block content %}{% endblock content %}</div>
+<div id="footer">
+    {% block footer %}
+    Thoughtworks | <a href="/imprint">Impressum</a>
+    {% endblock footer %}
+</div>
+</body>
+</html>

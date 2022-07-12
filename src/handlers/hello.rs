@@ -1,11 +1,28 @@
-use actix_web::{Error, HttpResponse};
+use actix_web::{Error, error, HttpRequest, HttpResponse, Result, web};
 use std::path::PathBuf;
 use actix_files::NamedFile;
-use actix_web::{HttpRequest, Result};
+use tera::Context;
 
-pub async fn index(_req: HttpRequest) -> Result<NamedFile> {
-    let path: PathBuf = "./static/index.html".parse().unwrap();
-    Ok(NamedFile::open(path)?) }
+pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
+    let path: &str = "index.html";
+    let mut ctx = Context::new();
+    ctx.insert("var", "Hello World");
+    let rendered = tmpl.render(path, &ctx).map_err(|_| error::ErrorInternalServerError("Template error"))?;
+    Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
+}
+
+pub async fn template(tmpl: web::Data<tera::Tera>, page: web::Path<String>) -> Result<HttpResponse, Error> {
+    let path = page.into_inner();
+    let mut ctx = Context::new();
+    ctx.insert("var", "Hello World");
+    let rendered = tmpl.render(&(path + ".html"), &ctx).map_err(|_| error::ErrorInternalServerError("Template error"))?;
+    Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
+}
+
+pub async fn file(file: web::Path<String>, _req: HttpRequest) -> Result<NamedFile, Error> {
+    let path: PathBuf = (String::from("./static/") + &file.into_inner()).parse().unwrap();
+    Ok(NamedFile::open(path)?)
+}
 
 pub async fn hey() -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().body("Hey There!"))
@@ -39,7 +56,7 @@ mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
 
         let mut index_as_string = String::new();
-        let mut f = File::open("./static/index.html").expect("Unable to read file");
+        let mut f = File::open("../../templates/index.html").expect("Unable to read file");
         f.read_to_string(&mut index_as_string).expect("Unable to read string");
 
         let body = to_bytes(resp.into_body()).await.unwrap();
