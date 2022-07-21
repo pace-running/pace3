@@ -4,18 +4,19 @@ use actix_files::NamedFile;
 use tera::Context;
 
 pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
-    let path: &str = "index.html";
-    let mut ctx = Context::new();
-    ctx.insert("var", "Hello World");
-    let rendered = tmpl.render(path, &ctx).map_err(|_| error::ErrorInternalServerError("Template error"))?;
-    Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
+    let path: String = "index".to_string();
+    result_template(tmpl, path).await
 }
 
 pub async fn template(tmpl: web::Data<tera::Tera>, page: web::Path<String>) -> Result<HttpResponse, Error> {
     let path = page.into_inner();
+    result_template(tmpl, path).await
+}
+
+pub async fn result_template(tmpl: web::Data<tera::Tera>, name: String) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
     ctx.insert("var", "Hello World");
-    let rendered = tmpl.render(&(path + ".html"), &ctx).map_err(|_| error::ErrorInternalServerError("Template error"))?;
+    let rendered = tmpl.render(&(name + ".html"), &ctx).map_err(|_| error::ErrorInternalServerError("Template error"))?;
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
 }
 
