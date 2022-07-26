@@ -2,6 +2,8 @@ use actix_web::{Error, error, HttpRequest, HttpResponse, Result, web};
 use std::path::PathBuf;
 use actix_files::NamedFile;
 use tera::Context;
+use rusqlite::Connection;
+use serde::Deserialize;
 
 pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let path: String = "index".to_string();
@@ -16,7 +18,7 @@ pub async fn template(tmpl: web::Data<tera::Tera>, page: web::Path<String>) -> R
 pub async fn result_template(tmpl: web::Data<tera::Tera>, name: String) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
     ctx.insert("var", "Hello World");
-    let rendered = tmpl.render(&(name + ".html"), &ctx).map_err(|_| error::ErrorInternalServerError("Template error"))?;
+    let rendered = tmpl.render(&(name + ".html"), &ctx).unwrap();
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
 }
 
@@ -24,6 +26,41 @@ pub async fn file(file: web::Path<String>, _req: HttpRequest) -> Result<NamedFil
     let path: PathBuf = (String::from("./static/") + &file.into_inner()).parse().unwrap();
     Ok(NamedFile::open(path)?)
 }
+
+#[derive(Deserialize)]
+pub struct Info {
+    firstname: String,
+    lastname: String,
+    team: String,
+    email: String,
+    repeat: String,
+    confirm: String,
+}
+
+pub async fn form(tmpl: web::Data<tera::Tera>, form: web::Form<Info>) -> Result<HttpResponse, Error> {
+    let conn = Connection::open("runners.db").unwrap();
+
+    conn.execute(
+        "create table if not exists runners (
+             id integer primary key,
+             firstname text not null,
+             lastname text not null,
+             team text not null,
+             email text not null
+         )",
+        [],
+    ).unwrap();
+    if (form.email != form.repeat) || (form.confirm.len() < 1) {
+        panic!("data not good")
+    }
+    conn.execute(
+        "INSERT INTO runners (firstname, lastname, team, email) values (?1, ?2, ?3, ?4)",
+        &[&form.firstname, &form.lastname, &form.team, &form.email],
+    ).unwrap();
+
+    result_template(tmpl, "submit".to_string()).await
+}
+
 
 pub async fn hey() -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().body("Hey There!"))

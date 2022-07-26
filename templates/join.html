@@ -1,0 +1,15 @@
+{% extends "includes/base.html" %}
+{% block title %}Join{% endblock title %}
+{% block content %}
+<h1>Join</h1>
+<p>Formular</p>
+<form action="submit" method="post">
+    <input type="text" name="firstname" placeholder="John (erscheint auf Startnummer)"><br />
+    <input type="text" name="lastname" placeholder="Doe"><br />
+    <input type="text" name="team" placeholder="Team (erscheint auf Startnummer)"><br />
+    <input type="text" name="email" placeholder="E-Mail"><br />
+    <input type="text" name="repeat" placeholder="E-Mail wiederholen"><br />
+    <input type="checkbox" name="confirm"> Save my data!<br />
+    <input type="submit">
+</form>
+{% endblock content %}

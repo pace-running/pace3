@@ -22,6 +22,10 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .route(web::get().to(health::health_endpoint))
             )
             .service(
+                web::resource("/submit")
+                    .route(web::post().to(hello::form))
+            )
+            .service(
                 web::resource("/{page:[^{}/.]+}")
                     .route(web::get().to(hello::template))
             )

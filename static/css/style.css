@@ -1,3 +1,7 @@
 * {
-    background-color: yellow
+}
+#menu {
+    float: right;
+    border: 1px solid black;
+    padding: .5em;
 }
