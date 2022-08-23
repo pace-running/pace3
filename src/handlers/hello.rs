@@ -34,6 +34,8 @@ pub struct Info {
     team: String,
     email: String,
     repeat: String,
+    starting_point: String,
+    running_level: String,
     confirm: String,
 }
 
@@ -46,16 +48,18 @@ pub async fn form(tmpl: web::Data<tera::Tera>, form: web::Form<Info>) -> Result<
              firstname text not null,
              lastname text not null,
              team text not null,
-             email text not null
+             email text not null,
+             starting_point text not null,
+             running_level text not null
          )",
         [],
     ).unwrap();
-    if (form.email != form.repeat) || (form.confirm.len() < 1) {
+    if (form.email != form.repeat) || (form.confirm.len() < 1) || (form.starting_point == "null") || (form.running_level == "null") {
         panic!("data not good")
     }
     conn.execute(
-        "INSERT INTO runners (firstname, lastname, team, email) values (?1, ?2, ?3, ?4)",
-        &[&form.firstname, &form.lastname, &form.team, &form.email],
+        "INSERT INTO runners (firstname, lastname, team, email, starting_point, running_level) values (?1, ?2, ?3, ?4, ?5, ?6)",
+        &[&form.firstname, &form.lastname, &form.team, &form.email, &form.starting_point, &form.running_level],
     ).unwrap();
 
     result_template(tmpl, "submit".to_string()).await

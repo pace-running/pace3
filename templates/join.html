@@ -9,7 +9,23 @@
     <input type="text" name="team" placeholder="Teamname (erscheint auf Startnummer)"><br />
     <input type="text" name="email" placeholder="E-Mail"><br />
     <input type="text" name="repeat" placeholder="E-Mail wiederholen"><br />
+
+    <label for="starting_point">Von wo wirst du laufen?:</label>
+    <select name="starting_point">
+    <option value="null" style="display:none">Bitte auswählen</option>
+    <option value="hamburg">in Hamburg bei der Alster vor Ort</option>
+    <option value="other">woanders</option>
+    </select><br/>
+
+    <label for="running_level">Wie schätzt du dein Laufniveau ein?:</label>
+    <select name="running_level">
+    <option value="null" style="display:none">Bitte auswählen</option>
+    <option value="rarely">Ich laufe selten</option>
+    <option value="sometimes">Ich laufe gelegentlich bis regelmäßig</option>
+    <option value="often">Ich laufe häufig und ambitioniert</option>
+    </select><br/>
+
     <input type="checkbox" name="confirm"> Meine Daten speichern<br />
-    <button name="name" value="value" type="submit">Weiter</button>
+    <button type="submit">Weiter</button>
 </form>
 {% endblock content %}
