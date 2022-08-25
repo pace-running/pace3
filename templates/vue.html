@@ -1,0 +1,43 @@
+{% extends "includes/base.html" %}
+{% block title %}Vue test{% endblock title %}
+{% block content %}
+
+<h1>How to include vue components in our templates</h1>
+
+{% raw %}
+
+<script src="/js/petite-vue.js" defer init></script>
+
+<p>Persönliche Angaben</p>
+<form action="submit" method="post" v-scope="{ ack: false }">
+    <input type="text" name="firstname" placeholder="Vorname (erscheint auf Startnummer)"><br />
+    <input type="text" name="lastname" placeholder="Nachname"><br />
+    <input type="text" name="team" placeholder="Teamname (erscheint auf Startnummer)"><br />
+    <input type="text" name="email" placeholder="E-Mail"><br />
+    <input type="text" name="repeat" placeholder="E-Mail wiederholen"><br />
+
+    <label for="starting_point">Von wo wirst du laufen?:</label>
+    <select name="starting_point">
+        <option value="null" style="display:none">Bitte auswählen</option>
+        <option value="hamburg">in Hamburg bei der Alster vor Ort</option>
+        <option value="other">woanders</option>
+    </select><br/>
+
+    <label for="running_level">Wie schätzt du dein Laufniveau ein?:</label>
+    <select name="running_level">
+        <option value="null" style="display:none">Bitte auswählen</option>
+        <option value="rarely">Ich laufe selten</option>
+        <option value="sometimes">Ich laufe gelegentlich bis regelmäßig</option>
+        <option value="often">Ich laufe häufig und ambitioniert</option>
+    </select><br/>
+
+    <label for="donation">Ich möchte spenden (mindestens 5€):</label>
+    <input type="text" name="donation" placeholder="Ich möchte spenden (mindestens 5€)" value="10"><br />
+
+    <input type="checkbox" name="confirm" v-model="ack"> Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.<br />
+    <button type="submit" :disabled="ack == false">Weiter</button>
+</form>
+
+{% endraw %}
+
+{% endblock content %}
