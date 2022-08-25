@@ -5,6 +5,7 @@ use tera::Context;
 use rusqlite::Connection;
 use serde::Deserialize;
 
+
 pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let path: String = "index".to_string();
     result_template(tmpl, path).await
@@ -36,7 +37,17 @@ pub struct Info {
     repeat: String,
     starting_point: String,
     running_level: String,
+    donation: String,
     confirm: String,
+}
+
+pub fn has_bad_data(form: &web::Form<Info>) -> bool {
+    let donation: u16 = form.donation.trim().parse::<u16>().expect("Unable to parse donation value to number");
+    (form.email != form.repeat) || 
+    (form.confirm.len() < 1) || 
+    (form.starting_point == "null") || 
+    (form.running_level == "null") ||
+    (donation < 5)
 }
 
 pub async fn form(tmpl: web::Data<tera::Tera>, form: web::Form<Info>) -> Result<HttpResponse, Error> {
@@ -50,16 +61,17 @@ pub async fn form(tmpl: web::Data<tera::Tera>, form: web::Form<Info>) -> Result<
              team text not null,
              email text not null,
              starting_point text not null,
-             running_level text not null
+             running_level text not null,
+             donation text not null
          )",
         [],
     ).unwrap();
-    if (form.email != form.repeat) || (form.confirm.len() < 1) || (form.starting_point == "null") || (form.running_level == "null") {
+    if has_bad_data(&form) {
         panic!("data not good")
     }
     conn.execute(
-        "INSERT INTO runners (firstname, lastname, team, email, starting_point, running_level) values (?1, ?2, ?3, ?4, ?5, ?6)",
-        &[&form.firstname, &form.lastname, &form.team, &form.email, &form.starting_point, &form.running_level],
+        "INSERT INTO runners (firstname, lastname, team, email, starting_point, running_level, donation) values (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+        &[&form.firstname, &form.lastname, &form.team, &form.email, &form.starting_point, &form.running_level, &form.donation],
     ).unwrap();
 
     result_template(tmpl, "submit".to_string()).await
@@ -84,6 +96,8 @@ mod tests {
         test, App,
     };
     use actix_web::body::to_bytes;
+    use httpmock::prelude::*;
+    use isahc::prelude::*;
 
     #[actix_web::test]
     async fn index() {
@@ -121,4 +135,20 @@ mod tests {
         let body = to_bytes(resp.into_body()).await.unwrap();
         assert_eq!(body, test_string)
     }
+ 
+    // #[actix_web::test]
+    // async fn test_sending_registration_information() {
+    //     let app = test::init_service(App::new().configure(routes)).await;
+
+    //     let payload = r#"{"firstname=fname&lastname=lname&team=tname&email=mail&repeat=mail&starting_point=hamburg&running_level=rarely&confirm=on"}"#.as_bytes();
+
+    //     let req = test::TestRequest::get()
+    //         .uri("/")
+    //         .set_payload(payload)
+    //         .to_request();
+
+    //     let resp = app.call(req).await.unwrap();
+
+    //     assert_eq!(resp.status(), StatusCode::OK);
+    // }
 }
