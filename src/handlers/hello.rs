@@ -1,10 +1,9 @@
-use actix_web::{Error, error, HttpRequest, HttpResponse, Result, web};
+use actix_web::{Error,  HttpRequest, HttpResponse, Result, web};
 use std::path::PathBuf;
 use actix_files::NamedFile;
 use tera::Context;
 use rusqlite::{Connection,params};
 use serde::Deserialize;
-use rusqlite::Result as sqlResult;
 
 
 pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
