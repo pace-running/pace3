@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Anmeldung</h1>
 <p>Persönliche Angaben</p>
-<form action="submit" method="post">
+<form action="submit" method="post" class="third">
     <input type="text" name="firstname" placeholder="Vorname (erscheint auf Startnummer)"><br />
     <input type="text" name="lastname" placeholder="Nachname"><br />
     <input type="text" name="team" placeholder="Teamname (erscheint auf Startnummer)"><br />
@@ -28,7 +28,10 @@
     <label for="donation">Ich möchte spenden (mindestens 5€):</label>
     <input type="text" name="donation" placeholder="Ich möchte spenden (mindestens 5€)" value="10"><br />
 
-    <input type="checkbox" name="confirm"> Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.<br />
+    <label>
+        <input type="checkbox" name="confirm" v-model="ack">
+        <span class="checkable">Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.</span>
+    </label>
     <button type="submit">Weiter</button>
 </form>
 {% endblock content %}
