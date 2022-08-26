@@ -2,8 +2,9 @@ use actix_web::{Error, error, HttpRequest, HttpResponse, Result, web};
 use std::path::PathBuf;
 use actix_files::NamedFile;
 use tera::Context;
-use rusqlite::Connection;
+use rusqlite::{Connection,params};
 use serde::Deserialize;
+use rusqlite::Result as sqlResult;
 
 
 pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
@@ -103,8 +104,46 @@ pub async fn form(tmpl: web::Data<tera::Tera>, form: web::Form<Info>) -> Result<
         &[&form.firstname, &form.lastname, &form.team, &form.email, &form.starting_point, &form.running_level, &form.donation],
     ).unwrap();
 
+    if form.tshirt_toggle == "1" {
+        let runner_row_id = conn.last_insert_rowid();
+        println!("{}",runner_row_id);
+        conn.execute(
+            "create table if not exists shipping (
+                id integer primary key,
+                tshirt_model text not null,
+                tshirt_size text not null,
+                country text not null,
+                firstname text not null,
+                lastname text not null,
+                street_name text not null,
+                house_number text not null,
+                address_extra text not null,
+                postal_code text not null,
+                city text not null,
+                runner_id integer not null
+            )",
+            [],
+        ).unwrap();
+        conn.execute(
+            "INSERT INTO shipping (tshirt_model, tshirt_size, country, firstname, lastname, street_name, house_number, address_extra, postal_code, city, runner_id) values (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+            params![&form.tshirt_model, &form.tshirt_size, &form.country, &form.address_firstname, &form.address_lastname, &form.street_name, &form.house_number, &form.address_extra, &form.postal_code, &form.city, &runner_row_id],
+        ).unwrap();
+    }
+    //print_db(conn);
     result_template(tmpl, "submit".to_string()).await
 }
+
+// pub fn print_db(conn: Connection){
+//     let mut stmt = conn.prepare("SELECT id, firstname, runner_id FROM shipping").unwrap();
+//     let rows = stmt.query_map([], |row|{
+//         Ok()
+//     });
+//     for r in rows {
+//         println!("{:?}",r.rows.unwrap().row);
+//     }
+// }
+
+
 
 
 pub async fn hey() -> Result<HttpResponse, Error> {
