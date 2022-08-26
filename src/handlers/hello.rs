@@ -42,7 +42,7 @@ pub struct Info {
     tshirt_toggle: String,
     tshirt_model: String,
     tshirt_size: String,
-    // country: String,
+    country: String,
     address_firstname: String,
     address_lastname: String,
     street_name: String,
@@ -56,9 +56,21 @@ pub struct Info {
 
 pub fn has_bad_data(form: &web::Form<Info>) -> bool {
     let donation: u16 = form.donation.trim().parse::<u16>().expect("Unable to parse donation value to number");
-    println!("{:?}",form);
-    if form.tshirt_toggle.len() >= 1 {
-        
+    if form.tshirt_toggle == "1" {
+        if form.country == "" ||
+        form.address_firstname == "" ||
+        form.address_lastname == "" ||
+        form.street_name == "" ||
+        form.house_number == "" ||
+        form.postal_code == "" ||
+        form.city == "" ||
+        form.tshirt_model == "null" ||
+        form.tshirt_size == "null"
+        {
+            println!("Not all required fields  for shipping are there");
+            return true
+        };
+        // let postal_code: i32 = form.postal_code.trim().parse::<i32>().expect("Unable to parse postal code value to number");
     }
     (form.email != form.repeat) || 
     (form.confirm.len() < 1) || 
@@ -113,8 +125,6 @@ mod tests {
         test, App,
     };
     use actix_web::body::to_bytes;
-    use httpmock::prelude::*;
-    use isahc::prelude::*;
 
     #[actix_web::test]
     async fn index() {

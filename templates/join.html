@@ -1,9 +1,14 @@
 {% extends "includes/base.html" %}
 {% block title %}Join{% endblock title %}
 {% block content %}
+
+
+{% raw %}
+<script src="/js/petite-vue.js" defer init></script>
+
 <h1>Anmeldung</h1>
 <p>Persönliche Angaben</p>
-<form action="submit" method="post" class="third">
+<form action="submit" method="post" class="third"v-scope="{confirm_checked: false}">
     <input type="text" name="firstname" placeholder="Vorname (erscheint auf Startnummer)"><br />
     <input type="text" name="lastname" placeholder="Nachname"><br />
     <input type="text" name="team" placeholder="Teamname (erscheint auf Startnummer)"><br />
@@ -29,11 +34,11 @@
     <input type="text" name="donation" placeholder="Ich möchte spenden (mindestens 5€)" value="10"><br />
 
     <h2>Fan T-shirt</h2>
-    <input type='hidden' value='0' name='tshirt_toggle'>
-    <label class="switch">
-        <input type="checkbox" name="tshirt_toggle">
-        <span class="slider round">Ich möchte ein T-Shirt haben</span>
-    </label><br />
+    
+    <label for="tshirt">Tshirt</label>
+    <input type="hidden" name="tshirt_toggle" value="0"><input type="checkbox" id="tshirt" onclick="this.previousSibling.value=1-this.previousSibling.value"><br />
+
+
 
     <label for="tshirt_model">Modell</label>
     <select name="tshirt_model">
@@ -52,10 +57,315 @@
     </select><br/>
 
     <h3>Lieferanschrift</h3>
-    <OBJECT data="countrydropdown.html">
-        Warning: countrydropdown.html could not be included.<br/>
-    </OBJECT>
-
+    
+    <!-- Here country list starts ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+    <select name=country>
+        <option value=DE selected>Deutschland
+        <option value=AT>Österreich
+        <option value=CH>Schweiz
+        <optgroup label=A>
+            <option value=AF>Afghanistan
+            <option value=EG>Ägypten
+            <option value=AX>Åland
+            <option value=AL>Albanien
+            <option value=DZ>Algerien
+            <option value=AS>Amerikanisch-Samoa
+            <option value=VI>Amerikanische Jungferninseln
+            <option value=AD>Andorra
+            <option value=AO>Angola
+            <option value=AI>Anguilla
+            <option value=AQ>Antarktis
+            <option value=AG>Antigua und Barbuda
+            <option value=GQ>Äquatorialguinea
+            <option value=AR>Argentinien
+            <option value=AM>Armenien
+            <option value=AW>Aruba
+            <option value=AC>Ascension
+            <option value=AZ>Aserbaidschan
+            <option value=ET>Äthiopien
+            <option value=AU>Australien
+        </optgroup>
+        <optgroup label=B>
+            <option value=BS>Bahamas
+            <option value=BH>Bahrain
+            <option value=BD>Bangladesch
+            <option value=BB>Barbados
+            <option value=BY>Belarus (Weißrussland)
+            <option value=BE>Belgien
+            <option value=BZ>Belize
+            <option value=BJ>Benin
+            <option value=BM>Bermuda
+            <option value=BT>Bhutan
+            <option value=BO>Bolivien
+            <option value=BA>Bosnien und Herzegowina
+            <option value=BW>Botswana
+            <option value=BV>Bouvetinsel
+            <option value=BR>Brasilien
+            <option value=VG>Britische Jungferninseln
+            <option value=IO>Britisches Territorium im Indischen Ozean
+            <option value=BN>Brunei Darussalam
+            <option value=BG>Bulgarien
+            <option value=BF>Burkina Faso
+            <option value=BI>Burundi
+        </optgroup>
+        <optgroup label=C>
+            <option value=EA>Ceuta, Melilla
+            <option value=CL>Chile
+            <option value=CN>Volksrepublik China
+            <option value=CP>Clipperton
+            <option value=CK>Cookinseln
+            <option value=CR>Costa Rica
+            <option value=CI>Côte d'Ivoire (Elfenbeinküste)
+        </optgroup>
+        <optgroup label=D>
+            <option value=DK>Dänemark
+            <option value=DE>Deutschland
+            <option value=DG>Diego Garcia
+            <option value=DM>Dominica
+            <option value=DO>Dominikanische Republik
+            <option value=DJ>Dschibuti
+        </optgroup>
+        <optgroup label=E>
+            <option value=EC>Ecuador
+            <option value=SV>El Salvador
+            <option value=ER>Eritrea
+            <option value=EE>Estland
+        </optgroup>
+        <optgroup label=F>
+            <option value=FK>Falklandinseln
+            <option value=FO>Färöer
+            <option value=FJ>Fidschi
+            <option value=FI>Finnland
+            <option value=FR>Frankreich
+            <option value=GF>Französisch-Guayana
+            <option value=PF>Französisch-Polynesien
+        </optgroup>
+        <optgroup label=G>
+            <option value=GA>Gabun
+            <option value=GM>Gambia
+            <option value=GE>Georgien
+            <option value=GH>Ghana
+            <option value=GI>Gibraltar
+            <option value=GD>Grenada
+            <option value=GR>Griechenland
+            <option value=GL>Grönland
+            <option value=GB>Großbritannien
+            <option value=GP>Guadeloupe
+            <option value=GU>Guam
+            <option value=GT>Guatemala
+            <option value=GG>Guernsey (Kanalinsel)
+            <option value=GN>Guinea
+            <option value=GW>Guinea-Bissau
+            <option value=GY>Guyana
+        </optgroup>
+        <optgroup label=H>
+            <option value=HT>Haiti
+            <option value=HM>Heard- und McDonald-Inseln
+            <option value=HN>Honduras
+            <option value=HK>Hongkong
+        </optgroup>
+        <optgroup label=I>
+            <option value=IN>Indien
+            <option value=ID>Indonesien
+            <option value=IM>Insel Man
+            <option value=IQ>Irak
+            <option value=IR>Iran
+            <option value=IE>Irland
+            <option value=IS>Island
+            <option value=IL>Israel
+            <option value=IT>Italien
+        </optgroup>
+        <optgroup label=J>
+            <option value=JM>Jamaika
+            <option value=JP>Japan
+            <option value=YE>Jemen
+            <option value=JE>Jersey (Kanalinsel)
+            <option value=JO>Jordanien
+        </optgroup>
+        <optgroup label=K>
+            <option value=KY>Kaimaninseln
+            <option value=KH>Kambodscha
+            <option value=CM>Kamerun
+            <option value=CA>Kanada
+            <option value=IC>Kanarische Inseln
+            <option value=CV>Kap Verde
+            <option value=KZ>Kasachstan
+            <option value=QA>Katar
+            <option value=KE>Kenia
+            <option value=KG>Kirgisistan
+            <option value=KI>Kiribati
+            <option value=CC>Kokosinseln
+            <option value=CO>Kolumbien
+            <option value=KM>Komoren
+            <option value=CD>Demokratische Republik Kongo
+            <option value=KP>Demokratische Volksrepublik Korea (Nordkorea)
+            <option value=KR>Republik Korea (Südkorea)
+            <option value=HR>Kroatien
+            <option value=CU>Kuba
+            <option value=KW>Kuwait
+        </optgroup>
+        <optgroup label=L>
+            <option value=LA>Laos
+            <option value=LS>Lesotho
+            <option value=LV>Lettland
+            <option value=LB>Libanon
+            <option value=LR>Liberia
+            <option value=LY>Libyen
+            <option value=LI>Liechtenstein
+            <option value=LT>Litauen
+            <option value=LU>Luxemburg
+        </optgroup>
+        <optgroup label=M>
+            <option value=MO>Macao
+            <option value=MG>Madagaskar
+            <option value=MW>Malawi
+            <option value=MY>Malaysia
+            <option value=MV>Malediven
+            <option value=ML>Mali
+            <option value=MT>Malta
+            <option value=MA>Marokko
+            <option value=MH>Marshallinseln
+            <option value=MQ>Martinique
+            <option value=MR>Mauretanien
+            <option value=MU>Mauritius
+            <option value=YT>Mayotte
+            <option value=MK>Mazedonien
+            <option value=MX>Mexiko
+            <option value=FM>Mikronesien
+            <option value=MD>Moldawien (Republik Moldau)
+            <option value=MC>Monaco
+            <option value=MN>Mongolei
+            <option value=ME>Montenegro
+            <option value=MS>Montserrat
+            <option value=MZ>Mosambik
+            <option value=MM>Myanmar (Burma)
+        </optgroup>
+        <optgroup label=N>
+            <option value=NA>Namibia
+            <option value=NR>Nauru
+            <option value=NP>Nepal
+            <option value=NC>Neukaledonien
+            <option value=NZ>Neuseeland
+            <option value=NI>Nicaragua
+            <option value=NL>Niederlande
+            <option value=AN>Niederländische Antillen
+            <option value=NE>Niger
+            <option value=NG>Nigeria
+            <option value=NU>Niue
+            <option value=MP>Nördliche Marianen
+            <option value=NF>Norfolkinsel
+            <option value=NO>Norwegen
+        </optgroup>
+        <optgroup label=O>
+            <option value=OM>Oman
+            <option value=XO>Orbit
+            <option value=AT>Österreich
+            <option value=TL>Osttimor (Timor-Leste)
+        </optgroup>
+        <optgroup label=P>
+            <option value=PK>Pakistan
+            <option value=PS>Palästinensische Autonomiegebiete
+            <option value=PW>Palau
+            <option value=PA>Panama
+            <option value=PG>Papua-Neuguinea
+            <option value=PY>Paraguay
+            <option value=PE>Peru
+            <option value=PH>Philippinen
+            <option value=PN>Pitcairninseln
+            <option value=PL>Polen
+            <option value=PT>Portugal
+            <option value=PR>Puerto Rico
+        </optgroup>
+        <optgroup label=Q>
+        </optgroup>
+        <optgroup label=R>
+            <option value=TW>Republik China (Taiwan)
+            <option value=CG>Republik Kongo
+            <option value=RE>Réunion
+            <option value=RW>Ruanda
+            <option value=RO>Rumänien
+            <option value=RU>Russische Föderation
+        </optgroup>
+        <optgroup label=S>
+            <option value=BL>Saint-Barthélemy
+            <option value=MF>Saint-Martin
+            <option value=SB>Salomonen
+            <option value=ZM>Sambia
+            <option value=WS>Samoa
+            <option value=SM>San Marino
+            <option value=ST>São Tomé und Príncipe
+            <option value=SA>Saudi-Arabien
+            <option value=SE>Schweden
+            <option value=CH>Schweiz
+            <option value=SN>Senegal
+            <option value=RS>Serbien
+            <option value=SC>Seychellen
+            <option value=SL>Sierra Leone
+            <option value=ZW>Simbabwe
+            <option value=SG>Singapur
+            <option value=SK>Slowakei
+            <option value=SI>Slowenien
+            <option value=SO>Somalia
+            <option value=ES>Spanien
+            <option value=LK>Sri Lanka
+            <option value=SH>St. Helena
+            <option value=KN>St. Kitts und Nevis
+            <option value=LC>St. Lucia
+            <option value=PM>Saint-Pierre und Miquelon
+            <option value=VC>St. Vincent und die Grenadinen
+            <option value=ZA>Südafrika
+            <option value=SD>Sudan
+            <option value=GS>Südgeorgien und die Südlichen Sandwichinseln
+            <option value=SR>Suriname
+            <option value=SJ>Svalbard und Jan Mayen
+            <option value=SZ>Swasiland
+            <option value=SY>Syrien
+        </optgroup>
+        <optgroup label=T>
+            <option value=TJ>Tadschikistan
+            <option value=TZ>Tansania
+            <option value=TH>Thailand
+            <option value=TG>Togo
+            <option value=TK>Tokelau
+            <option value=TO>Tonga
+            <option value=TT>Trinidad und Tobago
+            <option value=TA>Tristan da Cunha
+            <option value=TD>Tschad
+            <option value=CZ>Tschechische Republik
+            <option value=TN>Tunesien
+            <option value=TR>Türkei
+            <option value=TM>Turkmenistan
+            <option value=TC>Turks- und Caicosinseln
+            <option value=TV>Tuvalu
+        </optgroup>
+        <optgroup label=U>
+            <option value=UG>Uganda
+            <option value=UA>Ukraine
+            <option value=HU>Ungarn
+            <option value=UY>Uruguay
+            <option value=UZ>Usbekistan
+        </optgroup>
+        <optgroup label=V>
+            <option value=VU>Vanuatu
+            <option value=VA>Vatikanstadt
+            <option value=VE>Venezuela
+            <option value=AE>Vereinigte Arabische Emirate
+            <option value=US>Vereinigte Staaten von Amerika (USA)
+            <option value=GB>Vereinigtes Königreich Großbritannien und Nordirland
+            <option value=VN>Vietnam
+        </optgroup>
+        <optgroup label=W>
+            <option value=WF>Wallis und Futuna
+            <option value=CX>Weihnachtsinsel
+            <option value=EH>Westsahara
+        </optgroup>
+        <optgroup label=Z>
+            <option value=CF>Zentralafrikanische Republik
+            <option value=CY>Zypern
+        </optgroup>
+    </select><br />
+   <!-- country list ends here - sorry /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+    
     <input type="text" name="address_firstname" placeholder="Vorname"><br />
     <input type="text" name="address_lastname" placeholder="Nachname"><br />
     <input type="text" name="street_name" placeholder="Straße">
@@ -64,7 +374,10 @@
     <input type="text" name="postal_code" placeholder="PLZ">
     <input type="text" name="city" placeholder="Stadt"><br />
 
-    <input type="checkbox" name="confirm"> Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.<br />
-    <button type="submit">Weiter</button>
+    <input type="checkbox" name="confirm" v-model="confirm_checked"> Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.<br />
+    
+    <button type="submit" :disabled="confirm_checked == false">Weiter</button>
 </form>
+
+{% endraw %}
 {% endblock content %}
