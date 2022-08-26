@@ -374,8 +374,11 @@
     <input type="text" name="postal_code" placeholder="PLZ">
     <input type="text" name="city" placeholder="Stadt"><br />
 
-    <input type="checkbox" name="confirm" v-model="confirm_checked"> Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.<br />
-    
+    <label>
+        <input type="checkbox" name="confirm" v-model="confirm_checked">
+        <span class="checkable">Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.</span>
+    </label>
+    <br/>
     <button type="submit" :disabled="confirm_checked == false">Weiter</button>
 </form>
 
