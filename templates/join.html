@@ -28,10 +28,43 @@
     <label for="donation">Ich möchte spenden (mindestens 5€):</label>
     <input type="text" name="donation" placeholder="Ich möchte spenden (mindestens 5€)" value="10"><br />
 
-    <label>
-        <input type="checkbox" name="confirm" v-model="ack">
-        <span class="checkable">Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.</span>
-    </label>
+    <h2>Fan T-shirt</h2>
+    <input type='hidden' value='0' name='tshirt_toggle'>
+    <label class="switch">
+        <input type="checkbox" name="tshirt_toggle">
+        <span class="slider round">Ich möchte ein T-Shirt haben</span>
+    </label><br />
+
+    <label for="tshirt_model">Modell</label>
+    <select name="tshirt_model">
+        <option value="null" style="display:none">Bitte auswählen</option>
+        <option value="unisex">Unisex</option>
+        <option value="slimfit">Talliert</option>
+    </select><br/>
+
+    <label for="tshirt_size">Größe</label>
+    <select name="tshirt_size">
+        <option value="null" style="display:none">Bitte auswählen</option>
+        <option value="s">S</option>
+        <option value="m">M</option>
+        <option value="l">L</option>
+        <option value="xl">XL</option>
+    </select><br/>
+
+    <h3>Lieferanschrift</h3>
+    <OBJECT data="countrydropdown.html">
+        Warning: countrydropdown.html could not be included.<br/>
+    </OBJECT>
+
+    <input type="text" name="address_firstname" placeholder="Vorname"><br />
+    <input type="text" name="address_lastname" placeholder="Nachname"><br />
+    <input type="text" name="street_name" placeholder="Straße">
+    <input type="text" name="house_number" placeholder="Hausnummer"><br />
+    <input type="text" name="address_extra" placeholder="Adresszusatz"><br />
+    <input type="text" name="postal_code" placeholder="PLZ">
+    <input type="text" name="city" placeholder="Stadt"><br />
+
+    <input type="checkbox" name="confirm"> Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.<br />
     <button type="submit">Weiter</button>
 </form>
 {% endblock content %}

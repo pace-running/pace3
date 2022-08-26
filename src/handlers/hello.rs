@@ -29,6 +29,7 @@ pub async fn file(file: web::Path<String>, _req: HttpRequest) -> Result<NamedFil
 }
 
 #[derive(Deserialize)]
+#[derive(Debug)]
 pub struct Info {
     firstname: String,
     lastname: String,
@@ -38,11 +39,27 @@ pub struct Info {
     starting_point: String,
     running_level: String,
     donation: String,
+    tshirt_toggle: String,
+    tshirt_model: String,
+    tshirt_size: String,
+    // country: String,
+    address_firstname: String,
+    address_lastname: String,
+    street_name: String,
+    house_number: String,
+    address_extra: String,
+    postal_code: String,
+    city: String,
     confirm: String,
+
 }
 
 pub fn has_bad_data(form: &web::Form<Info>) -> bool {
     let donation: u16 = form.donation.trim().parse::<u16>().expect("Unable to parse donation value to number");
+    println!("{:?}",form);
+    if form.tshirt_toggle.len() >= 1 {
+        
+    }
     (form.email != form.repeat) || 
     (form.confirm.len() < 1) || 
     (form.starting_point == "null") || 
