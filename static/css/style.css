@@ -1,7 +1,41 @@
-* {
+.menu {
+    text-decoration: none;
 }
-#menu {
+
+.fcsp {
+    background-color: #795548;
+    color: white;
+}
+h1, h2 {
+    color: #795548;
+}
+
+.logo {
     float: right;
-    border: 1px solid black;
-    padding: .5em;
+    height: 80px;
+    overflow: visible;
+    clear: bottom;
+}
+
+a:visited {
+    color: inherit;
+}
+
+.header {
+    font-size: 1.5em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+
+.footer {
+    margin-top: 10px;
+    padding: 5px;
+}
+
+.content {
+    border: none;
+    margin-left: 10px;
+    margin-right: 10px;
 }

@@ -12,18 +12,19 @@
     {% endblock head %}
 </head>
 <body>
-<div id="menu">
-    {% block menu %}
-    <a href="./">Home</a>
-    <a href="join">Hier anmelden</a>
-    <a href="imprint">Impressum</a>
-    <a href="/privacy_notice">Datenschutz</a>
-    {% endblock menu %}
+<div id="head" class="full header menu card fcsp">
+    <div >
+        <span><a href="/">Lauf gegen Rechts 20223</a></span>
+        <img class="logo" src="/logo.svg">
+    </div>
 </div>
-<div id="content">{% block content %}{% endblock content %}</div>
-<div id="footer">
+<div id="content" class="content card">{% block content %}{% endblock content %}</div>
+<div id="footer" class="full menu footer fcsp">
     {% block footer %}
-    Thoughtworks | <a href="/imprint">Impressum</a> | <a href="/privacy_notice">Datenschutz</a>
+    <div>
+        <a href="/imprint">Impressum</a>
+        <a href="/privacy_notice">Datenschutz</a>
+    </div>
     {% endblock footer %}
 </div>
 </body>

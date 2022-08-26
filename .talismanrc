@@ -3,4 +3,6 @@ fileignoreconfig:
   checksum: 0990cac8cd7a3da054b465d5c9b560994e9d28fa2ae45d79f03be45cbb413c8e
 - filename: static/css/picnic.css
   checksum: b0c6bbd1c460721d356ff8bc046c5570910b2327fc3e9c346d3821841130a46c
+- filename: static/logo.svg
+  checksum: b0b48a10c9fddd53a9e430bee7ad9ee61425d26766083d189d3b66dd3d1a62ba
 version: ""
