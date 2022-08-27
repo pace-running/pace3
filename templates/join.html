@@ -8,36 +8,36 @@
 
 <h1>Anmeldung</h1>
 <p>Persönliche Angaben</p>
-<form action="submit" method="post" class="third"v-scope="{confirm_checked: false}">
-    <input type="text" name="firstname" placeholder="Vorname (erscheint auf Startnummer)"><br />
-    <input type="text" name="lastname" placeholder="Nachname"><br />
-    <input type="text" name="team" placeholder="Teamname (erscheint auf Startnummer)"><br />
-    <input type="text" name="email" placeholder="E-Mail"><br />
-    <input type="text" name="repeat" placeholder="E-Mail wiederholen"><br />
+<form action="submit" method="post" v-scope="{confirm_checked: false}">
+    <input type="text" name="firstname" placeholder="Vorname (erscheint auf Startnummer)">
+    <input type="text" name="lastname" placeholder="Nachname">
+    <input type="text" name="team" placeholder="Teamname (erscheint auf Startnummer)">
+    <input type="text" name="email" placeholder="E-Mail">
+    <input type="text" name="repeat" placeholder="E-Mail wiederholen">
 
     <label for="starting_point">Von wo wirst du laufen?:</label>
     <select name="starting_point">
-    <option value="null" style="display:none">Bitte auswählen</option>
-    <option value="hamburg">in Hamburg bei der Alster vor Ort</option>
-    <option value="other">woanders</option>
+        <option value="null" style="display:none">Bitte auswählen</option>
+        <option value="hamburg">in Hamburg bei der Alster vor Ort</option>
+        <option value="other">woanders</option>
     </select><br/>
 
     <label for="running_level">Wie schätzt du dein Laufniveau ein?:</label>
     <select name="running_level">
-    <option value="null" style="display:none">Bitte auswählen</option>
-    <option value="rarely">Ich laufe selten</option>
-    <option value="sometimes">Ich laufe gelegentlich bis regelmäßig</option>
-    <option value="often">Ich laufe häufig und ambitioniert</option>
+        <option value="null" style="display:none">Bitte auswählen</option>
+        <option value="rarely">Ich laufe selten</option>
+        <option value="sometimes">Ich laufe gelegentlich bis regelmäßig</option>
+        <option value="often">Ich laufe häufig und ambitioniert</option>
     </select><br/>
 
     <label for="donation">Ich möchte spenden (mindestens 5€):</label>
-    <input type="text" name="donation" placeholder="Ich möchte spenden (mindestens 5€)" value="10"><br />
+    <input type="text" name="donation" placeholder="Ich möchte spenden (mindestens 5€)" value="10"><br/>
 
     <h2>Fan T-shirt</h2>
-    
-    <label for="tshirt">Tshirt</label>
-    <input type="hidden" name="tshirt_toggle" value="0"><input type="checkbox" id="tshirt" onclick="this.previousSibling.value=1-this.previousSibling.value"><br />
 
+    <label for="tshirt">Tshirt</label>
+    <input type="hidden" name="tshirt_toggle" value="0"><input type="checkbox" id="tshirt"
+                                                               onclick="this.previousSibling.value=1-this.previousSibling.value"><br/>
 
 
     <label for="tshirt_model">Modell</label>
@@ -57,7 +57,7 @@
     </select><br/>
 
     <h3>Lieferanschrift</h3>
-    
+
     <!-- Here country list starts ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
     <select name=country>
         <option value=DE selected>Deutschland
@@ -363,20 +363,20 @@
             <option value=CF>Zentralafrikanische Republik
             <option value=CY>Zypern
         </optgroup>
-    </select><br />
-   <!-- country list ends here - sorry /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
-    
-    <input type="text" name="address_firstname" placeholder="Vorname"><br />
-    <input type="text" name="address_lastname" placeholder="Nachname"><br />
+    </select><br/>
+    <!-- country list ends here - sorry /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+    <input type="text" name="address_firstname" placeholder="Vorname"><br/>
+    <input type="text" name="address_lastname" placeholder="Nachname"><br/>
     <input type="text" name="street_name" placeholder="Straße">
-    <input type="text" name="house_number" placeholder="Hausnummer"><br />
-    <input type="text" name="address_extra" placeholder="Adresszusatz"><br />
+    <input type="text" name="house_number" placeholder="Hausnummer"><br/>
+    <input type="text" name="address_extra" placeholder="Adresszusatz"><br/>
     <input type="text" name="postal_code" placeholder="PLZ">
-    <input type="text" name="city" placeholder="Stadt"><br />
+    <input type="text" name="city" placeholder="Stadt"><br/>
 
     <label>
         <input type="checkbox" name="confirm" v-model="confirm_checked">
-        <span class="checkable">Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.</span>
+        <span class="checkable small">Mir ist bewusst, dass die Datenverarbeitung entsprechend der Datenschutzbestimmungen der Datenschutzbestimmungen der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.</span>
     </label>
     <br/>
     <button type="submit" :disabled="confirm_checked == false">Weiter</button>
