@@ -113,3 +113,38 @@ pub async fn form( form: web::Form<Info>) -> Result<HttpResponse, Error> {
     //print_db(conn);
     Ok(HttpResponse::Ok().body("Data received"))
 }
+
+#[cfg(test)]
+mod tests {
+    use tera::{Tera};
+    use crate::handlers::join::form_request;
+    use actix_web::{
+        http::{StatusCode}};
+    use actix_web::body::to_bytes;
+    use actix_web::web::Bytes;
+
+    trait BodyTest {
+        fn as_str(&self) -> &str;
+    }
+
+    impl BodyTest for Bytes {
+        fn as_str(&self) -> &str {
+            std::str::from_utf8(self).unwrap()
+        }
+    }
+
+
+    #[actix_web::test]
+    async fn form() {
+        let tera = match Tera::new("templates/**/*") {
+            Ok(t) => t,
+            Err(_e) => {std::process::exit(1)}
+        };
+        let data = actix_web::web::Data::new(tera);
+        let resp = form_request(data).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        let body = to_bytes(resp.into_body()).await.unwrap();
+        assert!(body.as_str().contains("<h1>Anmeldung</h1>") )
+    }
+}
