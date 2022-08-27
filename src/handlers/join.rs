@@ -2,6 +2,7 @@ use actix_web::{Error, HttpResponse, Result, web};
 use tera::Context;
 use rusqlite::{Connection,params};
 use serde::Deserialize;
+use serde::Serialize;
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
@@ -11,6 +12,7 @@ pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, E
 }
 
 #[derive(Deserialize)]
+#[derive(Serialize)]
 #[derive(Debug)]
 pub struct Info {
     firstname: String,
@@ -117,9 +119,8 @@ pub async fn form( form: web::Form<Info>) -> Result<HttpResponse, Error> {
 #[cfg(test)]
 mod tests {
     use tera::{Tera};
-    use crate::handlers::join::form_request;
-    use actix_web::{
-        http::{StatusCode}};
+    use crate::handlers::join::{form_request,form, Info};
+    use actix_web::{http::{StatusCode}, http, web};
     use actix_web::body::to_bytes;
     use actix_web::web::Bytes;
 
@@ -135,16 +136,45 @@ mod tests {
 
 
     #[actix_web::test]
-    async fn form() {
+    async fn form_page() {
         let tera = match Tera::new("templates/**/*") {
             Ok(t) => t,
-            Err(_e) => {std::process::exit(1)}
+            Err(_e) => { std::process::exit(1) }
         };
         let data = actix_web::web::Data::new(tera);
         let resp = form_request(data).await.unwrap();
         assert_eq!(resp.status(), StatusCode::OK);
 
         let body = to_bytes(resp.into_body()).await.unwrap();
-        assert!(body.as_str().contains("<h1>Anmeldung</h1>") )
+        assert!(body.as_str().contains("<h1>Anmeldung</h1>"))
+    }
+
+    #[actix_web::test]
+    async fn minimal_submit() {
+        let participant = Info{
+            firstname: "Hans".to_string(),
+            lastname: "Meyer".to_string(),
+            team: "FC St. Pauli".to_string(),
+            email: "test@example.com".to_string(),
+            repeat: "test@example.com".to_string(),
+            starting_point: "somewhere".to_string(),
+            running_level: "mediocre".to_string(),
+            donation: "5".to_string(),
+            tshirt_toggle: "0".to_string(),
+            tshirt_model: "".to_string(),
+            tshirt_size: "".to_string(),
+            country: "".to_string(),
+            address_firstname: "".to_string(),
+            address_lastname: "".to_string(),
+            street_name: "".to_string(),
+            house_number: "".to_string(),
+            address_extra: "".to_string(),
+            postal_code: "".to_string(),
+            city: "".to_string(),
+            confirm: "test@example.com".to_string()
+        };
+        let input_data = web::Form(participant);
+        let resp = form(input_data).await.unwrap();
+        assert_eq!(resp.status(), http::StatusCode::OK);
     }
 }
