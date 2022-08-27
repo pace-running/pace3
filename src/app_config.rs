@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::handlers::{hello, health };
+use crate::handlers::{hello, join, health };
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -10,27 +10,19 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .route(web::get().to(hello::index))
             )
             .service(
-                web::resource("/hey")
-                    .route(web::get().to(hello::hey))
+                web::resource("/join")
+                    .route(web::get().to(join::form_request))
             )
             .service(
-                web::resource("/echo")
-                    .route(web::post().to(hello::echo))
+                web::resource("/submit")
+                    .route(web::post().to(join::form))
             )
             .service(
                 web::resource("/health")
                     .route(web::get().to(health::health_endpoint))
             )
-            .service(
-                web::resource("/submit")
-                    .route(web::post().to(hello::form))
-            )
-            .service(
-                web::resource("/{page:[^{}/.]+}")
-                    .route(web::get().to(hello::template))
-            )
-            .service(
-                web::resource("/{file:([^{}/.]+/)*[^{}/.]+\\.[^{}/]+}")
+           .service(
+                web::resource("/static/{file:([^{}/.]+/)*[^{}/.]+\\.[^{}/]+}")
                     .route(web::get().to(hello::file))
             )
     );
