@@ -40,7 +40,7 @@ pub struct Info {
 
 pub fn has_bad_data(form: &web::Form<Info>) -> bool {
     let donation: u16 = form.donation.trim().parse::<u16>().expect("Unable to parse donation value to number");
-    if form.tshirt_toggle == "1" {
+    if form.tshirt_toggle == "on" {
         if form.country == "" ||
         form.address_firstname == "" ||
         form.address_lastname == "" ||
@@ -87,7 +87,7 @@ pub async fn form( form: web::Form<Info>) -> Result<HttpResponse, Error> {
         &[&form.firstname, &form.lastname, &form.team, &form.email, &form.starting_point, &form.running_level, &form.donation],
     ).unwrap();
 
-    if form.tshirt_toggle == "1" {
+    if form.tshirt_toggle == "on" {
         let runner_row_id = conn.last_insert_rowid();
         println!("{}",runner_row_id);
         conn.execute(
