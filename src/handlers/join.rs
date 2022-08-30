@@ -35,7 +35,6 @@ pub struct Info {
     postal_code: String,
     city: String,
     confirm: String,
-
 }
 
 pub fn has_bad_data(form: &web::Form<Info>) -> bool {
@@ -160,7 +159,7 @@ mod tests {
             starting_point: "somewhere".to_string(),
             running_level: "mediocre".to_string(),
             donation: "5".to_string(),
-            tshirt_toggle: "0".to_string(),
+            tshirt_toggle: "".to_string(),
             tshirt_model: "".to_string(),
             tshirt_size: "".to_string(),
             country: "".to_string(),
