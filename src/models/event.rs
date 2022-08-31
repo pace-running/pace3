@@ -2,9 +2,9 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct Event {
-    name: String,
-    description: String,
-    date: String,
+    pub name: String,
+    pub description: String,
+    pub date: String,
 }
 
 pub fn current_event() -> Event {
@@ -14,4 +14,16 @@ pub fn current_event() -> Event {
         date: "29.5.2023".to_string()
     };
     return race;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn current_event_returns_valid_data() {
+        assert!(current_event().name.len() > 0);
+        assert!(current_event().description.len() > 0);
+        assert!(current_event().date.len() > 0);
+    }
 }
