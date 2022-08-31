@@ -1,7 +1,8 @@
 {% extends "includes/base.html" %}
 {% block title %}Home{% endblock title %}
 {% block content %}
-<h1>Home</h1>
+<h1>{{ event.name }}</h1>
+<span> {{ event.description }}</span>
 <button class="fcsp"
         onclick="location.href='/join';"
 >Anmelden

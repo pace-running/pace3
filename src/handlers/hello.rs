@@ -2,7 +2,7 @@ use actix_web::{Error,  HttpRequest, HttpResponse, Result, web};
 use std::path::PathBuf;
 use actix_files::NamedFile;
 use tera::Context;
-
+use crate::models::event;
 
 pub async fn index(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let path: String = "index".to_string();
@@ -16,7 +16,7 @@ pub async fn template(tmpl: web::Data<tera::Tera>, page: web::Path<String>) -> R
 
 pub async fn result_template(tmpl: web::Data<tera::Tera>, name: String) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
-    ctx.insert("var", "Hello World");
+    ctx.insert("event", &event::current_event());
     let rendered = tmpl.render(&(name + ".html"), &ctx).unwrap();
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
 }

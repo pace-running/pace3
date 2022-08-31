@@ -3,10 +3,11 @@ use tera::Context;
 use rusqlite::{Connection,params};
 use serde::Deserialize;
 use serde::Serialize;
+use crate::models::event;
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
-    ctx.insert("var", "Hello World");
+    ctx.insert("event", &event::current_event());
     let rendered = tmpl.render("join.html", &ctx).unwrap();
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
 }
@@ -55,9 +56,9 @@ pub fn has_bad_data(form: &web::Form<Info>) -> bool {
         };
         // let postal_code: i32 = form.postal_code.trim().parse::<i32>().expect("Unable to parse postal code value to number");
     }
-    (form.email != form.repeat) || 
-    (form.confirm.len() < 1) || 
-    (form.starting_point == "null") || 
+    (form.email != form.repeat) ||
+    (form.confirm.len() < 1) ||
+    (form.starting_point == "null") ||
     (form.running_level == "null") ||
     (donation < 5)
 }
