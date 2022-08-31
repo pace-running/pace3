@@ -34,6 +34,7 @@ mod tests {
     use actix_web::body::to_bytes;
     use actix_web::web::Bytes;
     use crate::handlers::hello::index;
+    use crate::models::event::{current_event};
 
     trait BodyTest {
         fn as_str(&self) -> &str;
@@ -57,6 +58,7 @@ mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
 
         let body = to_bytes(resp.into_body()).await.unwrap();
-        assert!(body.as_str().contains("<h1>Home</h1>") )
+        let event = current_event();
+        assert!(body.as_str().contains(event.description.as_str() ))
     }
 }
