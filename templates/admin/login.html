@@ -1,0 +1,12 @@
+{% extends "includes/base.html" %}
+{% block title %}Login{% endblock title %}
+{% block content %}
+
+<div class="third">
+    <form action="/login" method="post">
+        <input type="text" name="username" placeholder="Username">
+        <input type="password" name="password" placeholder="Password">
+        <button type="submit" class="fcsp">Login</button>
+    </form>
+</div>
+{% endblock content %}

@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::handlers::{hello, join, health };
+use crate::handlers::{hello, join, health, admin};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -20,6 +20,10 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(
                 web::resource("/health")
                     .route(web::get().to(health::health_endpoint))
+            )
+            .service(
+                web::resource("/login")
+                    .route(web::get().to(admin::login))
             )
            .service(
                 web::resource("/static/{file:([^{}/.]+/)*[^{}/.]+\\.[^{}/]+}")
