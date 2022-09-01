@@ -15,7 +15,11 @@
 <body>
 <div id="head" class="full header menu card fcsp">
     <div >
-        <span><a class="fcsp" href="/">{{event.name}}</a></span>
+        {% if event %}
+            <span><a class="fcsp" href="/">{{event.name}}</a></span>
+        {% else %}
+        <span></span>
+        {% endif %}
         <img class="logo" src="/static/logo.svg">
     </div>
 </div>
