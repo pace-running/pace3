@@ -4,7 +4,7 @@ use rusqlite::{Connection,params};
 use serde::Deserialize;
 use serde::Serialize;
 use crate::establish_connection;
-use crate::models::{event,runner};
+use crate::models::event;
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
