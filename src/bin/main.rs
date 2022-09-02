@@ -4,6 +4,7 @@ use actix_web_prom::{PrometheusMetricsBuilder};
 use pace::app_config::routes;
 use tera::{Tera};
 
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let prometheus = PrometheusMetricsBuilder::new("api")

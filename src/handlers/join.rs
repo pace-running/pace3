@@ -3,7 +3,8 @@ use tera::Context;
 use rusqlite::{Connection,params};
 use serde::Deserialize;
 use serde::Serialize;
-use crate::models::event;
+use crate::establish_connection;
+use crate::models::{event,runner};
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
@@ -57,10 +58,18 @@ pub fn has_bad_data(form: &web::Form<Info>) -> bool {
         // let postal_code: i32 = form.postal_code.trim().parse::<i32>().expect("Unable to parse postal code value to number");
     }
     (form.email != form.repeat) ||
-    (form.confirm.len() < 1) ||
+    (form.confirm != "on") ||
     (form.starting_point == "null") ||
     (form.running_level == "null") ||
     (donation < 5)
+}
+
+pub async fn newform (form: web::Form<Info>) -> Result<HttpResponse, Error> {
+    use crate::schema::{shipping, runners};
+    
+    let conn = establish_connection();
+    // Write data into data base
+    Ok(HttpResponse::Ok().body("Data received"))
 }
 
 pub async fn form( form: web::Form<Info>) -> Result<HttpResponse, Error> {
@@ -80,7 +89,7 @@ pub async fn form( form: web::Form<Info>) -> Result<HttpResponse, Error> {
         [],
     ).unwrap();
     if has_bad_data(&form) {
-        panic!("data not good")
+        panic!("data not good");
     }
     conn.execute(
         "INSERT INTO runners (firstname, lastname, team, email, starting_point, running_level, donation) values (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -171,7 +180,7 @@ mod tests {
             address_extra: "".to_string(),
             postal_code: "".to_string(),
             city: "".to_string(),
-            confirm: "test@example.com".to_string()
+            confirm: "on".to_string()
         };
         let input_data = web::Form(participant);
         let resp = form(input_data).await.unwrap();
