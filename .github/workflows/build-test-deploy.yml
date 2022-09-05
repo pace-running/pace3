@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Init db
-        run: docker-compose up --force-recreate -d
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -21,6 +19,14 @@ jobs:
         name: lint
         with:
           command: clippy
+      - name: Init db
+        run: docker-compose up --force-recreate -d    
+      - name: Migrate database
+        uses: ducharmemp/diesel-cli-action@0.1.0
+        with:
+          migration_directories: migrations
+        env:
+          DATABASE_URL: postgres://pace3_user:pace3_pass@localhost:5432/pace3
       - uses: actions-rs/cargo@v1
         name: test
         with:
