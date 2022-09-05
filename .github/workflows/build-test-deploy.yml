@@ -12,8 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Init db
-        with: 
-          command: docker-compose up --force-recreate -d
+        run: docker-compose up --force-recreate -d
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -27,8 +26,7 @@ jobs:
         with:
           command: test
       - name: Shutdown db
-        with: 
-          command: docker-compose down
+        run: docker-compose down
   build:
     runs-on: ubuntu-latest
     needs: test
