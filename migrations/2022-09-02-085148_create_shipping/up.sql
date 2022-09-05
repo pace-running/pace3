@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE IF NOT EXISTS shipping (
+CREATE TABLE IF NOT EXISTS shippings (
     id SERIAL PRIMARY KEY,
     tshirt_model VARCHAR NOT NULL,
     tshirt_size VARCHAR NOT NULL,

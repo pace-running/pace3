@@ -1,9 +1,8 @@
-use actix_web::{App,HttpServer};
 use actix_web::web::Data;
-use actix_web_prom::{PrometheusMetricsBuilder};
+use actix_web::{App, HttpServer};
+use actix_web_prom::PrometheusMetricsBuilder;
 use pace::app_config::routes;
-use tera::{Tera};
-
+use tera::Tera;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

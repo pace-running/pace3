@@ -14,7 +14,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    shipping (id) {
+    shippings (id) {
         id -> Int4,
         tshirt_model -> Varchar,
         tshirt_size -> Varchar,
@@ -30,9 +30,6 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(shipping -> runners (runner_id));
+diesel::joinable!(shippings -> runners (runner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    runners,
-    shipping,
-);
+diesel::allow_tables_to_appear_in_same_query!(runners, shippings,);
