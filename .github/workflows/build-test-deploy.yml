@@ -11,7 +11,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-        name: Init db
+      - name: Init db
         with: 
           command: docker-compose up --force-recreate -d
       - uses: actions-rs/toolchain@v1
@@ -26,8 +26,7 @@ jobs:
         name: test
         with:
           command: test
-      - uses: actions/checkout@v3
-        name: Shutdown db
+      - name: Shutdown db
         with: 
           command: docker-compose down
   build:
