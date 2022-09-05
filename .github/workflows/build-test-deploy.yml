@@ -21,9 +21,10 @@ jobs:
           command: clippy
       - name: Init db
         run: docker-compose up --force-recreate -d    
-      - name: install diesel-rs
-        run: |
-          cargo install diesel_cli --no-default-features --features postgres
+      - name: Install diesel-rs
+        uses: actions-rs/cargo@v1
+          with: 
+            command: install diesel_cli --no-default-features --features postgres
       - name: Diesel CLI - database setup
         run: |
           diesel setup
