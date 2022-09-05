@@ -11,3 +11,9 @@ services:
       POSTGRES_PASSWORD: "test_pass"
     volumes:
       - ./db-init/init-user-db.sql:/docker-entrypoint-initdb.d/init-user-db.sql
+    healthcheck:
+      test: "pg_isready -U postgres"
+      interval: "10s"
+      timeout: "3s"
+      start_period: "180s"
+      retries: 3

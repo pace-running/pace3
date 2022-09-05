@@ -21,16 +21,19 @@ jobs:
           command: clippy
       - name: Init db
         run: docker-compose up --force-recreate -d    
-      - name: Migrate database
-        uses: ducharmemp/diesel-cli-action@0.1.0
-        with:
-          migration_directories: migrations
-        env:
-          DATABASE_URL: postgres://pace3_user:pace3_pass@localhost:5432/pace3
+      - name: install diesel-rs
+        run: |
+          cargo install diesel_cli --no-default-features --features postgres
+      - name: Diesel CLI - database setup
+        run: |
+          diesel setup
+          diesel migration run
       - uses: actions-rs/cargo@v1
         name: test
         with:
           command: test
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2          
       - name: Shutdown db
         run: docker-compose down
   build:
