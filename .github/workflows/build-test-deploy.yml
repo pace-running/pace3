@@ -31,6 +31,8 @@ jobs:
         name: test
         with:
           command: test
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2          
       - name: Shutdown db
         run: docker-compose down
   build:
