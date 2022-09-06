@@ -1,49 +1,62 @@
 .menu {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .fcsp {
-    background-color: #795548;
-    color: white;
+  background-color: #795548;
+  color: white;
 }
 
 a.fcsp {
-    color: white !important;
+  color: white !important;
+}
+
+.link {
+  background-color: white;
+}
+
+a.link {
+  color: blue !important;
+}
+
+a.link:visited {
+  color: purple !important;
 }
 
 .small {
-    font-size: 10px;
+  font-size: 10px;
 }
-h1, h2 {
-    color: #795548;
+h1,
+h2 {
+  color: #795548;
 }
 
 .logo {
-    float: right;
-    height: 80px;
-    overflow: visible;
-    clear: bottom;
+  float: right;
+  height: 80px;
+  overflow: visible;
+  clear: bottom;
 }
 
 a:visited {
-    color: inherit;
+  color: inherit;
 }
 
 .header {
-    font-size: 1.5em;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    margin-bottom: 10px;
+  font-size: 1.5em;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  margin-bottom: 10px;
 }
 
 .footer {
-    margin-top: 10px;
-    padding: 5px;
+  margin-top: 10px;
+  padding: 5px;
 }
 
 .content {
-    border: none;
-    margin-left: 10px;
-    margin-right: 10px;
+  border: none;
+  margin-left: 10px;
+  margin-right: 10px;
 }
