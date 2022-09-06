@@ -80,7 +80,7 @@ mod tests {
             city: "Hamburg".to_string(),
             confirm: "on".to_string(),
         };
-        let shipping = create_new_shipping(&form,1);
+        let shipping = create_new_shipping(&form, 1);
         assert_eq!(shipping.firstname, form.address_firstname);
         assert_eq!(shipping.lastname, form.address_lastname);
         assert_eq!(shipping.tshirt_model, form.tshirt_model);

@@ -1,10 +1,9 @@
-
+use self::models::runner::{NewRunner, Runner};
+use self::models::shipping::{NewShipping, Shipping};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
-use self::models::shipping::{NewShipping,Shipping};
-use self::models::runner::{NewRunner, Runner};
 
 pub mod app_config;
 pub mod converters;
@@ -30,7 +29,7 @@ pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
 
 pub fn insert_shipping(conn: &mut PgConnection, new_shipping: NewShipping) -> Shipping {
     use crate::schema::shippings;
-    
+
     diesel::insert_into(shippings::table)
         .values(&new_shipping)
         .get_result(conn)

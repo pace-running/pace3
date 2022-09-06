@@ -17,6 +17,24 @@ To shut it down:
 docker-compose down  
 ```
 
+## Run script
+
+This script helps to run specific commands for your application. You can run the script as follows:
+
+```shell
+./run.sh command 
+
+Commands:
+  install         - Install application dependencies
+  update          - Update application dependencies
+  migrate         - Run database migration
+  start           - Start the application
+  fmt_check       - Run Formatting check by fmt
+  test            - Run all tests
+  quality_check   - Static check (lint) and testing
+  help            - Print cli usage message
+```
+
 ## Running Pace
 
 For starters, you can run the application with 

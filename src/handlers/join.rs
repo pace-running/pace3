@@ -3,12 +3,11 @@ use crate::converters::create_new_shipping;
 use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
-use crate::models::{event};
+use crate::models::event;
 use actix_web::{web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;
-
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
@@ -71,7 +70,6 @@ pub fn has_bad_data(form: &web::Form<Info>) -> bool {
 }
 
 pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
-
     if has_bad_data(&form) {
         return Ok(HttpResponse::BadRequest().body("Bad data"));
     }
@@ -86,10 +84,9 @@ pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().body("Data received"))
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::handlers::join::{ form_request, register, Info};
+    use crate::handlers::join::{form_request, register, Info};
     use actix_web::body::to_bytes;
     use actix_web::web::Bytes;
     use actix_web::{http, http::StatusCode, web};
