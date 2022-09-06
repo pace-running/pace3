@@ -4,6 +4,19 @@
 
 Pace is a registration and management application for running events and competitions.
 
+## Database initialization
+
+To start a postgres container: 
+
+```
+docker-compose up --force-recreate -d
+```
+
+To shut it down:
+```
+docker-compose down  
+```
+
 ## Running Pace
 
 For starters, you can run the application with 
