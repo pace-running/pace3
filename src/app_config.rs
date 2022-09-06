@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::handlers::{admin, health, hello, join};
+use crate::handlers::{admin, health, hello, join, imprint, privacy_notice};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -10,6 +10,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/submit").route(web::post().to(join::register)))
             .service(web::resource("/health").route(web::get().to(health::health_endpoint)))
             .service(web::resource("/login").route(web::get().to(admin::login)))
+            .service(web::resource("/imprint").route(web::get().to(imprint::show)))
+            .service(web::resource("/privacy_notice").route(web::get().to(privacy_notice::show)))
             .service(
                 web::resource("/static/{file:([^{}/.]+/)*[^{}/.]+\\.[^{}/]+}")
                     .route(web::get().to(hello::file)),
