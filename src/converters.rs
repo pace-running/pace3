@@ -1,9 +1,17 @@
 use crate::models::info::Info;
+use diesel::PgConnection;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
+use crate::get_next_start_number;
+use crate::set_last_start_number;
 
-pub fn create_new_runner(form: &Info) -> NewRunner {
+const BLACKLIST_START_NUMBERS: [i32; 20] = [18, 28, 33, 45, 74, 84, 88, 444, 191, 192, 198, 420, 1312, 1717, 1887, 1910, 1919, 1933, 1488, 1681];
+
+pub fn create_new_runner<'a>(form: &'a Info, conn: &mut PgConnection) -> NewRunner<'a> {
+    let start_number = next_start_number(conn);
+    
     NewRunner {
+        start_number: start_number,
         firstname: Some(&form.runner_info.firstname),
         lastname: Some(&form.runner_info.lastname),
         team: Some(&form.runner_info.team),
@@ -30,16 +38,28 @@ pub fn create_new_shipping(form: &Info, id: i32) -> NewShipping {
     }
 }
 
+fn next_start_number(conn: &mut PgConnection) -> i32 {
+    let mut next = get_next_start_number(conn);
+
+    while BLACKLIST_START_NUMBERS.contains(&next) {
+        next += 1;
+    }
+
+    set_last_start_number(conn, &next);
+    return next;
+}
+
 #[cfg(test)]
 mod tests {
     use crate::builders::InfoBuilder;
-
     use super::*;
-
+    use crate::establish_connection;
     #[actix_web::test]
     async fn create_new_runner_test() {
         let form = InfoBuilder::minimal_default().build();
-        let runner = create_new_runner(&form);
+        let conn = &mut establish_connection();
+        let runner = create_new_runner(&form, conn);
+
         assert_eq!(runner.firstname.unwrap(), form.runner_info.firstname);
         assert_eq!(runner.lastname.unwrap(), form.runner_info.lastname);
         assert_eq!(runner.team.unwrap(), form.runner_info.team);

@@ -3,6 +3,7 @@
 diesel::table! {
     runners (id) {
         id -> Int4,
+        start_number -> Int4,
         firstname -> Nullable<Varchar>,
         lastname -> Nullable<Varchar>,
         team -> Nullable<Varchar>,
@@ -32,4 +33,7 @@ diesel::table! {
 
 diesel::joinable!(shippings -> runners (runner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(runners, shippings,);
+diesel::allow_tables_to_appear_in_same_query!(
+    runners,
+    shippings,
+);

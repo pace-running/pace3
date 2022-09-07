@@ -4,6 +4,7 @@ use diesel::prelude::*;
 #[derive(Insertable)]
 #[diesel(table_name = runners)]
 pub struct NewRunner<'a> {
+    pub start_number: i32,
     pub firstname: Option<&'a str>,
     pub lastname: Option<&'a str>,
     pub team: Option<&'a str>,
@@ -16,6 +17,7 @@ pub struct NewRunner<'a> {
 #[derive(Queryable)]
 pub struct Runner {
     pub id: i32,
+    pub start_number: i32,
     pub firstname: Option<String>,
     pub lastname: Option<String>,
     pub team: Option<String>,
