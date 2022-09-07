@@ -33,7 +33,4 @@ diesel::table! {
 
 diesel::joinable!(shippings -> runners (runner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    runners,
-    shippings,
-);
+diesel::allow_tables_to_appear_in_same_query!(runners, shippings,);

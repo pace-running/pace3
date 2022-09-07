@@ -1,16 +1,19 @@
+use crate::get_next_start_number;
 use crate::models::info::Info;
-use diesel::PgConnection;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
-use crate::get_next_start_number;
+use diesel::PgConnection;
 
-const BLACKLIST_START_NUMBERS: [i64; 20] = [18, 28, 33, 45, 74, 84, 88, 444, 191, 192, 198, 420, 1312, 1717, 1887, 1910, 1919, 1933, 1488, 1681];
+const BLACKLIST_START_NUMBERS: [i64; 20] = [
+    18, 28, 33, 45, 74, 84, 88, 444, 191, 192, 198, 420, 1312, 1717, 1887, 1910, 1919, 1933, 1488,
+    1681,
+];
 
 pub fn create_new_runner<'a>(form: &'a Info, conn: &mut PgConnection) -> NewRunner<'a> {
     let start_number = next_start_number(conn);
-    
+
     NewRunner {
-        start_number: start_number,
+        start_number,
         firstname: Some(&form.runner_info.firstname),
         lastname: Some(&form.runner_info.lastname),
         team: Some(&form.runner_info.team),
@@ -47,11 +50,10 @@ fn next_start_number(conn: &mut PgConnection) -> i64 {
     return next;
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::builders::InfoBuilder;
     use super::*;
+    use crate::builders::InfoBuilder;
     use crate::establish_connection;
 
     #[actix_web::test]
@@ -87,8 +89,8 @@ mod tests {
 
     #[test]
     fn next_start_number_test_no_duplicates() {
-        use std::collections::HashSet;
         use crate::restart_start_number;
+        use std::collections::HashSet;
 
         let conn = &mut establish_connection();
         restart_start_number(conn);
