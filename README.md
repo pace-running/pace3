@@ -4,19 +4,6 @@
 
 Pace is a registration and management application for running events and competitions.
 
-## Database initialization
-
-To start a postgres container: 
-
-```
-docker-compose up --force-recreate -d
-```
-
-To shut it down:
-```
-docker-compose down  
-```
-
 ## Run script
 
 This script helps to run specific commands for your application. You can run the script as follows:
@@ -31,6 +18,7 @@ Commands:
   start           - Start the application
   fmt_check       - Run Formatting check by fmt
   test            - Run all tests
+  lint_check      - Run linting check by clippy
   quality_check   - Static check (lint) and testing
   help            - Print cli usage message
 ```

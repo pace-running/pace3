@@ -68,9 +68,15 @@ task_test() {
   docker-compose down
 }
 
+##DOC lint_check - Run linting check by clippy
+task_lint_check() {
+  cargo clippy
+}
+
 ##DOC quality_check - Static check (lint) and testing
 task_quality_check() {
   task_fmt_check
+  task_lint_check
   task_test
 }
 
