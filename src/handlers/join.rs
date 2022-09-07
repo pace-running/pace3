@@ -50,7 +50,7 @@ pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
     }
     let conn = &mut establish_connection();
     // Write data into data base
-    let new_runner = create_new_runner(&form);
+    let new_runner = create_new_runner(&form, conn);
     let returned_runner = insert_runner(conn, new_runner);
     if form.shipping_info.tshirt_toggle == "on" {
         let new_shipping = create_new_shipping(&form, returned_runner.id);

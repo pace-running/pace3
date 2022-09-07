@@ -36,3 +36,22 @@ pub fn insert_shipping(conn: &mut PgConnection, new_shipping: NewShipping) -> Sh
         .get_result(conn)
         .expect("Error saving shipping")
 }
+
+pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
+    use self::models::start_number::StartNumber;
+    use diesel::sql_query;
+
+    sql_query("SELECT nextval('runner_start_number_seq') AS start_number")
+        .get_result::<StartNumber>(conn)
+        .expect("Error getting startnumber")
+        .start_number
+}
+
+// For testing only
+pub fn restart_start_number(conn: &mut PgConnection) {
+    use diesel::sql_query;
+
+    sql_query("ALTER SEQUENCE runner_start_number_seq RESTART")
+        .execute(conn)
+        .expect("Error resetting start_number sequence");
+}

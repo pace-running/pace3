@@ -3,6 +3,7 @@
 diesel::table! {
     runners (id) {
         id -> Int4,
+        start_number -> Int8,
         firstname -> Nullable<Varchar>,
         lastname -> Nullable<Varchar>,
         team -> Nullable<Varchar>,
