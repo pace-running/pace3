@@ -29,5 +29,15 @@ spec:
                 secretKeyRef:
                   key: DATABASE_URL
                   name: database-url
+      initContainers:
+        - name: pace3-migration
+          image: registry.k3s.colodeck.de/pace3-migration:latest
+          command: [ 'diesel', 'migration' , 'run' ]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: DATABASE_URL
+                  name: database-url
       imagePullSecrets:
         - name: regcred
