@@ -1,0 +1,5 @@
+FROM rust:latest
+WORKDIR /app
+RUN cargo install diesel_cli --force --no-default-features --features postgres
+COPY migrations/ migrations
+ENTRYPOINT ["diesel"]
