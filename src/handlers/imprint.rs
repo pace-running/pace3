@@ -9,7 +9,6 @@ pub async fn show(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::handlers::imprint::show;

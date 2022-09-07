@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::handlers::{admin, health, hello, join, imprint, privacy_notice};
+use crate::handlers::{admin, health, hello, imprint, join, privacy_notice};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
