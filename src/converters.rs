@@ -1,4 +1,4 @@
-use crate::handlers::join::Info;
+use crate::models::info::Info;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 
@@ -33,6 +33,7 @@ pub fn create_new_shipping(form: &Info, id: i32) -> NewShipping {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::info::Info;
     #[actix_web::test]
     async fn create_new_runner_test() {
         let form = Info {

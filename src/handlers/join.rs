@@ -4,9 +4,8 @@ use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
 use crate::models::event;
+use crate::models::info::Info;
 use actix_web::{web, Error, HttpResponse, Result};
-use serde::Deserialize;
-use serde::Serialize;
 use tera::Context;
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
@@ -14,30 +13,6 @@ pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, E
     ctx.insert("event", &event::current_event());
     let rendered = tmpl.render("join.html", &ctx).unwrap();
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
-}
-
-#[derive(Deserialize, Serialize, Debug, Default)]
-pub struct Info {
-    pub firstname: String,
-    pub lastname: String,
-    pub team: String,
-    pub email: String,
-    pub repeat: String,
-    pub starting_point: String,
-    pub running_level: String,
-    pub donation: String,
-    pub tshirt_toggle: String,
-    pub tshirt_model: String,
-    pub tshirt_size: String,
-    pub country: String,
-    pub address_firstname: String,
-    pub address_lastname: String,
-    pub street_name: String,
-    pub house_number: String,
-    pub address_extra: String,
-    pub postal_code: String,
-    pub city: String,
-    pub confirm: String,
 }
 
 pub fn has_bad_data(form: &web::Form<Info>) -> bool {
