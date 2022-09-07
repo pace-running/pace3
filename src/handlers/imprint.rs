@@ -39,7 +39,7 @@ mod tests {
         assert_eq!(resp.status(), StatusCode::OK);
 
         let body = to_bytes(resp.into_body()).await.unwrap();
-        let event = current_event();
+        let _event = current_event();
         assert!(body.as_str().contains("Impressum"))
     }
 }

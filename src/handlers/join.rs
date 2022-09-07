@@ -46,20 +46,19 @@ pub fn has_bad_data(form: &web::Form<Info>) -> bool {
         .trim()
         .parse::<u16>()
         .expect("Unable to parse donation value to number");
-    if form.tshirt_toggle == "on" {
-        if form.country == ""
-            || form.address_firstname == ""
-            || form.address_lastname == ""
-            || form.street_name == ""
-            || form.house_number == ""
-            || form.postal_code == ""
-            || form.city == ""
+    if form.tshirt_toggle == "on"
+        && (form.country.is_empty()
+            || form.address_firstname.is_empty()
+            || form.address_lastname.is_empty()
+            || form.street_name.is_empty()
+            || form.house_number.is_empty()
+            || form.postal_code.is_empty()
+            || form.city.is_empty()
             || form.tshirt_model == "null"
-            || form.tshirt_size == "null"
-        {
-            println!("Not all required fields  for shipping are there");
-            return true;
-        };
+            || form.tshirt_size == "null")
+    {
+        println!("Not all required fields  for shipping are there");
+        return true;
         // let postal_code: i32 = form.postal_code.trim().parse::<i32>().expect("Unable to parse postal code value to number");
     }
     (form.email != form.repeat)
@@ -89,7 +88,7 @@ mod tests {
     use crate::handlers::join::{form_request, register, Info};
     use actix_web::body::to_bytes;
     use actix_web::web::Bytes;
-    use actix_web::{http, http::StatusCode, web};
+    use actix_web::{http::StatusCode, web};
     use tera::Tera;
 
     trait BodyTest {
@@ -108,7 +107,7 @@ mod tests {
             Ok(t) => t,
             Err(_e) => std::process::exit(1),
         };
-        let data = actix_web::web::Data::new(tera);
+        let data = web::Data::new(tera);
         let resp = form_request(data).await.unwrap();
         assert_eq!(resp.status(), StatusCode::OK);
 
@@ -142,7 +141,7 @@ mod tests {
         };
         let input_data = web::Form(participant);
         let resp = register(input_data).await.unwrap();
-        assert_eq!(resp.status(), http::StatusCode::OK);
+        assert_eq!(resp.status(), StatusCode::OK);
     }
 
     #[actix_web::test]
@@ -171,7 +170,7 @@ mod tests {
         };
         let input_data = web::Form(participant);
         let resp = register(input_data).await.unwrap();
-        assert_eq!(resp.status(), http::StatusCode::OK);
+        assert_eq!(resp.status(), StatusCode::OK);
     }
 
     #[actix_web::test]
@@ -200,6 +199,6 @@ mod tests {
         };
         let input_data = web::Form(participant);
         let resp = register(input_data).await.unwrap();
-        assert_eq!(resp.status(), http::StatusCode::BAD_REQUEST);
+        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     }
 }
