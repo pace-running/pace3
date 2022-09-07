@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE IF NOT EXISTS runners (
     id SERIAL PRIMARY KEY,
-    start_number INTEGER NOT NULL,
+    start_number BIGINT NOT NULL,
     firstname VARCHAR,
     lastname VARCHAR,
     team VARCHAR,

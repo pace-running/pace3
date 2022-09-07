@@ -2,7 +2,6 @@ use self::models::runner::{NewRunner, Runner};
 use self::models::shipping::{NewShipping, Shipping};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::sql_types::Integer;
 use dotenvy::dotenv;
 use std::env;
 
@@ -38,7 +37,7 @@ pub fn insert_shipping(conn: &mut PgConnection, new_shipping: NewShipping) -> Sh
         .expect("Error saving shipping")
 }
 
-pub fn get_next_start_number(conn: &mut PgConnection) -> i32 {
+pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
     use diesel::sql_query;
     use self::models::start_number::StartNumber;
 
@@ -48,11 +47,11 @@ pub fn get_next_start_number(conn: &mut PgConnection) -> i32 {
     .start_number
 }
 
-pub fn set_last_start_number(conn: &mut PgConnection, last: &i32) {
+// For testing only
+pub fn restart_start_number(conn: &mut PgConnection) {
     use diesel::sql_query;
 
-    sql_query("SELECT setval('runner_start_number_seq', ?)")
-    .bind::<Integer, &i32>(last)
+    sql_query("ALTER SEQUENCE runner_start_number_seq RESTART")
     .execute(conn)
-    .expect("Error setting the latest start_number");
+    .expect("Error resetting start_number sequence");
 }
