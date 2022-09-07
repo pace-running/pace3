@@ -23,5 +23,11 @@ spec:
             httpGet:
               path: /health
               port: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: DATABASE_URL
+                  name: database-url
       imagePullSecrets:
         - name: regcred
