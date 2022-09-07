@@ -44,6 +44,11 @@ task_migrate() {
 
 ##DOC start - Start the application
 task_start() {
+  docker-compose up --force-recreate -d
+  sleep 5
+  cargo install diesel_cli --force --no-default-features --features postgres
+  diesel setup
+  diesel migration run
   cargo run
 }
 
