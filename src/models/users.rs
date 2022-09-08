@@ -1,6 +1,6 @@
+use argon2::{self};
 use diesel::prelude::*;
 use serde::Deserialize;
-use argon2::{self};
 
 #[derive(Queryable)]
 pub struct User {
@@ -16,7 +16,6 @@ impl PartialEq<LoginData> for User {
         matches.unwrap_or(false) && self.username == other.username
     }
 }
-
 
 #[derive(Deserialize)]
 pub struct LoginData {
@@ -38,7 +37,7 @@ mod tests {
         };
         let data = LoginData {
             username: "admin".to_string(),
-            password: "xoh7Ongui4oo".to_string()
+            password: "xoh7Ongui4oo".to_string(),
         };
         assert!(user == data)
     }
@@ -52,7 +51,7 @@ mod tests {
         };
         let data = LoginData {
             username: "non-admin".to_string(),
-            password: "xoh7Ongui4oo".to_string()
+            password: "xoh7Ongui4oo".to_string(),
         };
         assert!(user != data)
     }
@@ -66,9 +65,8 @@ mod tests {
         };
         let data = LoginData {
             username: "admin".to_string(),
-            password: "invalid password".to_string()
+            password: "invalid password".to_string(),
         };
         assert!(user != data)
     }
-
 }

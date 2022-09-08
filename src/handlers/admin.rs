@@ -1,8 +1,8 @@
-use actix_web::{web, Error, HttpResponse};
-use actix_web::web::Form;
-use diesel::prelude::*;
-use crate::models::users::{LoginData, User};
 use crate::establish_connection;
+use crate::models::users::{LoginData, User};
+use actix_web::web::Form;
+use actix_web::{web, Error, HttpResponse};
+use diesel::prelude::*;
 
 pub async fn login(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let rendered = tmpl
@@ -19,14 +19,20 @@ pub async fn check_password(login: Form<LoginData>) -> Result<HttpResponse, Erro
         .load::<User>(connection)
         .expect("Could not load user from database");
     if db_users[0] == login.into_inner() {
-        Ok(HttpResponse::Ok().content_type("text/html").body("Matches!"))
+        Ok(HttpResponse::Ok()
+            .content_type("text/html")
+            .body("Matches!"))
     } else {
-        Ok(HttpResponse::Forbidden().content_type("text/html").body("wrong password"))
+        Ok(HttpResponse::Forbidden()
+            .content_type("text/html")
+            .body("wrong password"))
     }
 }
 
 pub async fn show_runners(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok().content_type("text/html").body("showing runners"))
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body("showing runners"))
 }
 
 #[cfg(test)]
