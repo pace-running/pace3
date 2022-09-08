@@ -25,6 +25,10 @@ pub async fn check_password(login: Form<LoginData>) -> Result<HttpResponse, Erro
     }
 }
 
+pub async fn show_runners(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
+    Ok(HttpResponse::Ok().content_type("text/html").body("showing runners"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

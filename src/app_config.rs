@@ -1,5 +1,4 @@
 use actix_web::web;
-
 use crate::handlers::{admin, health, hello, imprint, join, privacy_notice};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
@@ -11,6 +10,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/health").route(web::get().to(health::health_endpoint)))
             .service(web::resource("/login").route(web::get().to(admin::login)))
             .service(web::resource("/admin").route(web::post().to(admin::check_password)))
+            .service(web::resource("/admin/runners").route(web::get().to(admin::show_runners)))
             .service(web::resource("/imprint").route(web::get().to(imprint::show)))
             .service(web::resource("/privacy_notice").route(web::get().to(privacy_notice::show)))
             .service(
