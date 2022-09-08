@@ -1,10 +1,10 @@
-use crate::converters::create_new_runner;
-use crate::converters::create_new_shipping;
 use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
 use crate::models::event;
 use crate::models::info::Info;
+use crate::models::runner::NewRunner;
+use crate::models::shipping::NewShipping;
 use actix_web::{web, Error, HttpResponse, Result};
 use tera::Context;
 
@@ -49,11 +49,12 @@ pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
         return Ok(HttpResponse::BadRequest().body("Bad data"));
     }
     let conn = &mut establish_connection();
+    let info = form.into_inner();
     // Write data into data base
-    let new_runner = create_new_runner(&form, conn);
+    let new_runner = NewRunner::from(&info);
     let returned_runner = insert_runner(conn, new_runner);
-    if form.shipping_info.tshirt_toggle == "on" {
-        let new_shipping = create_new_shipping(&form, returned_runner.id);
+    if info.shipping_info.tshirt_toggle == "on" {
+        let new_shipping = NewShipping::from((&info, returned_runner.id));
         insert_shipping(conn, new_shipping);
     }
     Ok(HttpResponse::Ok().body("Data received"))
