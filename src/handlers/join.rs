@@ -3,6 +3,7 @@ use crate::insert_runner;
 use crate::insert_shipping;
 use crate::models::event;
 use crate::models::info::Info;
+use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 use actix_web::{web, Error, HttpResponse, Result};
@@ -50,8 +51,9 @@ pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
     }
     let conn = &mut establish_connection();
     let info = form.into_inner();
+    let runner_start_number = runner::next_start_number(conn);
     // Write data into data base
-    let new_runner = NewRunner::from(&info);
+    let new_runner = NewRunner::from((&info, runner_start_number));
     let returned_runner = insert_runner(conn, new_runner);
     if info.shipping_info.tshirt_toggle == "on" {
         let new_shipping = NewShipping::from((&info, returned_runner.id));

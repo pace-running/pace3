@@ -1,5 +1,4 @@
 use super::info::Info;
-use crate::establish_connection;
 use crate::get_next_start_number;
 use crate::schema::runners;
 use diesel::prelude::*;
@@ -35,13 +34,12 @@ pub struct Runner {
     pub donation: String,
 }
 
-impl<'a> From<&'a Info> for NewRunner<'a> {
-    fn from(info: &'a Info) -> Self {
-        let conn = &mut establish_connection();
-        let start_number = next_start_number(conn);
+impl<'a> From<(&'a Info, i64)> for NewRunner<'a> {
+    fn from(info_with_start_number: (&'a Info, i64)) -> Self {
+        let (info, next_start_number) = info_with_start_number;
 
         NewRunner {
-            start_number,
+            start_number: next_start_number,
             firstname: Some(&info.runner_info.firstname),
             lastname: Some(&info.runner_info.lastname),
             team: Some(&info.runner_info.team),
@@ -53,22 +51,7 @@ impl<'a> From<&'a Info> for NewRunner<'a> {
     }
 }
 
-pub fn create_new_runner<'a>(form: &'a Info, conn: &mut PgConnection) -> NewRunner<'a> {
-    let start_number = next_start_number(conn);
-
-    NewRunner {
-        start_number,
-        firstname: Some(&form.runner_info.firstname),
-        lastname: Some(&form.runner_info.lastname),
-        team: Some(&form.runner_info.team),
-        email: Some(&form.runner_info.email),
-        starting_point: &form.runner_info.starting_point,
-        running_level: &form.runner_info.running_level,
-        donation: &form.runner_info.donation,
-    }
-}
-
-fn next_start_number(conn: &mut PgConnection) -> i64 {
+pub fn next_start_number(conn: &mut PgConnection) -> i64 {
     let mut next = get_next_start_number(conn);
 
     while BLACKLIST_START_NUMBERS.contains(&next) {
@@ -82,11 +65,13 @@ fn next_start_number(conn: &mut PgConnection) -> i64 {
 mod tests {
     use super::*;
     use crate::builders::InfoBuilder;
+    use crate::establish_connection;
 
     #[actix_web::test]
     async fn create_new_runner_test() {
         let info = InfoBuilder::minimal_default().build();
-        let runner = NewRunner::from(&info);
+        let expected_start_number = 10;
+        let runner = NewRunner::from((&info, expected_start_number));
 
         assert_eq!(runner.firstname.unwrap(), info.runner_info.firstname);
         assert_eq!(runner.lastname.unwrap(), info.runner_info.lastname);
@@ -95,7 +80,7 @@ mod tests {
         assert_eq!(runner.starting_point, info.runner_info.starting_point);
         assert_eq!(runner.running_level, info.runner_info.running_level);
         assert_eq!(runner.donation, info.runner_info.donation);
-        assert!(runner.start_number > 3 && !BLACKLIST_START_NUMBERS.contains(&runner.start_number))
+        assert_eq!(runner.start_number, expected_start_number);
     }
 
     #[test]
