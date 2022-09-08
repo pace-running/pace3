@@ -10,6 +10,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/submit").route(web::post().to(join::register)))
             .service(web::resource("/health").route(web::get().to(health::health_endpoint)))
             .service(web::resource("/login").route(web::get().to(admin::login)))
+            .service(web::resource("/admin").route(web::post().to(admin::check_password)))
             .service(web::resource("/imprint").route(web::get().to(imprint::show)))
             .service(web::resource("/privacy_notice").route(web::get().to(privacy_notice::show)))
             .service(
