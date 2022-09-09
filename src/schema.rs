@@ -39,6 +39,15 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    users (id) {
+        id -> Int4,
+        username -> Varchar,
+        password_hash -> Varchar,
+        role -> Varchar,
+    }
+}
+
 diesel::joinable!(shippings -> runners (runner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(events, runners, shippings,);
+diesel::allow_tables_to_appear_in_same_query!(events, runners, shippings, users,);
