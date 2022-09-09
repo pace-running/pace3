@@ -22,16 +22,19 @@ PROJECT_DIR="$(
 
 ##DOC install - Install application dependencies
 task_install() {
+  log_running_command "cargo build..."
   cargo build
 }
 
 ##DOC update - Update application dependencies
 task_update() {
+  log_running_command "cargo update..."
   cargo update
 }
 
 ##DOC migrate - Run database migration
 task_migrate() {
+  log_running_command "migrations..."
   cargo install diesel_cli --force --no-default-features --features postgres
   diesel setup
   diesel migration run
@@ -44,11 +47,10 @@ task_migrate() {
 
 ##DOC start - Start the application
 task_start() {
+  log_running_command "application..."
   docker-compose up --force-recreate -d
   sleep 5
-  cargo install diesel_cli --force --no-default-features --features postgres
-  diesel setup
-  diesel migration run
+  task_migrate
   cargo run
 }
 
@@ -58,23 +60,29 @@ task_start() {
 
 ##DOC fmt_check - Run Formatting check by fmt
 task_fmt_check() {
+  log_running_command "formatting check..."
   cargo fmt --all -- --check
 }
 
-##DOC test - Run all tests
-task_test() {
+##DOC test_unit - Run all unit tests
+task_test_unit() {
+  log_running_command "unit tests..."
+  cargo test unit
+}
+
+##DOC test_integration - Run all integration tests
+task_test_integration() {
+  log_running_command "integration tests..."
   docker-compose up --force-recreate -d
   sleep 5
-  cargo install diesel_cli --force --no-default-features --features postgres
-  diesel setup
-  diesel migration run
-  cargo fmt
-  cargo test
+  task_migrate
+  cargo test integration
   docker-compose down
 }
 
 ##DOC lint_check - Run linting check by clippy
 task_lint_check() {
+  log_running_command "linting check..."
   cargo clippy
 }
 
@@ -82,7 +90,8 @@ task_lint_check() {
 task_quality_check() {
   task_fmt_check
   task_lint_check
-  task_test
+  task_test_unit
+  task_test_integration
 }
 
 ###############################################################################
@@ -96,6 +105,11 @@ help() {
   grep -e "^##DOC" < "$(basename "$0")" | sed "s/^##DOC \(.*\)/  \1/"
 
   exit 1
+}
+
+## log running commands
+log_running_command() {
+  echo "[$(date +%H:%M:%S)] Running $1"
 }
 
 ## cli main function
