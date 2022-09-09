@@ -29,7 +29,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn imprint_page() {
+    async fn unit_imprint_page() {
         let tera = match Tera::new("templates/**/*") {
             Ok(t) => t,
             Err(_e) => std::process::exit(1),

@@ -12,15 +12,16 @@ This script helps to run specific commands for your application. You can run the
 ./run.sh command 
 
 Commands:
-  install         - Install application dependencies
-  update          - Update application dependencies
-  migrate         - Run database migration
-  start           - Start the application
-  fmt_check       - Run Formatting check by fmt
-  test            - Run all tests
-  lint_check      - Run linting check by clippy
-  quality_check   - Static check (lint) and testing
-  help            - Print cli usage message
+  install           - Install application dependencies
+  update            - Update application dependencies
+  migrate           - Run database migration
+  start             - Start the application
+  fmt_check         - Run Formatting check by fmt
+  test_unit         - Run all unit tests
+  test_integration  - Run all integration tests
+  lint_check        - Run linting check by clippy
+  quality_check     - Static check (lint) and testing
+  help              - Print cli usage message
 ```
 
 ## Running Pace

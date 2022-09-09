@@ -11,7 +11,7 @@ mod tests {
     use actix_web::{http::StatusCode, test, App};
 
     #[actix_web::test]
-    async fn health() {
+    async fn unit_health() {
         let app = test::init_service(App::new().configure(routes)).await;
 
         let req = test::TestRequest::get().uri("/health").to_request();

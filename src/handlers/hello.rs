@@ -54,7 +54,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn start_page() {
+    async fn unit_start_page() {
         let tera = match Tera::new("templates/**/*") {
             Ok(t) => t,
             Err(_e) => std::process::exit(1),
