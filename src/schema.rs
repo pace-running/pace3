@@ -1,6 +1,14 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    events (id) {
+        id -> Int4,
+        name -> Varchar,
+        description -> Varchar,
+    }
+}
+
+diesel::table! {
     runners (id) {
         id -> Int4,
         start_number -> Int8,
@@ -33,4 +41,4 @@ diesel::table! {
 
 diesel::joinable!(shippings -> runners (runner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(runners, shippings,);
+diesel::allow_tables_to_appear_in_same_query!(events, runners, shippings,);
