@@ -1,5 +1,7 @@
 {% extends "includes/base.html" %} {% block title %}Join{% endblock title %} {%
 block content %} {% raw %}
+<head><meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
 <script src="/static/js/petite-vue.js" defer init></script>
 
 <h1>Anmeldung</h1>
@@ -48,7 +50,7 @@ block content %} {% raw %}
 
   <h2>Fan T-shirt</h2>
 
-  <label>
+  <label style>
     <input
       type="checkbox"
       id="tshirt"
@@ -57,7 +59,10 @@ block content %} {% raw %}
     />
     <span class="checkable small">Ich möchte ein T-Shirt</span>
   </label>
+  <input type="button" class="small" style="width: 150px; margin-left: 100px;" value="Vorschau" id="tshirt_preview">
+  <input type="button" class="small" style="width: 150px; margin-left: 100px;" value="Größentabelle" id="tshirt_sizes">
   <br />
+  
 
   <template v-if="tshirt_checked === true">
     <label for="tshirt_model">Modell</label>
@@ -77,6 +82,7 @@ block content %} {% raw %}
         }
       }
     });
+  
     </script>
 
 
@@ -107,6 +113,129 @@ block content %} {% raw %}
     <input type="text" name="postal_code" placeholder="PLZ" />
     <input type="text" name="city" placeholder="Stadt" /><br /> </template
   ><br />
+
+
+  <!-- Show Tshirt Info: -->
+  <div id="tshirt_sizes_modal" class="modal hidden" >
+    <button type='button' class="close-modal small" id="closeButton1">&times;</button>
+    <h1>T-Shirt - Größentabelle</h1>
+    <p>alle Maße in cm</p>
+    <div>
+      <div style="padding-bottom: 25px">
+        <h2>Tailliert:</h2>
+        <div style="overflow-x: auto;">
+          <table class="center" id="slimfit_table">
+            <tr>
+              <th>Size</th>
+              <th>Length</th>
+              <th>Width</th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>S</td>
+                <td>61</td>
+                <td>41</td>
+              </tr>
+              <tr>
+                <td>M</td>
+                <td>63</td>
+                <td>44</td>
+              </tr>
+              <tr>
+                <td>L</td>
+                <td>65</td>
+                <td>47</td>
+              </tr>
+              <tr>
+                <td>XL</td>
+                <td>67</td>
+                <td>50</td>
+              </tr>
+          </table>
+        </div>
+      </div>
+    
+      <div>
+        <h2>Unisex:</h2>
+        <div style="overflow-x: auto;">
+          <table class="center" id="unisex_table">
+            <tr>
+              <th>Size</th>
+              <th>Length</th>
+              <th>Width</th>
+            </tr>
+            <tr>
+              <td>S</td>
+              <td>69</td>
+              <td>50</td>
+            </tr>
+            <tr>
+              <td>M</td>
+              <td>72</td>
+              <td>53</td>
+            </tr>
+            <tr>
+              <td>L</td>
+              <td>74</td>
+              <td>56</td>
+            </tr>
+            <tr>
+              <td>XL</td>
+              <td>76</td>
+              <td>58</td>
+            </tr>
+            <tr>
+              <td>XXL</td>
+              <td>78</td>
+              <td>62</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="overlay hidden"></div>
+      
+    <div id="tshirt_preview_modal" class="modal hidden">
+      <button type='button' class="close-modal small" id="closeButton2">&times;</button>
+      <h1>Tshirt - Vorschau</h1>
+      <!-- preview image -->
+    </div>
+
+<script>
+  let currentModal = document.getElementById('tshirt_sizes_modal');
+
+  document.getElementById('tshirt_sizes').addEventListener('click',function(){
+    document.getElementById('tshirt_sizes_modal').classList.remove('hidden');
+    document.querySelector('.overlay').classList.remove('hidden');
+    currentModal = document.getElementById('tshirt_sizes_modal');
+  });
+  
+  document.getElementById('tshirt_preview').addEventListener('click',function(){
+    document.getElementById('tshirt_preview_modal').classList.remove('hidden');
+    document.querySelector('.overlay').classList.remove('hidden');
+    currentModal = document.getElementById('tshirt_preview_modal');
+  });
+
+  const closeModal = function() {
+    currentModal.classList.add('hidden');
+    document.querySelector('.overlay').classList.add('hidden');
+  }
+
+
+  document.getElementById('closeButton1').addEventListener('click',closeModal);
+  document.getElementById('closeButton2').addEventListener('click',closeModal);
+  document.querySelector('.overlay').addEventListener('click',closeModal);
+  document.addEventListener('keydown',function(e){
+    if(e.key === "Escape") closeModal();
+  });
+
+
+</script>
+
+
 
   <!-- Hidden inputs, so form will be accepted even if no Tshirt ordered -->
   <template v-if="tshirt_checked == false">
