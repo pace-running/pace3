@@ -59,22 +59,37 @@ block content %} {% raw %}
   </label>
   <br />
 
-  <template v-if="tshirt_checked == true">
+  <template v-if="tshirt_checked === true">
     <label for="tshirt_model">Modell</label>
-    <select name="tshirt_model">
+    <select name="tshirt_model" id="model_selector">
       <option value="null" style="display: none">Bitte auswählen</option>
       <option value="unisex">Unisex</option>
       <option value="slimfit">Talliert</option></select
     ><br />
+    <script>
+    document.getElementById('model_selector').addEventListener('change',function(){
+      if(document.getElementById('model_selector').value === 'unisex') {
+        document.getElementById('xxl_selector').hidden = false;
+      } else {
+        document.getElementById('xxl_selector').hidden = true;
+        if(document.getElementById('size_selector').value === 'xxl'){
+          document.getElementById('size_selector').value = 'xl';
+        }
+      }
+    });
+    </script>
 
-    <label for="tshirt_size">Größe</label>
-    <select name="tshirt_size">
-      <option value="null" style="display: none">Bitte auswählen</option>
-      <option value="s">S</option>
-      <option value="m">M</option>
-      <option value="l">L</option>
-      <option value="xl">XL</option></select
-    ><br />
+
+      <label for="tshirt_size">Größe</label>
+      <select name="tshirt_size" id="size_selector">
+        <option value="null" style="display: none">Bitte auswählen</option>
+        <option value="s">S</option>
+        <option value="m">M</option>
+        <option value="l">L</option>
+        <option value="xl">XL</option>
+        <option value="xxl" id="xxl_selector" hidden>XXL</option>
+      </select>
+        <br />
 
     <h3>Lieferanschrift</h3>
 
