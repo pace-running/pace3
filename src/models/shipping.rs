@@ -1,6 +1,8 @@
-use super::info::Info;
-use crate::schema::shippings;
 use diesel::prelude::*;
+
+use crate::schema::shippings;
+
+use super::info::Info;
 
 #[derive(Insertable)]
 #[diesel(table_name = shippings)]
@@ -17,6 +19,7 @@ pub struct NewShipping<'a> {
     pub city: &'a str,
     pub runner_id: i32,
 }
+
 #[derive(Queryable)]
 pub struct Shipping {
     pub id: i32,
@@ -54,11 +57,12 @@ impl<'a> From<(&'a Info, i32)> for NewShipping<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::builders::InfoBuilder;
 
+    use super::*;
+
     #[actix_web::test]
-    async fn create_new_shipping_test() {
+    async fn unit_create_new_shipping_test() {
         let runner_id = 1;
         let info = InfoBuilder::default().build();
         let shipping = NewShipping::from((&info, runner_id));

@@ -1,13 +1,16 @@
-use super::info::Info;
-use crate::get_next_start_number;
-use crate::schema::runners;
 use diesel::prelude::*;
 use diesel::PgConnection;
+
+use crate::get_next_start_number;
+use crate::schema::runners;
+
+use super::info::Info;
 
 const BLACKLIST_START_NUMBERS: [i64; 20] = [
     18, 28, 33, 45, 74, 84, 88, 444, 191, 192, 198, 420, 1312, 1717, 1887, 1910, 1919, 1933, 1488,
     1681,
 ];
+
 #[derive(Insertable)]
 #[diesel(table_name = runners)]
 pub struct NewRunner<'a> {
@@ -58,17 +61,18 @@ pub fn next_start_number(conn: &mut PgConnection) -> i64 {
         next = get_next_start_number(conn);
     }
 
-    return next;
+    next
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::builders::InfoBuilder;
     use crate::establish_connection;
 
+    use super::*;
+
     #[actix_web::test]
-    async fn create_new_runner_test() {
+    async fn unit_create_new_runner_test() {
         let info = InfoBuilder::minimal_default().build();
         let expected_start_number = 10;
         let runner = NewRunner::from((&info, expected_start_number));
@@ -84,7 +88,7 @@ mod tests {
     }
 
     #[test]
-    fn next_start_number_test_no_duplicates() {
+    fn integration_next_start_number_test_no_duplicates() {
         use crate::restart_start_number;
         use std::collections::HashSet;
 
@@ -100,7 +104,7 @@ mod tests {
     }
 
     #[test]
-    fn next_start_number_test_no_blacklisted() {
+    fn integration_next_start_number_test_no_blacklisted() {
         use crate::restart_start_number;
 
         let conn = &mut establish_connection();

@@ -22,7 +22,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn current_event_returns_valid_data() {
+    fn unit_current_event_returns_valid_data() {
         assert!(current_event().name.len() > 0);
         assert!(current_event().description.len() > 0);
         assert!(current_event().date.len() > 0);

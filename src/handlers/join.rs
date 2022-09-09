@@ -82,7 +82,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn form_page() {
+    async fn unit_form_page() {
         let tera = match Tera::new("templates/**/*") {
             Ok(t) => t,
             Err(_e) => std::process::exit(1),
@@ -96,7 +96,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn minimal_submit_() {
+    async fn integration_minimal_submit() {
         let participant = InfoBuilder::minimal_default().build();
         let input_data = web::Form(participant);
         let response = register(input_data).await.unwrap();
@@ -104,7 +104,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn submit_form_with_shipping() {
+    async fn integration_submit_form_with_shipping() {
         let participant = InfoBuilder::default().build();
         let input_data = web::Form(participant);
         let response = register(input_data).await.unwrap();
@@ -112,7 +112,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn submit_wrong_form() {
+    async fn integration_submit_wrong_form() {
         let participant = InfoBuilder::default().with_house_number("").build();
         let input_data = web::Form(participant);
         let response = register(input_data).await.unwrap();
