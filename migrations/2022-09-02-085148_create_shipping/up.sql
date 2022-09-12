@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS shippings (
     id SERIAL PRIMARY KEY,
     tshirt_model VARCHAR NOT NULL,
     tshirt_size VARCHAR NOT NULL,
-    country VARCHAR(2) NOT NULL,
+    country VARCHAR NOT NULL,
     firstname VARCHAR NOT NULL,
     lastname VARCHAR NOT NULL,
     street_name VARCHAR NOT NULL,

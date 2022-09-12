@@ -7,8 +7,9 @@ block content %} {% raw %}
 <h1>Anmeldung</h1>
 <p>Persönliche Angaben</p>
 <form
-  action="submit"
+  action="summary"
   method="post"
+  onclick=""
   v-scope="{confirm_checked: false, tshirt_checked: false}"
 >
   <input
@@ -22,8 +23,8 @@ block content %} {% raw %}
     name="team"
     placeholder="Teamname (erscheint auf Startnummer)"
   />
-  <input type="text" name="email" placeholder="E-Mail" />
-  <input type="text" name="repeat" placeholder="E-Mail wiederholen" />
+  <input type="email" name="email" placeholder="E-Mail" />
+  <input type="email" name="repeat" placeholder="E-Mail wiederholen" />
 
   <label for="starting_point">Von wo wirst du laufen?:</label>
   <select name="starting_point">
