@@ -4,7 +4,7 @@
 <div style="text-align: center; margin-left: 25%; margin-right: 25%;">
     <h1>Zusammenfassung</h1>
     <p>Bitte überprüfe deine Daten</p>
-    <div style="border: 3px solid grey; margin: 30px; padding: 20px;">
+    <div style="text-align: left; border: 3px solid grey; margin: 30px; padding: 20px;">
         <h2>PERSÖNLICHE ANGABEN</h2>
         {% if info %}
         <p>Name: {{info.firstname}} {{info.lastname}}</p>
@@ -25,8 +25,8 @@
     </div>
 
     {% if info.tshirt_toggle == 'on' %}
-    <div style="display: flex; justify-content: center; margin: 30px; border: 3px solid grey">
-        <div style="padding: 20px">
+    <div style="text-align: left; display: flex; justify-content: center; margin: 30px; border: 3px solid grey">
+        <div style="text-align: left; padding: 20px">
             <h2>T-SHIRT ANGABEN</h2>
             {% if info.tshirt_model == 'unisex' %}
             <p>Modell: Unisex</p>
@@ -35,7 +35,7 @@
             {% endif %}
             <p>Größe: <span style="text-transform:uppercase">{{info.tshirt_size}}</span></p>
         </div>
-        <div style="padding: 20px">
+        <div style="text-align: left; padding: 20px">
             <h2>LIEFERADRESSE</h2>
             <p>{{info.address_firstname}} {{info.address_lastname}}</p>
             <p>{{info.street_name}} {{info.house_number}}</p>
@@ -46,7 +46,7 @@
     </div>
     {% endif %}
 
-    <div>
+    <div style="text-align: left;">
         <p>Spendenbeitrag: {{info.donation}}€</p>
         <p>Versand: kostenlos (innerhalb Deutschland)</p>
         <hr>
