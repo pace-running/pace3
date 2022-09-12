@@ -9,7 +9,7 @@ Pace is a registration and management application for running events and competi
 This script helps to run specific commands for your application. You can run the script as follows:
 
 ```shell
-./run.sh command 
+./run command 
 
 Commands:
   install           - Install application dependencies
