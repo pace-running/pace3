@@ -1,15 +1,11 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
 
+use crate::constants::BLACKLIST_START_NUMBERS;
 use crate::get_next_start_number;
 use crate::schema::runners;
 
 use super::info::Info;
-
-const BLACKLIST_START_NUMBERS: [i64; 20] = [
-    18, 28, 33, 45, 74, 84, 88, 444, 191, 192, 198, 420, 1312, 1717, 1887, 1910, 1919, 1933, 1488,
-    1681,
-];
 
 #[derive(Insertable)]
 #[diesel(table_name = runners)]
@@ -71,6 +67,15 @@ mod tests {
 
     use super::*;
 
+    // For testing only
+    fn restart_start_number(conn: &mut PgConnection) {
+        use diesel::sql_query;
+
+        sql_query("ALTER SEQUENCE runner_start_number_seq RESTART")
+            .execute(conn)
+            .expect("Error resetting start_number sequence");
+    }
+
     #[actix_web::test]
     async fn unit_create_new_runner_test() {
         let info = InfoBuilder::minimal_default().build();
@@ -89,7 +94,6 @@ mod tests {
 
     #[test]
     fn integration_next_start_number_test_no_duplicates() {
-        use crate::restart_start_number;
         use std::collections::HashSet;
 
         let conn = &mut establish_connection();
@@ -105,8 +109,6 @@ mod tests {
 
     #[test]
     fn integration_next_start_number_test_no_blacklisted() {
-        use crate::restart_start_number;
-
         let conn = &mut establish_connection();
         restart_start_number(conn);
         for _ in 1..100 {

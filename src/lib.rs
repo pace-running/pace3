@@ -1,12 +1,15 @@
-use self::models::runner::{NewRunner, Runner};
-use self::models::shipping::{NewShipping, Shipping};
+use std::env;
+
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
-use std::env;
+
+use self::models::runner::{NewRunner, Runner};
+use self::models::shipping::{NewShipping, Shipping};
 
 pub mod app_config;
 pub mod builders;
+pub mod constants;
 pub mod handlers;
 pub mod models;
 pub mod schema;
@@ -42,15 +45,6 @@ pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
 
     sql_query("SELECT nextval('runner_start_number_seq') AS start_number")
         .get_result::<StartNumber>(conn)
-        .expect("Error getting startnumber")
+        .expect("Error getting start number")
         .start_number
-}
-
-// For testing only
-pub fn restart_start_number(conn: &mut PgConnection) {
-    use diesel::sql_query;
-
-    sql_query("ALTER SEQUENCE runner_start_number_seq RESTART")
-        .execute(conn)
-        .expect("Error resetting start_number sequence");
 }
