@@ -28,8 +28,8 @@ Commands:
 
 For starters, you can run the application with 
 
-```
-cargo run
+```shell
+./run start
 ```
 
 Access the different endpoints using a browser or curl:
