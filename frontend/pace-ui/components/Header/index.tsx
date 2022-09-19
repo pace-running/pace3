@@ -12,13 +12,13 @@ const Header: NextPage = () => {
           Lauf gegen Rechts
         </a>
       </span>
-      <div className="float-end col-2">
+      <div className="">
         <Image
           src={logo}
           alt="FC St. Pauli Logo"
           height={80}
           width={80}
-          layout={"fill"}
+          layout={"fixed"}
         />
       </div>
     </nav>
