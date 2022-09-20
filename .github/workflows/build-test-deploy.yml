@@ -47,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./frontend/pace-ui/
-          file: ./frontend/pace-ui/Dockerfile.migration
+          file: ./frontend/pace-ui/Dockerfile.frontend
           push: true
           tags: registry.k3s.colodeck.de/pace3-frontend:latest
   deploy:
