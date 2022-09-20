@@ -6,19 +6,18 @@ import styles from "./Header.module.css";
 
 const Header: NextPage = () => {
   return (
-    <nav className="navbar navbar-expand-lg p-3 brownbg row">
-      <span>
-        <a className={styles.fcsp} href="/">
+    <nav className="navbar navbar-expand-lg p-3 full brownbg row">
+      <div className="col text-left">
+        <a className='brownbg' href="/">
           Lauf gegen Rechts
         </a>
-      </span>
-      <div className="">
+      </div>
+      <div className="col text-right">
         <Image
           src={logo}
           alt="FC St. Pauli Logo"
           height={80}
           width={80}
-          layout={"fixed"}
         />
       </div>
     </nav>
