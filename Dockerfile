@@ -43,6 +43,15 @@ COPY --from=builder /pace/target/release/main ./pace
 COPY --from=builder /pace/static ./static
 COPY --from=builder /pace/templates ./templates
 
+# Try to add frontend
+
+WORKDIR /frontend/pace-ui
+
+RUN apt-get update && apt-get install nodejs npm -y
+
+RUN npm run build
+RUN npm run start
+
 # Use an unprivileged user.
 USER pace:pace
 
