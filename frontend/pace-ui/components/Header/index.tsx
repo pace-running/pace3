@@ -1,16 +1,16 @@
-import type { NextPage } from "next";
-import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import logo from "../../public/logo.svg";
-import styles from "./Header.module.css";
 
-const Header: NextPage = () => {
+
+const Header: React.FC = () => {
   return (
     <nav className="navbar navbar-expand-lg p-3 full brownbg row">
       <div className="col text-left">
-        <a className='brownbg' href="/">
+        <Link href="/">
+        <a className='brownbg' >
           Lauf gegen Rechts
-        </a>
+        </a></Link>
       </div>
       <div className="col text-right">
         <Image
