@@ -46,4 +46,11 @@ COPY --from=builder /pace/templates ./templates
 # Use an unprivileged user.
 USER pace:pace
 
+WORKDIR /frontend/pace-ui
+
+RUN apt-get update && apt-get install nodejs npm -y
+
+RUN npm run build
+RUN npm run start
+
 CMD ["/pace/pace"]
