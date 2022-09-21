@@ -10,7 +10,7 @@ type BaseLayoutProps = {
 
 const BaseLayout: React.FC<BaseLayoutProps> = (props) => {
   return (
-    <div>
+    <div style={{paddingBottom: "100px"}}>
       <Head>
         <title>{props.pageTitle}</title>
       </Head>
