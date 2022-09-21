@@ -24,7 +24,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: pace3-frontend
+                name: pace3
                 port:
                   number: 3000
   tls:
