@@ -13,13 +13,20 @@ spec:
     - host: pace3.lauf-gegen-rechts.de
       http:
         paths:
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: pace3
                 port:
                   number: 8080
+          - path: /
+            pathType: Prefix
+            frontend:
+              service:
+                name: pace3-frontend
+                port:
+                  number: 3000
   tls:
     - secretName: pace3-tls
       hosts:

@@ -29,6 +29,10 @@ spec:
                 secretKeyRef:
                   key: DATABASE_URL
                   name: database-url
+        - name: pace-frontend
+          image: registry.k3s.colodeck.de/pace3-frontend:latest
+          ports:
+            - containerPort: 3000
       initContainers:
         - name: pace3-migration
           image: registry.k3s.colodeck.de/pace3-migration:latest
