@@ -22,7 +22,7 @@ spec:
                   number: 8080
           - path: /
             pathType: Prefix
-            frontend:
+            backend:
               service:
                 name: pace3-frontend
                 port:
