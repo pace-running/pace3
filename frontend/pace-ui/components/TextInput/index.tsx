@@ -4,7 +4,7 @@ type InputProps = {
   name: string;
   label: string;
   helperLabel?: string;
-  default?: string;
+  default?: string | number;
 };
 const TextInput: React.FC<InputProps> = (props) => {
   return (

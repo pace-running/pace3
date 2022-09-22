@@ -3237,5 +3237,38 @@ select.stack:focus + select {
   }
 
 .greyhover:hover{
-  color: rgb(169, 169, 169) !important;
+  color: rgb(190, 190, 190) !important;
+}
+
+.preview-btn{
+  width: max(min(250px,16vw),130px); 
+  margin-left: max(min(100px,3vw),50px);
+  background-color: white;
+  color: black;
+  border: black solid 1px;
+  margin-bottom: 30px;
+}
+
+.preview-btn:hover{
+  border: black solid 1px;
+  background: linear-gradient(to top left, white, #c0c0c0);
+}
+
+.brown-checked:checked{
+  background-color: #795548 !important;
+  border-color: #795548 !important;
+  accent-color: #795548 !important;
+}
+
+.brown-checked:focus {
+  outline-color: #795548 !important;
+  -webkit-box-shadow: inset 0 1px 1px #795548,0 0 8px #795548!important;
+  box-shadow: inset 0 1px 1px #795548,0 0 8px #795548!important;
+  border: #795548 !important;
+  accent-color: #795548 !important;
+
+}
+
+.form-switch .form-check-input:not(:checked){
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e") !important;
 }

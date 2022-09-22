@@ -6,7 +6,7 @@ import logo from "../../public/logo.svg";
 const Header: React.FC = () => {
   return (
     <nav className="navbar p-3 full brownbg py-5" style={{ marginRight: "0" }}>
-      <div className="text-left fixed-top">
+      <div className="text-left fixed-top" style={{zIndex: "-1"}}>
         <Image src={logo} alt="FC St. Pauli Logo" height={100} width={100} />
       </div>
       <div

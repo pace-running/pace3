@@ -15,7 +15,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
       className={props.role ? "form-check form-switch mb-3" : "form-check mb-3"}
     >
       <input
-        className="form-check-input"
+        className="form-check-input brown-checked"
         type="checkbox"
         value=""
         id={props.name}

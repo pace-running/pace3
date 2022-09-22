@@ -37,7 +37,7 @@ const Join: NextPage = () => {
     
   return (
     <BaseLayout pageTitle="Anmeldung">
-      <div className="container">
+      <div className="container" style={{maxWidth: "800px"}}>
         <h1>Anmeldung</h1>
         <p>Mit * markierte Felder müssen ausgefüllt werden.</p>
 
@@ -56,13 +56,13 @@ const Join: NextPage = () => {
         <TextInput type={"email"} name={"repeat"} label={"Email wiederholen"} />
         <Dropdown
           name={"starting_point"}
-          label={"Von wo wirst du laufen?"}
+          label={"Von wo wirst du laufen? *"}
           options={startingOptions}
           selected={""}
         />
         <Dropdown
           name={"running_level"}
-          label={"Wie schätzt du dein Laufniveau ein?"}
+          label={"Wie schätzt du dein Laufniveau ein? *"}
           options={runningLevelOptions}
           selected={""}
         />
@@ -70,10 +70,14 @@ const Join: NextPage = () => {
           type={"number"}
           name={"donation"}
           label={"Ich möchte spenden (mindestens 5€)"}
-          helperLabel={"Wie möchtest du beitragen?"}
+          helperLabel={"Wie möchtest du beitragen? *"}
+          default={10}
         />
 
         <h2>Fan T-Shirt</h2>
+
+        <Button name={"previewBtn"} label={"Vorschau"} type={"button"} styling={"preview-btn"}/>
+        <Button name={"sizesBtn"} label={"Größentabelle"} type={"button"} styling={"preview-btn"}/>
 
         <Checkbox
           name={"tshirt_toggle"}
@@ -103,32 +107,32 @@ const Join: NextPage = () => {
             <TextInput
               type={"text"}
               name={"country"}
-              label={"Land"}
+              label={"Land *"}
               default={"Deutschland"}
             />
             <TextInput
               type={"text"}
               name={"address_firstname"}
-              label={"Vorname"}
+              label={"Vorname *"}
             />
             <TextInput
               type={"text"}
               name={"address_lastname"}
-              label={"Nachname"}
+              label={"Nachname *"}
             />
-            <TextInput type={"text"} name={"street_name"} label={"Straße"} />
+            <TextInput type={"text"} name={"street_name"} label={"Straße *"} />
             <TextInput
               type={"text"}
               name={"house_number"}
-              label={"Hausnummer"}
+              label={"Hausnummer *"}
             />
             <TextInput
               type={"text"}
               name={"address_extra"}
               label={"Adresszusatz"}
             />
-            <TextInput type={"text"} name={"postal_code"} label={"PLZ"} />
-            <TextInput type={"text"} name={"city"} label={"Stadt"} />
+            <TextInput type={"text"} name={"postal_code"} label={"PLZ *"} />
+            <TextInput type={"text"} name={"city"} label={"Stadt *"} />
           </div>
         )}
 
@@ -150,7 +154,7 @@ const Join: NextPage = () => {
           }
           check={TOSConfirmed}
         />
-        <Button name={"submitButton"} label={"Weiter"} type={"submit"} onSubmit={submitForm} disabled={!TOSConfirmed}/>
+        <Button name={"submitButton"} label={"Weiter"} type={"submit"} onSubmit={submitForm} disabled={!TOSConfirmed} styling={"brownbg"}/>
       </div>
     </BaseLayout>
   );

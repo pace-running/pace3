@@ -7,11 +7,12 @@ type ButtonProps = {
     onSubmit?: FormEventHandler;
     onClick?: MouseEventHandler;
     disabled?: boolean;
+    styling?: string;
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
     return (
-        <button type={props.type} name={props.name} onSubmit={props.onSubmit} onClick={props.onClick} disabled={props.disabled??false}>
+        <button type={props.type} name={props.name} onSubmit={props.onSubmit} onClick={props.onClick} disabled={props.disabled??false} className={props.styling}>
             {props.label}
         </button>
     );
