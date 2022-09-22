@@ -63,4 +63,4 @@ jobs:
       - name: reload
         run: kubectl -n pace3 rollout restart deployment pace3-deployment
       - name: wait
-        run: kubectl -n pace3 rollout status deployment pace3-deployment --timeout=220s
+        run: kubectl -n pace3 rollout status deployment pace3-deployment --timeout=2200s

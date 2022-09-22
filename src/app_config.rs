@@ -9,9 +9,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/submit").route(web::post().to(join::register)))
             .service(web::resource("/summary").route(web::post().to(summary::show)))
             .service(web::resource("/health").route(web::get().to(health::health_endpoint)))
-            .service(web::resource("/login").route(web::get().to(admin::login)))
-            .service(web::resource("/admin").route(web::post().to(admin::check_password)))
-            .service(web::resource("/admin/runners").route(web::get().to(admin::show_runners)))
+            .service(web::resource("/api/admin/login").route(web::post().to(admin::check_password)))
+            .service(web::resource("/api/admin/runners").route(web::get().to(admin::show_runners)))
             .service(web::resource("/imprint").route(web::get().to(imprint::show)))
             .service(web::resource("/privacy_notice").route(web::get().to(privacy_notice::show)))
             .service(

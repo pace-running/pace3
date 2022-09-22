@@ -1,8 +1,9 @@
 use argon2::{self};
 use diesel::prelude::*;
 use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -23,9 +24,23 @@ pub struct LoginData {
     pub password: String,
 }
 
+#[derive(Serialize)]
+pub struct LoginResponse {
+    pub username: String,
+    pub role: String,
+}
+
+impl From<&User> for LoginResponse {
+    fn from(user: &User) -> Self {
+        LoginResponse {
+            username: user.username.to_string(),
+            role: user.role.to_string(),
+        }
+    }
+}
 #[cfg(test)]
 mod tests {
-    use crate::models::users::{LoginData, User};
+    use crate::models::users::{LoginData, LoginResponse, User};
 
     #[test]
     fn unit_matching_logindata_and_user() {
@@ -68,5 +83,17 @@ mod tests {
             password: "invalid password".to_string(),
         };
         assert!(user != data)
+    }
+
+    #[test]
+    fn unit_converts_user_to_login_response() {
+        let user = User {
+            id: 0,
+            username: "admin".to_string(),
+            password_hash: "whatever".to_string(),
+            role: "asdf".to_string(),
+        };
+        let login_response = LoginResponse::from(&user);
+        assert!(login_response.role == "asdf".to_string())
     }
 }
