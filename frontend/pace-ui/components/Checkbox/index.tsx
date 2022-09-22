@@ -1,4 +1,4 @@
-import { ChangeEventHandler } from "react";
+import { ChangeEventHandler, ReactNode } from "react";
 
 type CheckboxProps = {
   name: string;
@@ -6,6 +6,7 @@ type CheckboxProps = {
   role?: "switch";
   check: boolean;
   onChange?: ChangeEventHandler;
+  rest?: ReactNode;
 };
 
 const Checkbox: React.FC<CheckboxProps> = (props) => {
@@ -24,6 +25,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
       />
       <label className="form-check-label" htmlFor={props.name}>
         {props.label}
+        {props.rest}
       </label>
     </div>
   );

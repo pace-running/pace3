@@ -4,6 +4,7 @@ type InputProps = {
   name: string;
   label: string;
   helperLabel?: string;
+  default?: string;
 };
 const TextInput: React.FC<InputProps> = (props) => {
   return (
@@ -17,6 +18,7 @@ const TextInput: React.FC<InputProps> = (props) => {
         className="form-control"
         id={props.name}
         placeholder={props.placeholder}
+        defaultValue={props.default}
       />
     </div>
   );
