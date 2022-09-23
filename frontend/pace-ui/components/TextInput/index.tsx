@@ -1,3 +1,5 @@
+import { ChangeEventHandler } from "react";
+
 type InputProps = {
   type: "email" | "text" | "number" | "password";
   placeholder?: string;
@@ -6,7 +8,7 @@ type InputProps = {
   label: string;
   helperLabel?: string;
   default?: string | number;
-  onChange: () => void;
+  onChange: ChangeEventHandler;
   valid?: boolean;
   errorMessage?: string;
 };

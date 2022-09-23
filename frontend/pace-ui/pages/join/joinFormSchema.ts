@@ -2,23 +2,23 @@ import * as Yup from "yup";
 
 const requiredTShirtField = Yup.string().when("tshirt_toggle", {
   is: true,
-  then: Yup.string().required("Must enter email address"),
+  then: Yup.string().required("Bitte geben Sie die Lieferadresse an!"),
 });
 
 export const JoinFormSchema = Yup.object().shape({
-  firstname: Yup.string().min(2, "Too Short!").max(50, "Too Long!"),
-  lastname: Yup.string().min(2, "Too Short!").max(50, "Too Long!"),
+  firstname: Yup.string().min(2, "Vorname muss mindestens zwei Zeichen enthalten!").max(50, "Vorname darf maximal 50 Zeichen enthalten!"),
+  lastname: Yup.string().min(2, "Nachname muss mindestens zwei Zeichen enthalten!").max(50, "Nachname darf maximal 50 Zeichen enthalten!"),
   team: Yup.string(),
   email: Yup.string().email(),
   repeated_email: Yup.string().test({
-    message: "Emails must be equals",
+    message: "E-Mail Adressen müssen übereinstimmen!",
     test: function (value) {
       return value === this.parent.email;
     },
   }),
-  starting_point: Yup.string().required("you have to fill"),
-  running_level: Yup.string().required("you have to fill"),
-  donation: Yup.number().min(5, "Too Short!").required("you have to fill"),
+  starting_point: Yup.string().required("Bitte wählen Sie eine Option aus!"),
+  running_level: Yup.string().required("Bitte wählen Sie eine Option aus!"),
+  donation: Yup.number().min(5, "Die Spende muss mindestens 5€ betragen!").required("Bitte geben Sie einen Spendenbetrag an!"),
 
   tshirt_toggle: Yup.boolean(),
   tshirt_model: requiredTShirtField,

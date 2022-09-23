@@ -1,10 +1,10 @@
-import { EventHandler, FormEventHandler, MouseEventHandler } from "react";
+import { ChangeEventHandler, EventHandler, FormEventHandler, MouseEventHandler } from "react";
 
 type ButtonProps = {
     name: string;
     label: string;
     type: "submit" | "button";
-    onSubmit?: FormEventHandler;
+    onSubmit?: EventHandler<any>;
     onClick?: MouseEventHandler;
     disabled?: boolean;
     styling?: string;

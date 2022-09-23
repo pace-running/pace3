@@ -26,7 +26,7 @@ const Join: NextPage = () => {
 
   const { handleChange, setFieldValue, values, handleSubmit, errors } =
     useFormik<JoinFormValues>({
-      initialValues: { donation: 10 },
+      initialValues: { donation: 10, tshirt_toggle: false, tos_confirmed: false },
       validationSchema: JoinFormSchema,
       onSubmit: submitForm,
     });
@@ -44,6 +44,8 @@ const Join: NextPage = () => {
             onChange={handleChange}
             name={"firstname"}
             label={"Vorname (erscheint auf der Startnummer)"}
+            valid={!errors.firstname}
+            errorMessage={errors.firstname}
           />
           <TextInput
             type={"text"}
@@ -51,6 +53,8 @@ const Join: NextPage = () => {
             onChange={handleChange}
             name={"lastname"}
             label={"Nachname"}
+            valid={!errors.lastname}
+            errorMessage={errors.lastname}
           />
           <TextInput
             type={"text"}
@@ -98,7 +102,7 @@ const Join: NextPage = () => {
           <TextInput
             type={"number"}
             name={"donation"}
-            prependSignal="€"
+            // prependSignal="€"
             value={values.donation}
             valid={!errors.donation}
             errorMessage={errors.donation}

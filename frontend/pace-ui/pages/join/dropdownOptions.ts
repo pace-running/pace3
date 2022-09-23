@@ -15,7 +15,7 @@ export const modelOptions = [
 ];
 
 export const getSizeOptions = (
-  modelOptionValue: "unisex" | "slimfit"
+  modelOptionValue: String | undefined
 ): { label: string; value: string }[] => {
   const defaultSizes = [
     { label: "S", value: "s" },
@@ -28,5 +28,5 @@ export const getSizeOptions = (
     return [...defaultSizes, { label: "XXL", value: "xxl" }];
   }
 
-  return defaultSizes;
+  return  defaultSizes;
 };
