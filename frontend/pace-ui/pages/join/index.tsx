@@ -20,6 +20,7 @@ const Join: NextPage = () => {
   const { setJoinFormData } = useJoinFormContext();
 
   const submitForm = (values: JoinFormValues) => {
+    console.log(errors);
     setJoinFormData(values);
     router.push("/summary");
   };
@@ -160,6 +161,8 @@ const Join: NextPage = () => {
                 name={"country"}
                 label={"Land *"}
                 default={"Deutschland"}
+                valid={!errors.country}
+            errorMessage={errors.country}
               />
               <TextInput
                 value={values.address_firstname}
@@ -167,6 +170,8 @@ const Join: NextPage = () => {
                 type={"text"}
                 name={"address_firstname"}
                 label={"Vorname *"}
+                valid={!errors.address_firstname}
+            errorMessage={errors.address_firstname}
               />
               <TextInput
                 value={values.address_lastname}
@@ -174,6 +179,8 @@ const Join: NextPage = () => {
                 type={"text"}
                 name={"address_lastname"}
                 label={"Nachname *"}
+                valid={!errors.address_lastname}
+            errorMessage={errors.address_lastname}
               />
               <TextInput
                 type={"text"}
@@ -181,6 +188,8 @@ const Join: NextPage = () => {
                 onChange={handleChange}
                 name={"street_name"}
                 label={"Straße *"}
+                valid={!errors.street_name}
+            errorMessage={errors.street_name}
               />
               <TextInput
                 type={"text"}
@@ -188,6 +197,8 @@ const Join: NextPage = () => {
                 onChange={handleChange}
                 name={"house_number"}
                 label={"Hausnummer *"}
+                valid={!errors.house_number}
+            errorMessage={errors.house_number}
               />
               <TextInput
                 value={values.address_extra}
@@ -202,6 +213,8 @@ const Join: NextPage = () => {
                 onChange={handleChange}
                 name={"postal_code"}
                 label={"PLZ *"}
+                valid={!errors.postal_code}
+            errorMessage={errors.postal_code}
               />
               <TextInput
                 type={"text"}
@@ -209,6 +222,8 @@ const Join: NextPage = () => {
                 onChange={handleChange}
                 name={"city"}
                 label={"Stadt *"}
+                valid={!errors.city}
+            errorMessage={errors.city}
               />
             </div>
           )}

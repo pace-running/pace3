@@ -1,9 +1,10 @@
 import * as Yup from "yup";
 
-const requiredTShirtField = Yup.string().when("tshirt_toggle", {
+// TODO: Fix validation for shipping information fields
+const requiredTShirtField = /*Yup.string().when("tshirt_toggle", {
   is: true,
   then: Yup.string().required("Bitte geben Sie die Lieferadresse an!"),
-});
+});*/ Yup.string()
 
 export const JoinFormSchema = Yup.object().shape({
   firstname: Yup.string().min(2, "Vorname muss mindestens zwei Zeichen enthalten!").max(50, "Vorname darf maximal 50 Zeichen enthalten!"),
@@ -21,7 +22,10 @@ export const JoinFormSchema = Yup.object().shape({
   donation: Yup.number().min(5, "Die Spende muss mindestens 5€ betragen!").required("Bitte geben Sie einen Spendenbetrag an!"),
 
   tshirt_toggle: Yup.boolean(),
-  tshirt_model: requiredTShirtField,
+  tshirt_model: Yup.string().when("tshirt_toggle", {
+    is: true,
+    then: Yup.string().required("Bitte geben Sie die Lieferadresse an!"),
+  }),
   tshirt_size: requiredTShirtField,
   country: requiredTShirtField,
   address_firstname: requiredTShirtField,

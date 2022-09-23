@@ -1,10 +1,26 @@
 import { NextPage } from "next";
+import { useEffect, useState } from "react";
 import BaseLayout from "../../components/Layout/baseLayout";
 import { useJoinFormContext } from "../../context/JoinFormContext";
 
 const SummaryPage: NextPage = () => {
   const { joinFormData } = useJoinFormContext();
-  console.log(joinFormData);
+  const [formData, setFormData] = useState(joinFormData);
+
+  useEffect(() => {
+    if (formData) {
+      localStorage.setItem("formData", JSON.stringify(formData));
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    const formData = JSON.parse(localStorage.getItem("formData")??"");
+    if (formData) {
+      setFormData(formData);
+    }
+  }, []);
+
+
   return (
     <BaseLayout pageTitle="Zusammenfassung">
       <div
@@ -24,27 +40,27 @@ const SummaryPage: NextPage = () => {
           <h2>PERSÖNLICHE ANGABEN</h2>
 
           <p>
-            Name: {joinFormData?.firstname} {joinFormData?.lastname}
+            Name: {formData?.firstname} {formData?.lastname}
           </p>
-          <p>Team: {joinFormData?.team}</p>
-          <p>E-Mail: {joinFormData?.email}</p>
+          <p>Team: {formData?.team}</p>
+          <p>E-Mail: {formData?.email}</p>
 
-          {joinFormData?.starting_point === "hamburg" ? (
+          {formData?.starting_point === "hamburg" ? (
             <p>Startort: Hamburg</p>
           ) : (
             <p>Startort: Woanders</p>
           )}
 
-          {joinFormData?.running_level === "rarely" ? (
+          {formData?.running_level === "rarely" ? (
             <p>Laufniveau: Ich laufe selten.</p>
-          ) : joinFormData?.running_level === "often" ? (
+          ) : formData?.running_level === "often" ? (
             <p>Laufniveau: Ich laufe gelegentlich bis regelmäßig.</p>
           ) : (
             <p>Laufniveau: Ich laufe häufig und ambitioniert.</p>
           )}
         </div>
 
-        {joinFormData?.tshirt_toggle && (
+        {formData?.tshirt_toggle && (
           <div
             style={{
               textAlign: "left",
@@ -56,7 +72,7 @@ const SummaryPage: NextPage = () => {
           >
             <div style={{ textAlign: "left", padding: "20px" }}>
               <h2>T-SHIRT ANGABEN</h2>
-              {joinFormData?.tshirt_model === "unisex" ? (
+              {formData?.tshirt_model === "unisex" ? (
                 <p>Modell: Unisex</p>
               ) : (
                 <p>Modell: Tailliert</p>
@@ -65,33 +81,32 @@ const SummaryPage: NextPage = () => {
               <p>
                 Größe:{" "}
                 <span style={{ textTransform: "uppercase" }}>
-                  {joinFormData?.tshirt_size}
+                  {formData?.tshirt_size}
                 </span>
               </p>
             </div>
             <div style={{ textAlign: "left", padding: "20px" }}>
               <h2>LIEFERADRESSE</h2>
               <p>
-                {joinFormData?.address_firstname}{" "}
-                {joinFormData?.address_lastname}
+                {formData?.address_firstname} {formData?.address_lastname}
               </p>
               <p>
-                {joinFormData?.street_name} {joinFormData?.house_number}
+                {formData?.street_name} {formData?.house_number}
               </p>
               <p>
-                {joinFormData?.postal_code} {joinFormData?.city}
+                {formData?.postal_code} {formData?.city}
               </p>
-              <p>{joinFormData?.address_extra}</p>
-              <p>{joinFormData?.country}</p>
+              <p>{formData?.address_extra}</p>
+              <p>{formData?.country}</p>
             </div>
           </div>
         )}
 
         <div style={{ textAlign: "left" }}>
-          <p>Spendenbeitrag: {joinFormData?.donation}€</p>
+          <p>Spendenbeitrag: {formData?.donation}€</p>
           <p>Versand: kostenlos (innerhalb Deutschland)</p>
 
-          <p>Zu zahlen: {joinFormData?.donation}€</p>
+          <p>Zu zahlen: {formData?.donation}€</p>
         </div>
       </div>
     </BaseLayout>
