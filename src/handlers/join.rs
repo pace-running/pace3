@@ -6,8 +6,19 @@ use crate::models::info::Info;
 use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
-use actix_web::{web, Error, HttpResponse, Result};
+use actix_web::http::StatusCode;
+use actix_web::web::Json;
+use actix_web::{web, Error, HttpResponse, Responder, Result};
+use serde::Deserialize;
+use serde::Serialize;
 use tera::Context;
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Response {
+    success_message: Option<String>,
+    error_message: Option<String>,
+    status_code: u16,
+}
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
@@ -16,7 +27,7 @@ pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, E
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
 }
 
-pub fn has_bad_data(form: &web::Form<Info>) -> bool {
+pub fn has_bad_data(form: &Info) -> bool {
     let donation: u16 = form
         .runner_info
         .donation
@@ -45,12 +56,16 @@ pub fn has_bad_data(form: &web::Form<Info>) -> bool {
         || (donation < 5)
 }
 
-pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
-    if has_bad_data(&form) {
-        return Ok(HttpResponse::BadRequest().body("Bad data"));
+pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
+    let info = form.into_inner();
+    if has_bad_data(&info) {
+        return Ok(HttpResponse::BadRequest().json(Response {
+            success_message: None,
+            error_message: Some("Bad data".to_string()),
+            status_code: StatusCode::BAD_REQUEST.as_u16(),
+        }));
     }
     let conn = &mut establish_connection();
-    let info = form.into_inner();
     let runner_start_number = runner::next_start_number(conn);
     // Write data into data base
     let new_runner = NewRunner::from((&info, runner_start_number));
@@ -59,15 +74,19 @@ pub async fn register(form: web::Form<Info>) -> Result<HttpResponse, Error> {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
         insert_shipping(conn, new_shipping);
     }
-    Ok(HttpResponse::Ok().body("Data received"))
+    Ok(HttpResponse::Ok().json(Response {
+        success_message: Some("Data received".to_string()),
+        error_message: None,
+        status_code: StatusCode::OK.as_u16(),
+    }))
 }
 
 #[cfg(test)]
 mod tests {
     use crate::builders::InfoBuilder;
-    use crate::handlers::join::{form_request, register};
+    use crate::handlers::join::{form_request, register, Response};
     use actix_web::body::to_bytes;
-    use actix_web::web::Bytes;
+    use actix_web::web::{Bytes, Json};
     use actix_web::{http::StatusCode, web};
     use tera::Tera;
 
@@ -98,7 +117,7 @@ mod tests {
     #[actix_web::test]
     async fn integration_minimal_submit() {
         let participant = InfoBuilder::minimal_default().build();
-        let input_data = web::Form(participant);
+        let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
     }
@@ -106,7 +125,7 @@ mod tests {
     #[actix_web::test]
     async fn integration_submit_form_with_shipping() {
         let participant = InfoBuilder::default().build();
-        let input_data = web::Form(participant);
+        let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
     }
@@ -114,7 +133,7 @@ mod tests {
     #[actix_web::test]
     async fn integration_submit_wrong_form() {
         let participant = InfoBuilder::default().with_house_number("").build();
-        let input_data = web::Form(participant);
+        let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }

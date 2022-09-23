@@ -76,7 +76,7 @@ task_test_integration() {
   docker-compose up --force-recreate -d
   sleep 5
   task_migrate
-  cargo test integration
+  cargo test integration -- --nocapture
   docker-compose down
 }
 
