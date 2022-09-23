@@ -4,13 +4,18 @@ import TextInput from "../../components/TextInput";
 import Button from "../../components/Button";
 import axios from "axios";
 import router from "next/router";
+import React from "react";
 
 
-const submitForm = async event => {
+const submitForm = async (event: React.SyntheticEvent) => {
     event.preventDefault()
+    const target = event.target as typeof event.target & {
+        username: { value: string };
+        password: { value: string };
+    };
     let loginData = {
-        username: event.target.username.value,
-        password: event.target.password.value
+        username: target.username.value,
+        password: target.password.value
     }
     await axios.post('http://localhost:8080/api/admin/login',loginData).then((response => {
         console.log(response)
