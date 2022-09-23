@@ -7,12 +7,12 @@ use pace::app_config::routes;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let secret_key = Key::generate();
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
         .build()
         .unwrap();
     HttpServer::new(move || {
-        let secret_key = Key::generate();
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
                 .cookie_secure(false)

@@ -1,4 +1,5 @@
 use crate::establish_connection;
+use crate::models::runner::Runner;
 use crate::models::users::{LoginData, LoginResponse, User};
 use actix_identity::Identity;
 use actix_web::web::Json;
@@ -22,16 +23,30 @@ pub async fn check_password(
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Identity::login(&request.extensions(), response.username.to_string()).unwrap();
-        Ok(HttpResponse::Ok().content_type("text/json").body(json))
+        Ok(HttpResponse::Ok()
+            .content_type("application/json")
+            .body(json))
     } else {
-        Ok(HttpResponse::Forbidden()
-            .content_type("text/json")
-            .body("\"result\": \"fail\""))
+        Ok(forbidden())
     }
 }
 
-pub async fn show_runners() -> Result<HttpResponse, Error> {
+pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
+    use crate::schema::runners::dsl::*;
+    let connection = &mut establish_connection();
+    let database_result = runners.load::<Runner>(connection);
     Ok(HttpResponse::Ok()
         .content_type("text/json")
-        .body("{'showing runners'}"))
+        .body(serde_json::to_string(&database_result.unwrap()).unwrap()))
+}
+
+pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {
+    user.logout();
+    Ok(HttpResponse::NoContent().finish())
+}
+
+fn forbidden() -> HttpResponse {
+    HttpResponse::Forbidden()
+        .content_type("application/json")
+        .body("\"result\": \"fail\"")
 }

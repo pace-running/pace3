@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
+use serde::Serialize;
 
 use crate::constants::BLACKLIST_START_NUMBERS;
 use crate::get_next_start_number;
@@ -20,7 +21,7 @@ pub struct NewRunner<'a> {
     pub donation: &'a str,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct Runner {
     pub id: i32,
     pub start_number: i64,
