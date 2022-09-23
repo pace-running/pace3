@@ -18,6 +18,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
         className="form-check-input brown-checked"
         type="checkbox"
         value=""
+        name={props.name}
         id={props.name}
         onChange={props.onChange}
         role={props.role ?? undefined}

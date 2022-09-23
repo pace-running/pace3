@@ -1,25 +1,43 @@
 type InputProps = {
   type: "email" | "text" | "number" | "password";
   placeholder?: string;
+  value?: string | number;
   name: string;
   label: string;
   helperLabel?: string;
   default?: string | number;
+  onChange: () => void;
+  valid?: boolean;
+  errorMessage?: string;
 };
 const TextInput: React.FC<InputProps> = (props) => {
   return (
     <div className="mb-3">
-      {props.helperLabel && <p style={{marginBottom: "1px"}}>{props.helperLabel}</p>}
+      {props.helperLabel && (
+        <p style={{ marginBottom: "1px" }}>{props.helperLabel}</p>
+      )}
       <label htmlFor={props.name} className="form-label">
         {props.label}
       </label>
-      <input
-        type={props.type}
-        className="form-control"
-        id={props.name}
-        placeholder={props.placeholder}
-        defaultValue={props.default}
-      />
+      <div className="input-group">
+        <input
+          value={props.value}
+          onChange={props.onChange}
+          type={props.type}
+          className="form-control"
+          name={props.name}
+          placeholder={props.placeholder}
+          defaultValue={props.default}
+        />
+      </div>
+      {!props.valid && (
+        <div
+          style={{ display: !props.valid ? "block" : "none" }}
+          className="invalid-feedback"
+        >
+          {props.errorMessage}
+        </div>
+      )}
     </div>
   );
 };
