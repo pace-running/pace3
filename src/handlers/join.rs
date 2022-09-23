@@ -8,7 +8,7 @@ use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 use actix_web::http::StatusCode;
 use actix_web::web::Json;
-use actix_web::{web, Error, HttpResponse, Responder, Result};
+use actix_web::{web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;

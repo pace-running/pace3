@@ -1,9 +1,9 @@
 use actix_cors::Cors;
-use actix_web::web::Data;
-use actix_web::{http, App, HttpServer};
+use actix_identity::IdentityMiddleware;
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
+use actix_web::{cookie::Key, http, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
 use pace::app_config::routes;
-use tera::Tera;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -12,6 +12,11 @@ async fn main() -> std::io::Result<()> {
         .build()
         .unwrap();
     HttpServer::new(move || {
+        let secret_key = Key::generate();
+        let session_middleware =
+            SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
+                .cookie_secure(false)
+                .build();
         let cors = Cors::default()
             .allowed_origin_fn(|origin, _req_head| {
                 origin.as_bytes().ends_with(b"localhost:3000")
@@ -25,16 +30,9 @@ async fn main() -> std::io::Result<()> {
             ])
             .max_age(3600);
 
-        let mut tera = match Tera::new("templates/**/*") {
-            Ok(t) => t,
-            Err(e) => {
-                println!("Parsing error(s): {}", e);
-                std::process::exit(1);
-            }
-        };
-        tera.autoescape_on(vec![".html", ".sql"]);
         App::new()
-            .app_data(Data::new(tera))
+            .wrap(IdentityMiddleware::default())
+            .wrap(session_middleware)
             .wrap(prometheus.clone())
             .wrap(cors)
             .configure(routes)

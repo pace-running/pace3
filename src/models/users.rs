@@ -18,6 +18,17 @@ impl PartialEq<LoginData> for User {
     }
 }
 
+impl Default for User {
+    fn default() -> Self {
+        User {
+            id: 0,
+            username: "".to_string(),
+            password_hash: "".to_string(),
+            role: "".to_string(),
+        }
+    }
+}
+
 #[derive(Deserialize)]
 pub struct LoginData {
     pub username: String,
