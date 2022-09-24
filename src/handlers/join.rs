@@ -13,7 +13,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct Response {
     success_message: Option<String>,
     error_message: Option<String>,
@@ -85,8 +85,8 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
 mod tests {
     use crate::builders::InfoBuilder;
     use crate::handlers::join::{form_request, register, Response};
-    use actix_web::body::to_bytes;
-    use actix_web::web::{Bytes, Json};
+    use actix_web::body::{to_bytes, MessageBody};
+    use actix_web::web::Bytes;
     use actix_web::{http::StatusCode, web};
     use tera::Tera;
 
@@ -120,6 +120,14 @@ mod tests {
         let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
+        let bytes = response.into_body().try_into_bytes().unwrap();
+        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
+        let expected_response = Response {
+            success_message: Some("Data received".to_string()),
+            error_message: None,
+            status_code: 200,
+        };
+        assert_eq!(actual_response, expected_response);
     }
 
     #[actix_web::test]
@@ -128,6 +136,14 @@ mod tests {
         let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
+        let bytes = response.into_body().try_into_bytes().unwrap();
+        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
+        let expected_response = Response {
+            success_message: Some("Data received".to_string()),
+            error_message: None,
+            status_code: 200,
+        };
+        assert_eq!(actual_response, expected_response);
     }
 
     #[actix_web::test]
@@ -136,5 +152,13 @@ mod tests {
         let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let bytes = response.into_body().try_into_bytes().unwrap();
+        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
+        let expected_response = Response {
+            success_message: None,
+            error_message: Some("Bad data".to_string()),
+            status_code: 400,
+        };
+        assert_eq!(actual_response, expected_response);
     }
 }
