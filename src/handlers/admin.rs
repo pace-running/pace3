@@ -22,7 +22,7 @@ pub async fn check_password(
     if user == login_data.into_inner() {
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
-        Identity::login(&request.extensions(), response.username.to_string()).unwrap();
+        Identity::login(&request.extensions(), response.username).unwrap();
         Ok(HttpResponse::Ok()
             .content_type("application/json")
             .body(json))

@@ -105,6 +105,6 @@ mod tests {
             role: "asdf".to_string(),
         };
         let login_response = LoginResponse::from(&user);
-        assert!(login_response.role == "asdf".to_string())
+        assert_eq!(login_response.role, "asdf".to_string())
     }
 }
