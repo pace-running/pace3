@@ -1,0 +1,104 @@
+#!/bin/bash
+
+###############################################################################
+# Shell script
+###############################################################################
+# Shell script options
+set -e
+
+###############################################################################
+# Execution environment
+###############################################################################
+
+# shellcheck disable=SC2034
+PROJECT_DIR="$(
+  cd "$(dirname "$0")" >/dev/null 2>&1
+  pwd -P
+)"
+
+###############################################################################
+# Setup
+###############################################################################
+
+##DOC install - Install application dependencies
+task_install() {
+  log_running_command "install dependencies..."
+  npm install
+}
+
+##############################################################################
+# Build
+###############################################################################
+
+##DOC build - Build application to deploy
+task_build() {
+  npm run build
+}
+
+###############################################################################
+# Start
+###############################################################################
+
+##DOC start - Start the application
+task_start() {
+  log_running_command "application..."
+  npm run dev
+}
+
+###############################################################################
+# Test
+###############################################################################
+
+##DOC lint - Run lint
+task_lint() {
+  log_running_command "linting check..."
+  npm run lint
+}
+
+##DOC tsc - Run Type check by tsc
+task_tsc() {
+  log_running_command "type check..."
+  npm run tsc
+}
+
+##DOC quality_check - Static check (lint) and testing
+task_quality_check() {
+  task_lint
+  task_tsc
+}
+
+###############################################################################
+# Helper functions
+###############################################################################
+
+##DOC help - Print cli usage message
+help() {
+  echo ""
+  echo "Commands:"
+  grep -e "^##DOC" < "$(basename "$0")" | sed "s/^##DOC \(.*\)/  \1/"
+
+  exit 1
+}
+
+## log running commands
+log_running_command() {
+  echo "[$(date +%H:%M:%S)] Running $1"
+}
+
+## cli main function
+main() {
+  CMD=${1:-}
+  shift || true
+
+  pushd "$DIR" > /dev/null
+
+  if type "task_${CMD}" &> /dev/null; then
+    "task_${CMD}" "$@"
+  else
+    help
+  fi
+
+  popd > /dev/null
+}
+
+main "$@"
