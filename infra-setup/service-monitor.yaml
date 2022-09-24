@@ -1,0 +1,10 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pace3
+spec:
+  selector:
+    matchLabels:
+      app: pace3
+  endpoints:
+  - port: pace3
