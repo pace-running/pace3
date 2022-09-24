@@ -8,7 +8,7 @@ type InputProps = {
   label: string;
   helperLabel?: string;
   default?: string | number;
-  onChange: ChangeEventHandler;
+  onChange?: ChangeEventHandler;
   valid?: boolean;
   errorMessage?: string;
 };

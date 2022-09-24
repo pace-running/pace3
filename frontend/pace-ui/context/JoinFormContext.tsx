@@ -2,13 +2,15 @@ import React, { createContext, useContext, useState } from "react";
 import { JoinFormValues } from "../pages/join/joinFormSchema";
 
 type JoinFormContextType = {
-  joinFormData: JoinFormValues;
+  joinFormData?: JoinFormValues;
   setJoinFormData: (data: JoinFormValues) => void;
 };
 
-const JoinFormContext = createContext<JoinFormContextType>({});
+const JoinFormContext = createContext<JoinFormContextType>({
+    setJoinFormData: () => {}
+});
 
-const JoinFormProvider: React.FC = ({ children }) => {
+const JoinFormProvider: React.FC<any> = ({ children }) => {
   const [joinFormContextData, setJoinFormContextData] =
     useState<JoinFormValues>();
 
