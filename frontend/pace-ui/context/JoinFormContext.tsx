@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { JoinFormValues } from "../pages/join/joinFormSchema";
+import { JoinFormValues } from "../utility/joinFormSchema";
 
 type JoinFormContextType = {
   joinFormData?: JoinFormValues;

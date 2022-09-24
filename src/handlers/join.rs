@@ -13,7 +13,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;
 
-#[derive(Deserialize, Serialize, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Response {
     success_message: Option<String>,
     error_message: Option<String>,

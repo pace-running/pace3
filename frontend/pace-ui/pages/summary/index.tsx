@@ -14,7 +14,7 @@ const SummaryPage: NextPage = () => {
     }, [formData]);
 
     useEffect(() => {
-        const formData = JSON.parse(localStorage.getItem("formData") ?? "");
+        const formData = JSON.parse(localStorage.getItem("formData") ?? "{}");
         if (formData) {
             setFormData(formData);
         }

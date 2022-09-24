@@ -6,8 +6,8 @@ import Checkbox from "../../components/Checkbox";
 import Dropdown from "../../components/Dropdown";
 import BaseLayout from "../../components/Layout/baseLayout";
 import TextInput from "../../components/TextInput";
-import {getSizeOptions, modelOptions, runningLevelOptions, startingOptions,} from "./dropdownOptions";
-import {JoinFormSchema, JoinFormValues} from "./joinFormSchema";
+import {getSizeOptions, modelOptions, runningLevelOptions, startingOptions,} from "../../utility/dropdownOptions";
+import {JoinFormSchema, JoinFormValues} from "../../utility/joinFormSchema";
 import {useJoinFormContext} from "../../context/JoinFormContext";
 import router from "next/router";
 
