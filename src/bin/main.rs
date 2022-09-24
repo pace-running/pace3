@@ -4,6 +4,7 @@ use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, http, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
 use pace::app_config::routes;
+use pace::has_https;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -15,7 +16,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
-                .cookie_secure(false)
+                .cookie_secure(has_https())
                 .build();
         let cors = Cors::default()
             .allowed_origin_fn(|origin, _req_head| {

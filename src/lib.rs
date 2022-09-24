@@ -21,6 +21,13 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url).unwrap()
 }
 
+pub fn has_https() -> bool {
+    dotenv().ok();
+    let https_enabled =
+        env::var("HTTPS_ENABLED").unwrap_or_else(|_error| { "false" }.parse().unwrap());
+    https_enabled.eq("true")
+}
+
 pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
     use crate::schema::runners;
 

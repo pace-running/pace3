@@ -24,6 +24,8 @@ spec:
               path: /health
               port: 8080
           env:
+            - name: HTTPS_ENABLED
+              value: "true"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
