@@ -17,7 +17,7 @@ const submitForm = async (event: React.SyntheticEvent) => {
         username: target.username.value,
         password: target.password.value
     }
-    await axios.post('http://localhost:8080/api/admin/login', loginData).then((response => {
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, loginData).then((response => {
         console.log(response)
         router.push('/admin')
     }))

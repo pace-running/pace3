@@ -19,7 +19,7 @@ pub async fn check_password(
         Ok(user) => user,
         Err(_) => User::default(),
     };
-    if user == login_data.into_inner() {
+    if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Identity::login(&request.extensions(), response.username).unwrap();
