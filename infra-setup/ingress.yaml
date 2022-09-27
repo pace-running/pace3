@@ -7,6 +7,7 @@ metadata:
     app: pace3
   annotations:
     kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/content-security-policy: "default-src 'self'"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
