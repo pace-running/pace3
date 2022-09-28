@@ -1,4 +1,4 @@
-import {ChangeEventHandler, ReactNode} from "react";
+import React, {ChangeEventHandler, ReactNode} from "react";
 
 type CheckboxProps = {
     name: string;

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import router from "next/router";
 import logo from "../../public/logo.svg";
+import React from "react";
 
 const Header: React.FC = () => {
     return (

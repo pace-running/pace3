@@ -1,4 +1,4 @@
-import { ChangeEventHandler } from "react";
+import React, { ChangeEventHandler } from "react";
 
 type InputProps = {
   type: "email" | "text" | "number" | "password";

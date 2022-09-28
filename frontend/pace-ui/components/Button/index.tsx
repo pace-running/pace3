@@ -1,4 +1,4 @@
-import {EventHandler, MouseEventHandler} from "react";
+import React, {EventHandler, MouseEventHandler} from "react";
 
 type ButtonProps = {
     name: string;
