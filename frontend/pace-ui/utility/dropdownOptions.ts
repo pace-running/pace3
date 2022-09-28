@@ -14,6 +14,12 @@ export const modelOptions = [
     {label: "Tailliert", value: "slimfit"},
 ];
 
+export const countryOptions = [
+    {label: "Deutschland", value: "Deutschland"},
+    {label: "Afghanistan", value: "Afghanistan"},
+    {label: "Albania", value: "Albania"},
+];
+
 export const getSizeOptions = (
     modelOptionValue: String | undefined
 ): { label: string; value: string }[] => {

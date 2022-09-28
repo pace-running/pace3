@@ -6,7 +6,13 @@ import Checkbox from "../../components/Checkbox";
 import Dropdown from "../../components/Dropdown";
 import BaseLayout from "../../components/Layout/baseLayout";
 import TextInput from "../../components/TextInput";
-import {getSizeOptions, modelOptions, runningLevelOptions, startingOptions,} from "../../utility/dropdownOptions";
+import {
+    countryOptions,
+    getSizeOptions,
+    modelOptions,
+    runningLevelOptions,
+    startingOptions,
+} from "../../utility/dropdownOptions";
 import {JoinFormSchema, JoinFormValues} from "../../utility/joinFormSchema";
 import {useJoinFormContext} from "../../context/JoinFormContext";
 import router from "next/router";
@@ -15,7 +21,6 @@ const Join: NextPage = () => {
     const {setJoinFormData} = useJoinFormContext();
 
     const submitForm = (values: JoinFormValues) => {
-        console.log(errors);
         setJoinFormData(values);
         router.push("/summary");
     };
@@ -146,18 +151,16 @@ const Join: NextPage = () => {
                                 label={"Größe"}
                                 options={getSizeOptions(values.tshirt_model)}
                                 selected={""}
+                                onChange={handleChange}
                             />
 
                             <h3>Lieferanschrift</h3>
-                            <TextInput
-                                type={"text"}
-                                value={values.country}
-                                onChange={handleChange}
+                            <Dropdown
                                 name={"country"}
                                 label={"Land *"}
-                                default={"Deutschland"}
-                                valid={!errors.country}
-                                errorMessage={errors.country}
+                                options={countryOptions}
+                                selected={""}
+                                onChange={handleChange}
                             />
                             <TextInput
                                 value={values.address_firstname}
