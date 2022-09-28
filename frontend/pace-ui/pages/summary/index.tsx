@@ -2,6 +2,33 @@ import {NextPage} from "next";
 import {useEffect, useState} from "react";
 import BaseLayout from "../../components/Layout/baseLayout";
 import {useJoinFormContext} from "../../context/JoinFormContext";
+import Button from "../../components/Button";
+import router from 'next/router';
+import {JoinFormValues} from "../../utility/joinFormSchema";
+import {submitJoinInfo} from "../../apis/join";
+
+const mapJoinFormDataToRequestData = (formData: JoinFormValues) => ({
+    firstname: formData.firstname ?? "",
+    lastname: formData.lastname ?? "",
+    team: formData.team ?? "",
+    email: formData.email ?? "",
+    repeat: formData.repeated_email ?? "",
+    starting_point: formData.starting_point ?? "",
+    running_level: formData.running_level ?? "",
+    donation: formData.donation.toString(),
+    confirm: formData.tos_confirmed ? "on" : "",
+    tshirt_toggle: formData.tshirt_toggle ? "on" : "",
+    tshirt_model: formData.tshirt_model ?? "",
+    tshirt_size: formData.tshirt_size ?? "",
+    country: formData.country ?? "",
+    address_firstname: formData.address_firstname ?? "",
+    address_lastname: formData.address_lastname ?? "",
+    street_name: formData.street_name ?? "",
+    house_number: formData.house_number ?? "",
+    address_extra: formData.address_extra ?? "",
+    postal_code: formData.postal_code ?? "",
+    city: formData.city ?? "",
+});
 
 const SummaryPage: NextPage = () => {
     const {joinFormData} = useJoinFormContext();
@@ -20,6 +47,15 @@ const SummaryPage: NextPage = () => {
         }
     }, []);
 
+    const handleSubmit = async () => {
+        if (formData) {
+            const response = await submitJoinInfo(mapJoinFormDataToRequestData(formData));
+            console.log("Response: ", response.data);
+            if (response.data.status_code === 200) {
+                await router.push('/confirmation')
+            }
+        }
+    }
 
     return (
         <BaseLayout pageTitle="Zusammenfassung">
@@ -63,9 +99,8 @@ const SummaryPage: NextPage = () => {
                 {formData?.tshirt_toggle && (
                     <div
                         style={{
-                            textAlign: "left",
+                            textAlign: "center",
                             display: "flex",
-                            justifyContent: "center",
                             margin: "30px",
                             border: "3px solid grey",
                         }}
@@ -79,10 +114,7 @@ const SummaryPage: NextPage = () => {
                             )}
 
                             <p>
-                                Größe:{" "}
-                                <span style={{textTransform: "uppercase"}}>
-                  {formData?.tshirt_size}
-                </span>
+                                Größe:<span style={{textTransform: "uppercase"}}> {formData?.tshirt_size}</span>
                             </p>
                         </div>
                         <div style={{textAlign: "left", padding: "20px"}}>
@@ -102,11 +134,30 @@ const SummaryPage: NextPage = () => {
                     </div>
                 )}
 
-                <div style={{textAlign: "left"}}>
+                <div style={{textAlign: "left", margin: "30px", padding: "20px",}}>
                     <p>Spendenbeitrag: {formData?.donation}€</p>
                     <p>Versand: kostenlos (innerhalb Deutschland)</p>
-
-                    <p>Zu zahlen: {formData?.donation}€</p>
+                    <hr></hr>
+                    <p style={{fontWeight: "bold"}}>Zu zahlen: {formData?.donation}€</p>
+                </div>
+                <div style={{textAlign: "center"}}>
+                    <Button
+                        name={"goBackButton"}
+                        label={"Zurück zur Bearbeitung"}
+                        type={"button"}
+                        onClick={() => {
+                            router.back();
+                        }}
+                        styling={"brownbg"}
+                    />
+                    {"   "}
+                    <Button
+                        name={"submitButton"}
+                        label={"Anmelden"}
+                        type={"submit"}
+                        onClick={handleSubmit}
+                        styling={"brownbg"}
+                    />
                 </div>
             </div>
         </BaseLayout>

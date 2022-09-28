@@ -1,4 +1,5 @@
-interface RunnerInfoRequestData {
+interface InfoRequestData {
+    // RunnerInfoRequestData
     firstname: string,
     lastname: string,
     team: string,
@@ -8,9 +9,8 @@ interface RunnerInfoRequestData {
     running_level: string,
     donation: string,
     confirm: string,
-}
 
-interface ShippingInfoRequestData {
+    // ShippingInfoRequestData
     tshirt_toggle: string,
     tshirt_model: string,
     tshirt_size: string,
@@ -22,9 +22,4 @@ interface ShippingInfoRequestData {
     address_extra: string,
     postal_code: string,
     city: string,
-}
-
-interface InfoRequestData {
-    runner_info_data: RunnerInfoRequestData,
-    shipping_info_dat: ShippingInfoRequestData,
 }
