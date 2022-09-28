@@ -9,5 +9,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: cypress-io/github-action@v4
         with:
-          start: npm start
+          start: npm test
           working-directory: cypress
