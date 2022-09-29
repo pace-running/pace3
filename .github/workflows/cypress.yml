@@ -1,7 +1,5 @@
 name: Cypress
-on:
-  schedule:
-    - cron: '0 6 * * *'
+on: [push]
 jobs:
   cypress-run:
     runs-on: ubuntu-20.04
@@ -9,5 +7,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: cypress-io/github-action@v4
         with:
-          start: npm test
           working-directory: cypress
