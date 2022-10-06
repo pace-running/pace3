@@ -20,6 +20,15 @@ pub struct Response {
     status_code: u16,
 }
 
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+pub struct WithID<T> {
+    runner_id: Option<String>,
+    #[serde(flatten)]
+    inner_response: T,
+}
+
+type ResponseWithId = WithID<Response>;
+
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
     ctx.insert("event", &event::current_event());
@@ -59,10 +68,13 @@ pub fn has_bad_data(form: &Info) -> bool {
 pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
-        return Ok(HttpResponse::BadRequest().json(Response {
-            success_message: None,
-            error_message: Some("Bad data".to_string()),
-            status_code: StatusCode::BAD_REQUEST.as_u16(),
+        return Ok(HttpResponse::BadRequest().json(ResponseWithId {
+            runner_id: None,
+            inner_response: Response {
+                success_message: None,
+                error_message: Some("Bad data".to_string()),
+                status_code: StatusCode::BAD_REQUEST.as_u16(),
+            },
         }));
     }
     let conn = &mut establish_connection();
@@ -74,10 +86,13 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
         insert_shipping(conn, new_shipping);
     }
-    Ok(HttpResponse::Ok().json(Response {
-        success_message: Some("Data received".to_string()),
-        error_message: None,
-        status_code: StatusCode::OK.as_u16(),
+    Ok(HttpResponse::Ok().json(ResponseWithId {
+        runner_id: Some(returned_runner.id.to_string()),
+        inner_response: Response {
+            success_message: Some("Data received".to_string()),
+            error_message: None,
+            status_code: StatusCode::OK.as_u16(),
+        },
     }))
 }
 
@@ -119,6 +134,7 @@ mod tests {
         let participant = InfoBuilder::minimal_default().build();
         let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
+        println!("{:?}", &response.body());
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = response.into_body().try_into_bytes().unwrap();
         let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
