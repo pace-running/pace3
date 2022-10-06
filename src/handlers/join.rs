@@ -134,7 +134,6 @@ mod tests {
         let participant = InfoBuilder::minimal_default().build();
         let input_data = web::Json(participant);
         let response = register(input_data).await.unwrap();
-        println!("{:?}", &response.body());
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = response.into_body().try_into_bytes().unwrap();
         let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
