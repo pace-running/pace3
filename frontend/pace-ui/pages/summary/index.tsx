@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import BaseLayout from "../../components/Layout/baseLayout";
 import {useJoinFormContext} from "../../context/JoinFormContext";
 import Button from "../../components/Button";
-import router from 'next/router';
+import {useRouter} from 'next/router';
 import {JoinFormValues} from "../../utility/joinFormSchema";
 import {submitJoinInfo} from "../../apis/join";
 
@@ -31,6 +31,7 @@ const mapJoinFormDataToRequestData = (formData: JoinFormValues) => ({
 });
 
 const SummaryPage: NextPage = () => {
+    const router = useRouter();
     const {joinFormData} = useJoinFormContext();
     const [formData, setFormData] = useState(joinFormData);
 
@@ -50,9 +51,11 @@ const SummaryPage: NextPage = () => {
     const handleSubmit = async () => {
         if (formData) {
             const response = await submitJoinInfo(mapJoinFormDataToRequestData(formData));
-            console.log("Response: ", response.data);
             if (response.data.status_code === 200) {
-                await router.push('/confirmation')
+                const runnerId = response.data.runner_id.toString();
+                const donation = formData.donation.toString();
+                const emailProvided = formData.email ? 'yes' : 'no';
+                await router.push({pathname: '/confirmation', query: {runnerId, donation, emailProvided}})
             }
         }
     }
@@ -75,11 +78,10 @@ const SummaryPage: NextPage = () => {
                 >
                     <h2>PERSÖNLICHE ANGABEN</h2>
 
-                    <p>
-                        Name: {formData?.firstname} {formData?.lastname}
-                    </p>
-                    <p>Team: {formData?.team}</p>
-                    <p>E-Mail: {formData?.email}</p>
+                    {(formData?.firstname || formData?.lastname) && (
+                        <p>Name: {formData?.firstname} {formData?.lastname}</p>)}
+                    {formData?.team && (<p>Team: {formData?.team}</p>)}
+                    {formData?.email && (<p>E-Mail: {formData?.email}</p>)}
 
                     {formData?.starting_point === "hamburg" ? (
                         <p>Startort: Hamburg</p>
