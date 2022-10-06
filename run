@@ -32,9 +32,18 @@ task_update() {
   cargo update
 }
 
+##DOC create_migration [name] - Create a new diesel migration
+task_create_migration() {
+  if [[ $# -eq 0 ]]; then
+      help
+  fi
+  log_running_command "create a new diesel migration..."
+  diesel migration generate "$1"
+}
+
 ##DOC migrate - Run database migration
 task_migrate() {
-  log_running_command "migrations..."
+  log_running_command "Run database migrations..."
   cargo install diesel_cli --force --no-default-features --features postgres
   diesel setup
   diesel migration run
