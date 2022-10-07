@@ -3,6 +3,7 @@ import React from "react";
 interface Props {
     donation: string;
     emailProvided: boolean;
+    payment: string;
 }
 
 const RegistrationConfirmation: React.FC<Props> = (props) => {
@@ -42,7 +43,7 @@ const RegistrationConfirmation: React.FC<Props> = (props) => {
                         <p>Hamburger Volksbank</p>
                         <p>IBAN: DE09 2019 0003 0019 4004 20</p>
                         <p>BLZ: GENODEF1HH2</p>
-                        <p>Verwendungszweck: LGR-HUMKD</p>
+                        <p>Verwendungszweck: {props.payment}</p>
                     </div>
                 </div>
             </div>

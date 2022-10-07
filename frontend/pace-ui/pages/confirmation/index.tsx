@@ -7,10 +7,11 @@ import {useRouter} from "next/router";
 const ConfirmationPage: NextPage = () => {
     const router = useRouter();
     const donation = router.query.donation as string;
-    const emailProvided = (router.query.emailProvided as string) == 'yes';
+    const payment = router.query.payment as string;
+    const emailProvided = (router.query.emailProvided as string) == 'true';
     return (
         <BaseLayout pageTitle="Anmeldungsbestätigung">
-            <RegistrationConfirmation donation={donation} emailProvided={emailProvided}/>
+            <RegistrationConfirmation donation={donation} emailProvided={emailProvided} payment={payment}/>
         </BaseLayout>
     );
 }

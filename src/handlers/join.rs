@@ -1,3 +1,11 @@
+use actix_web::http::StatusCode;
+use actix_web::web::Json;
+use actix_web::{web, Error, HttpResponse, Result};
+use serde::Deserialize;
+use serde::Serialize;
+use tera::Context;
+
+use crate::constants::REASON_FOR_PAYMENT_LENGTH;
 use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
@@ -6,12 +14,6 @@ use crate::models::info::Info;
 use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
-use actix_web::http::StatusCode;
-use actix_web::web::Json;
-use actix_web::{web, Error, HttpResponse, Result};
-use serde::Deserialize;
-use serde::Serialize;
-use tera::Context;
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Response {
@@ -21,13 +23,17 @@ pub struct Response {
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
-pub struct WithID<T> {
+pub struct ResponseBody<T> {
     runner_id: Option<String>,
+    start_number: Option<i64>,
+    donation: Option<String>,
+    reason_for_payment: Option<String>,
+    email_provided: Option<bool>,
     #[serde(flatten)]
     inner_response: T,
 }
 
-type ResponseWithId = WithID<Response>;
+type ResponseWithBody = ResponseBody<Response>;
 
 pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
     let mut ctx = Context::new();
@@ -68,8 +74,12 @@ pub fn has_bad_data(form: &Info) -> bool {
 pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
-        return Ok(HttpResponse::BadRequest().json(ResponseWithId {
+        return Ok(HttpResponse::BadRequest().json(ResponseWithBody {
             runner_id: None,
+            start_number: None,
+            donation: None,
+            reason_for_payment: None,
+            email_provided: None,
             inner_response: Response {
                 success_message: None,
                 error_message: Some("Bad data".to_string()),
@@ -79,15 +89,20 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     }
     let conn = &mut establish_connection();
     let runner_start_number = runner::next_start_number(conn);
+    let reason_for_payment = runner::create_random_payment(REASON_FOR_PAYMENT_LENGTH);
     // Write data into data base
-    let new_runner = NewRunner::from((&info, runner_start_number));
+    let new_runner = NewRunner::from((&info, runner_start_number, reason_for_payment.as_str()));
     let returned_runner = insert_runner(conn, new_runner);
     if info.shipping_info.tshirt_toggle == "on" {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
         insert_shipping(conn, new_shipping);
     }
-    Ok(HttpResponse::Ok().json(ResponseWithId {
+    Ok(HttpResponse::Ok().json(ResponseWithBody {
         runner_id: Some(returned_runner.id.to_string()),
+        start_number: Some(returned_runner.start_number),
+        donation: Some(returned_runner.donation),
+        reason_for_payment: Some(returned_runner.reason_for_payment),
+        email_provided: Some(returned_runner.email.unwrap().ne("")),
         inner_response: Response {
             success_message: Some("Data received".to_string()),
             error_message: None,
@@ -98,12 +113,13 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
 
 #[cfg(test)]
 mod tests {
-    use crate::builders::InfoBuilder;
-    use crate::handlers::join::{form_request, register, Response};
     use actix_web::body::{to_bytes, MessageBody};
     use actix_web::web::Bytes;
     use actix_web::{http::StatusCode, web};
     use tera::Tera;
+
+    use crate::builders::InfoBuilder;
+    use crate::handlers::join::{form_request, register, Response};
 
     trait BodyTest {
         fn as_str(&self) -> &str;

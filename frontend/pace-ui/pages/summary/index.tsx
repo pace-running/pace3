@@ -53,12 +53,17 @@ const SummaryPage: NextPage = () => {
             const response = await submitJoinInfo(mapJoinFormDataToRequestData(formData));
             if (response.data.status_code === 200) {
                 const runnerId = response.data.runner_id.toString();
-                const donation = formData.donation.toString();
-                const emailProvided = formData.email ? 'yes' : 'no';
-                await router.push({pathname: '/confirmation', query: {runnerId, donation, emailProvided}})
+                const startNumber = response.data.start_number.toString();
+                const donation = response.data.donation.toString();
+                const payment = response.data.reason_for_payment.toString()
+                const emailProvided = response.data.email_provided as boolean;
+                await router.push({
+                    pathname: '/confirmation',
+                    query: {runnerId, startNumber, donation, payment, emailProvided}
+                })
             }
         }
-    }
+    };
 
     return (
         <BaseLayout pageTitle="Zusammenfassung">
