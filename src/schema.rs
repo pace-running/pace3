@@ -19,6 +19,7 @@ diesel::table! {
         starting_point -> Varchar,
         running_level -> Varchar,
         donation -> Varchar,
+        reason_for_payment -> Varchar,
     }
 }
 
