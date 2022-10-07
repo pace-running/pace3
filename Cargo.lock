@@ -1039,6 +1039,7 @@ dependencies = [
  "actix-web-prom",
  "diesel",
  "dotenvy",
+ "rand",
  "rust-argon2",
  "serde",
  "serde_json",

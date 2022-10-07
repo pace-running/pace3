@@ -1,8 +1,9 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
+use rand::Rng;
 use serde::Serialize;
 
-use crate::constants::BLACKLIST_START_NUMBERS;
+use crate::constants::{BLACKLIST_START_NUMBERS, CHARSET};
 use crate::get_next_start_number;
 use crate::schema::runners;
 
@@ -19,6 +20,7 @@ pub struct NewRunner<'a> {
     pub starting_point: &'a str,
     pub running_level: &'a str,
     pub donation: &'a str,
+    pub reason_for_payment: &'a str,
 }
 
 #[derive(Queryable, Serialize)]
@@ -32,11 +34,12 @@ pub struct Runner {
     pub starting_point: String,
     pub running_level: String,
     pub donation: String,
+    pub reason_for_payment: String,
 }
 
-impl<'a> From<(&'a Info, i64)> for NewRunner<'a> {
-    fn from(info_with_start_number: (&'a Info, i64)) -> Self {
-        let (info, next_start_number) = info_with_start_number;
+impl<'a> From<(&'a Info, i64, &'a str)> for NewRunner<'a> {
+    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str)) -> Self {
+        let (info, next_start_number, reason_for_payment) = info_with_start_number_and_payment;
 
         NewRunner {
             start_number: next_start_number,
@@ -47,6 +50,7 @@ impl<'a> From<(&'a Info, i64)> for NewRunner<'a> {
             starting_point: &info.runner_info.starting_point,
             running_level: &info.runner_info.running_level,
             donation: &info.runner_info.donation,
+            reason_for_payment,
         }
     }
 }
@@ -59,6 +63,19 @@ pub fn next_start_number(conn: &mut PgConnection) -> i64 {
     }
 
     next
+}
+
+pub fn create_random_payment(length: usize) -> String {
+    let mut rng = rand::thread_rng();
+
+    let reason_for_payment: String = (0..length)
+        .map(|_| {
+            let index = rng.gen_range(0..CHARSET.len());
+            CHARSET[index] as char
+        })
+        .collect();
+
+    format!("LGR-{}", reason_for_payment)
 }
 
 #[cfg(test)]
@@ -81,7 +98,8 @@ mod tests {
     async fn unit_create_new_runner_test() {
         let info = InfoBuilder::minimal_default().build();
         let expected_start_number = 10;
-        let runner = NewRunner::from((&info, expected_start_number));
+        let expected_reason_for_payment = "LGR-HUMKD";
+        let runner = NewRunner::from((&info, expected_start_number, expected_reason_for_payment));
 
         assert_eq!(runner.firstname.unwrap(), info.runner_info.firstname);
         assert_eq!(runner.lastname.unwrap(), info.runner_info.lastname);
@@ -91,6 +109,19 @@ mod tests {
         assert_eq!(runner.running_level, info.runner_info.running_level);
         assert_eq!(runner.donation, info.runner_info.donation);
         assert_eq!(runner.start_number, expected_start_number);
+        assert_eq!(runner.reason_for_payment, expected_reason_for_payment);
+    }
+
+    #[actix_web::test]
+    async fn unit_reason_for_payment() {
+        let reason_for_payment = create_random_payment(5);
+
+        assert_eq!(reason_for_payment.len(), 9);
+        assert!(reason_for_payment.as_str().contains("LGR-"));
+        assert!(reason_for_payment
+            .as_str()
+            .to_uppercase()
+            .eq(&reason_for_payment));
     }
 
     #[test]
