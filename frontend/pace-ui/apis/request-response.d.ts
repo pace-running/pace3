@@ -23,3 +23,11 @@ interface InfoRequestData {
     postal_code: string,
     city: string,
 }
+
+interface InfoResponseData {
+    runner_id: string,
+    start_number: string,
+    donation: string,
+    payment: string,
+    email_provided: boolean,
+}
