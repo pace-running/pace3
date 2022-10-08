@@ -1,17 +1,28 @@
 import {NextPage} from "next";
 import BaseLayout from "../../components/Layout/baseLayout";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import RegistrationConfirmation from "../../running/RegistrationConfirmation";
-import {useRouter} from "next/router";
+import RunnerContext from "../../context/RunnerContext";
 
 const ConfirmationPage: NextPage = () => {
-    const router = useRouter();
-    const donation = router.query.donation as string;
-    const payment = router.query.payment as string;
-    const emailProvided = (router.query.emailProvided as string) == 'true';
+    const {infoResponseData} = RunnerContext.useRunnerContext();
+    const [responseData, setResponseData] = useState(infoResponseData);
+    useEffect(() => {
+        if (responseData.runner_id) {
+            localStorage.setItem("responseData", JSON.stringify(responseData));
+        }
+    }, [responseData.runner_id]);
+
+    useEffect(() => {
+        const storedResponseData = JSON.parse(localStorage.getItem("responseData") ?? "{}");
+        if (responseData) {
+            setResponseData(storedResponseData);
+        }
+    }, []);
+
     return (
         <BaseLayout pageTitle="Anmeldungsbestätigung">
-            <RegistrationConfirmation donation={donation} emailProvided={emailProvided} payment={payment}/>
+            <RegistrationConfirmation responseData={responseData}/>
         </BaseLayout>
     );
 }

@@ -1,11 +1,12 @@
 import {NextPage} from "next";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import BaseLayout from "../../components/Layout/baseLayout";
 import {useJoinFormContext} from "../../context/JoinFormContext";
 import Button from "../../components/Button";
 import {useRouter} from 'next/router';
 import {JoinFormValues} from "../../utility/joinFormSchema";
 import {submitJoinInfo} from "../../apis/join";
+import RunnerContext from "../../context/RunnerContext";
 
 const mapJoinFormDataToRequestData = (formData: JoinFormValues) => ({
     firstname: formData.firstname ?? "",
@@ -35,6 +36,8 @@ const SummaryPage: NextPage = () => {
     const {joinFormData} = useJoinFormContext();
     const [formData, setFormData] = useState(joinFormData);
 
+    const {setInfoResponseData} = RunnerContext.useRunnerContext();
+
     useEffect(() => {
         if (formData) {
             localStorage.setItem("formData", JSON.stringify(formData));
@@ -48,7 +51,7 @@ const SummaryPage: NextPage = () => {
         }
     }, []);
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
         if (formData) {
             const response = await submitJoinInfo(mapJoinFormDataToRequestData(formData));
             if (response.data.status_code === 200) {
@@ -57,13 +60,20 @@ const SummaryPage: NextPage = () => {
                 const donation = response.data.donation.toString();
                 const payment = response.data.reason_for_payment.toString()
                 const emailProvided = response.data.email_provided as boolean;
+                setInfoResponseData({
+                    runner_id: runnerId,
+                    start_number: startNumber,
+                    donation: donation,
+                    payment: payment,
+                    email_provided: emailProvided,
+                });
                 await router.push({
                     pathname: '/confirmation',
                     query: {runnerId, startNumber, donation, payment, emailProvided}
                 })
             }
         }
-    };
+    }, [formData]);
 
     return (
         <BaseLayout pageTitle="Zusammenfassung">
