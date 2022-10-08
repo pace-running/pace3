@@ -1,9 +1,7 @@
 import React from "react";
 
 interface Props {
-    donation: string;
-    emailProvided: boolean;
-    payment: string;
+    responseData: InfoResponseData,
 }
 
 const RegistrationConfirmation: React.FC<Props> = (props) => {
@@ -31,7 +29,7 @@ const RegistrationConfirmation: React.FC<Props> = (props) => {
                         textAlign: "left",
                     }}
                 >
-                    <h2>Spendenbetrag: {props.donation}€</h2>
+                    <h2>Spendenbetrag: {props.responseData.donation}€</h2>
                     <p>FC St. Pauli Marathon</p>
                     <div
                         style={{
@@ -43,13 +41,13 @@ const RegistrationConfirmation: React.FC<Props> = (props) => {
                         <p>Hamburger Volksbank</p>
                         <p>IBAN: DE09 2019 0003 0019 4004 20</p>
                         <p>BLZ: GENODEF1HH2</p>
-                        <p>Verwendungszweck: {props.payment}</p>
+                        <p>Verwendungszweck: {props.responseData.payment}</p>
                     </div>
                 </div>
             </div>
             <p>Unter folgenden Link kannst du jederzeit den aktuellen Stand der Bearbeitung einsehen.</p>
             <p><a href="/status" style={{color: "red"}}>Meinen Anmeldestatus abrufen</a></p>
-            {props.emailProvided && (
+            {props.responseData.email_provided && (
                 <p>Wir haben dir zudem diese Bestätigung an deine hinterlegte E-Mail Adresse gesendet.</p>)}
         </div>
     );
