@@ -7,20 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="Anmeldung zum Lauf gegen Rechts 2022. Organisiert von FC St. Pauli Marathon">
     <title>{% block title %}{% endblock title %} - Lauf gegen Rechts 2022</title>
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/picnic.css">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" type="image/x-icon" href="/backend/staticn.ico">
+    <link rel="stylesheet" href="/backend/staticcnic.css">
+    <link rel="stylesheet" href="/backend/staticyle.css">
     {% endblock head %}
 </head>
 <body>
 <div id="head" class="full header menu card fcsp">
     <div >
         {% if event %}
-            <span><a class="fcsp" href="/">{{event.name}}</a></span>
+            <span><a class="fcsp" href="/backend/static">{{event.name}}</a></span>
         {% else %}
         <span></span>
         {% endif %}
-        <img class="logo" src="/static/logo.svg">
+        <img class="logo" src="/backend/staticvg">
     </div>
 </div>
 <div id="content" class="content card">{% block content %}{% endblock content %}</div>

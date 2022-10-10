@@ -1,4 +1,8 @@
-.idea
-target
+# JetBrains
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Mac OS
 .DS_Store
-*.db

@@ -21,7 +21,7 @@ RUN adduser \
 
 WORKDIR /pace
 
-COPY ./ .
+COPY .. .
 
 RUN cargo build --release
 
