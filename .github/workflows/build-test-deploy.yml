@@ -39,14 +39,14 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend/
-          file: ./Dockerfile
+          file: ./backend/Dockerfile
           push: true
           tags: registry.k3s.colodeck.de/pace3:latest
       - name: Build and push migration
         uses: docker/build-push-action@v2
         with:
           context: ./backend/
-          file: ./Dockerfile.migration
+          file: ./backend/Dockerfile.migration
           push: true
           tags: registry.k3s.colodeck.de/pace3-migration:latest
       - name: Build and push pace3 frontend
