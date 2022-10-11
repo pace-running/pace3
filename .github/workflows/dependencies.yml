@@ -1,7 +1,7 @@
 name: Dependencies
 on:
-  schedule:
-    - cron: '0 0 * * *'
+  push:
+    branches: [ "main" ]
 jobs:
   audit:
     runs-on: ubuntu-latest
