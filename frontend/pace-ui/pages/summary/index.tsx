@@ -55,21 +55,21 @@ const SummaryPage: NextPage = () => {
         if (formData) {
             const response = await submitJoinInfo(mapJoinFormDataToRequestData(formData));
             if (response.data.status_code === 200) {
-                const runnerId = response.data.runner_id.toString();
-                const startNumber = response.data.start_number.toString();
+                const runner_id = response.data.runner_id.toString();
+                const start_number = response.data.start_number.toString();
                 const donation = response.data.donation.toString();
                 const payment = response.data.reason_for_payment.toString()
-                const emailProvided = response.data.email_provided as boolean;
+                const email_provided = response.data.email_provided as boolean;
                 setInfoResponseData({
-                    runner_id: runnerId,
-                    start_number: startNumber,
-                    donation: donation,
-                    payment: payment,
-                    email_provided: emailProvided,
+                    runner_id,
+                    start_number,
+                    donation,
+                    payment,
+                    email_provided,
                 });
                 await router.push({
                     pathname: '/confirmation',
-                    query: {runnerId, startNumber, donation, payment, emailProvided}
+                    query: {runner_id, start_number, donation, payment, email_provided}
                 })
             }
         }
