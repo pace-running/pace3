@@ -6,6 +6,8 @@ import Checkbox from "../../components/Checkbox";
 import Dropdown from "../../components/Dropdown";
 import BaseLayout from "../../components/Layout/baseLayout";
 import TextInput from "../../components/TextInput";
+import SizeTable from "../../components/SizeTable";
+import Modal from "../../components/Modal";
 import {
     countryOptions,
     getSizeOptions,
@@ -16,9 +18,13 @@ import {
 import {JoinFormSchema, JoinFormValues} from "../../utility/joinFormSchema";
 import {useJoinFormContext} from "../../context/JoinFormContext";
 import router from "next/router";
+import { useState } from "react";
 
 const Join: NextPage = () => {
     const {setJoinFormData} = useJoinFormContext();
+
+    const [showPreviewModal,setShowPreviewModal] = useState(false);
+    const [showSizesModal,setShowSizesModal] = useState(false);
 
     const submitForm = (values: JoinFormValues) => {
         setJoinFormData(values);
@@ -119,13 +125,37 @@ const Join: NextPage = () => {
                         label={"Vorschau"}
                         type={"button"}
                         styling={"preview-btn"}
+                        onClick={()=>setShowPreviewModal(true)}
                     />
                     <Button
                         name={"sizesBtn"}
                         label={"Größentabelle"}
                         type={"button"}
                         styling={"preview-btn"}
+                        onClick={()=>setShowSizesModal(true)}
                     />
+
+                    <Modal
+                        name={"previewModal"}
+                        open={showPreviewModal}
+                        onClose={()=>setShowPreviewModal(false)}
+                        >
+                        <div>
+                            <h3>T-Shirt Vorschau</h3>
+                            <img src="tshirt_preview.png" width={200} height={200}></img>
+                        </div>
+                    </Modal>
+
+                    <Modal
+                        name={"sizesModal"}
+                        open={showSizesModal}
+                        onClose={()=>setShowSizesModal(false)}
+                        >
+                        <div>
+                            <h3>T-Shirt Größentabelle</h3>
+                            <SizeTable/>
+                        </div>
+                    </Modal>
 
                     <Checkbox
                         name={"tshirt_toggle"}
