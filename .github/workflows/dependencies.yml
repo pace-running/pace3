@@ -1,12 +1,13 @@
 name: Dependencies
 on:
-  push:
-    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * *'
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      #https://github.com/actions-rs/audit-check/issues/194
       - run: cd $GITHUB_WORKSPACE && mv backend/* .
       - uses: actions-rs/audit-check@v1
         with:
