@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: cd backend
+      - run: cd $GITHUB_WORKSPACE && mv backend/* .
+      - run: cd $GITHUB_WORKSPACE && rm -v !("Cargo.toml"|"Cargo.lock") 
       - uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
