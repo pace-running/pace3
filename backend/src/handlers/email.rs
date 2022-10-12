@@ -1,11 +1,10 @@
 use actix_web::web;
+use dotenvy::dotenv;
 use lettre::message::header;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
 use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
-use dotenvy::dotenv;
-
 
 #[derive(Deserialize, Serialize)]
 struct EmailInfo {
@@ -14,10 +13,16 @@ struct EmailInfo {
     status_link: String,
 }
 
-pub fn send_registration_email(email: String, donation: String, reason_for_payment: String) -> bool {
+pub fn send_registration_email(
+    email: String,
+    donation: String,
+    reason_for_payment: String,
+) -> bool {
     dotenv().ok();
-    let sender_email = std::env::var("SENDER_EMAIL").unwrap_or_else(|_| "SENDER_EMAIL must be set.".to_string());
-    let smtp_password = std::env::var("SMTP_PASSWORD").unwrap_or_else(|_| "SMTP_PASSWORD must be set.".to_string());
+    let sender_email =
+        std::env::var("SENDER_EMAIL").unwrap_or_else(|_| "SENDER_EMAIL must be set.".to_string());
+    let smtp_password =
+        std::env::var("SMTP_PASSWORD").unwrap_or_else(|_| "SMTP_PASSWORD must be set.".to_string());
 
     let status_link = "https://pace3.lauf-gegen-rechts.de/".to_string();
 
@@ -58,12 +63,11 @@ pub fn send_registration_email(email: String, donation: String, reason_for_payme
         .build();
 
     // Send the email
-
-    match mailer.send(&email) {
+    return match mailer.send(&email) {
         Ok(_) => {
             println!("Email sent successfully!");
-            return true;
-        },
-        Err(_) => return false
-    }
+            true
+        }
+        Err(_) => false,
+    };
 }
