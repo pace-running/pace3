@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
+        uses: docker/setup-buildx-action@v2
       - name: Login to Registry
         uses: docker/login-action@v2.1.0
         with:
@@ -53,7 +53,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./frontend/pace-ui/
-          file: ./frontend/pace-ui/Dockerfile.frontend
+          file: ./frontend/pace-ui/Dockerfile
           push: true
           tags: registry.k3s.colodeck.de/pace3-frontend:latest
   deploy:
