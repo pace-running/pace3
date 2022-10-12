@@ -17,7 +17,7 @@ const Modal: React.FC<ModalProps> = (props) => {
       <div
         className="modal-window"
         id={props.name}
-        style={{ textAlign: "center", height: "85%", overflowY: "scroll"}}
+        style={{ textAlign: "center"}}
       >
         <button type="button" className="close-modal" aria-label="Close" onClick={props.onClose}>
           <span aria-hidden="true">
@@ -36,8 +36,6 @@ const Modal: React.FC<ModalProps> = (props) => {
         </button>
         {props.children}
       </div>
-      {/* button position is not resposive!!! */}
-      {/* <button type='button' className="close-modal" id="closeButton2" onClick={props.onClose}>&times;</button> */}
     </div>
   );
 };

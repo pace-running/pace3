@@ -152,7 +152,6 @@ const Join: NextPage = () => {
                         onClose={()=>setShowSizesModal(false)}
                         >
                         <div>
-                            <h3>T-Shirt Größentabelle</h3>
                             <SizeTable/>
                         </div>
                     </Modal>
