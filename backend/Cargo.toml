@@ -20,3 +20,4 @@ diesel = { version = "2.0.0-rc.0", features = ["postgres"] }
 dotenvy = "0.15"
 rust-argon2 = "1.0"
 rand = "0.8.5"
+lettre = "0.10.1"

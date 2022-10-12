@@ -15,6 +15,8 @@ use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 
+use super::email::send_registration_email;
+
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Response {
     success_message: Option<String>,
@@ -97,12 +99,22 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
         insert_shipping(conn, new_shipping);
     }
+    let email_value = returned_runner.email.unwrap();
+    let email_provided = Some(email_value.ne(""));
+    if let Some(true) = email_provided {
+        send_registration_email(
+            email_value,
+            returned_runner.donation.clone(),
+            returned_runner.reason_for_payment.clone(),
+        );
+    }
+
     Ok(HttpResponse::Ok().json(ResponseWithBody {
         runner_id: Some(returned_runner.id.to_string()),
         start_number: Some(returned_runner.start_number),
         donation: Some(returned_runner.donation),
         reason_for_payment: Some(returned_runner.reason_for_payment),
-        email_provided: Some(returned_runner.email.unwrap().ne("")),
+        email_provided,
         inner_response: Response {
             success_message: Some("Data received".to_string()),
             error_message: None,

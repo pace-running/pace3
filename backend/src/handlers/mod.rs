@@ -1,4 +1,5 @@
 pub mod admin;
+pub mod email;
 pub mod health;
 pub mod hello;
 pub mod imprint;
