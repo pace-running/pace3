@@ -54,7 +54,7 @@ pub fn send_registration_email(
         .body(rendered)
         .unwrap();
 
-    let creds = Credentials::new(sender_email.to_string(), smtp_password.to_string());
+    let creds = Credentials::new(sender_email, smtp_password);
 
     // Open a remote connection to gmail
     let mailer = SmtpTransport::relay("smtp.gmail.com")
@@ -63,11 +63,11 @@ pub fn send_registration_email(
         .build();
 
     // Send the email
-    return match mailer.send(&email) {
+    match mailer.send(&email) {
         Ok(_) => {
             println!("Email sent successfully!");
             true
         }
         Err(_) => false,
-    };
+    }
 }
