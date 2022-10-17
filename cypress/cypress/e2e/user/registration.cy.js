@@ -55,6 +55,7 @@ describe('Registration', function () {
             .clear()
             .type('5')
             .should('have.value', '5')
+
         
         
     })
