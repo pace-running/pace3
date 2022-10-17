@@ -1,16 +1,13 @@
-describe('Lighthouse', function () {
+describe('Lighthouse', () => {
 
-    it('uses Lighthouse on main page', function () {
-        cy.visit("https://pace3.lauf-gegen-rechts.de/")
+    it('uses Lighthouse on main page', () => {
+        cy.visit(`${Cypress.config().baseUrl}`)
         //cy.lighthouse()
-        
-        
-    })
-    it('uses Lighthouse on join page', function () {
-        cy.visit("http://pace3.lauf-gegen-rechts.de/join")
+    });
+
+    it('uses Lighthouse on join page', () => {
+        cy.visit(`${Cypress.config().baseUrl}/join`)
         // cy.lighthouse()
-        
-        
-    })
-})
+    });
+});
 

@@ -1,12 +1,10 @@
-describe('Registration', function () {
+describe('Registration', () => {
 
-    it('Registration', function () {
-
-
-        cy.visit("https://pace3.lauf-gegen-rechts.de/")
+    it('Registration', () => {
+        cy.visit(`${Cypress.config().baseUrl}`)
         cy.get('[style="position:absolute;right:5%;border:1px solid white"] > .brownbg')
             .click()
-        
+
         cy.get(':nth-child(3) > .input-group > .form-control')
             .type('Vorname')
             .should('have.value', 'Vorname')
@@ -32,19 +30,19 @@ describe('Registration', function () {
         cy.get('#starting_point')
             .select(2).invoke("val")
             .should('eq', 'other')
-            cy.get('#running_level')
+        cy.get('#running_level')
             .select(0).invoke("val")
             .should('eq', 'Bitte auswählen')
         cy.get('#running_level')
             .select(1).invoke("val")
-            .should('eq', 'rarely') 
+            .should('eq', 'rarely')
         cy.get('#running_level')
             .select(2).invoke("val")
             .should('eq', 'sometimes')
         cy.get('#running_level')
             .select(3).invoke("val")
             .should('eq', 'often')
-        
+
         cy.get(':nth-child(10) > .input-group > .form-control')
             .clear()
             .type('4')
@@ -55,8 +53,5 @@ describe('Registration', function () {
             .clear()
             .type('5')
             .should('have.value', '5')
-
-        
-        
-    })
-})
+    });
+});
