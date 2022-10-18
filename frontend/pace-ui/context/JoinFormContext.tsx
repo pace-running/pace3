@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
-import { JoinFormValues } from "../utility/joinFormSchema";
+import React, { createContext, useContext, useState } from 'react';
+import { JoinFormValues } from '../utility/joinFormSchema';
 
 type JoinFormContextType = {
   joinFormData?: JoinFormValues;
@@ -7,18 +7,17 @@ type JoinFormContextType = {
 };
 
 const JoinFormContext = createContext<JoinFormContextType>({
-    setJoinFormData: () => {}
+  setJoinFormData: () => {}
 });
 
 const JoinFormProvider: React.FC<any> = ({ children }) => {
-  const [joinFormContextData, setJoinFormContextData] =
-    useState<JoinFormValues>();
+  const [joinFormContextData, setJoinFormContextData] = useState<JoinFormValues>();
 
   return (
     <JoinFormContext.Provider
       value={{
         joinFormData: joinFormContextData,
-        setJoinFormData: setJoinFormContextData,
+        setJoinFormData: setJoinFormContextData
       }}
     >
       {children}

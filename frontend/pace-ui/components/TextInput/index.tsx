@@ -1,7 +1,7 @@
-import React, { ChangeEventHandler } from "react";
+import React, { ChangeEventHandler } from 'react';
 
 type InputProps = {
-  type: "email" | "text" | "number" | "password";
+  type: 'email' | 'text' | 'number' | 'password';
   placeholder?: string;
   value?: string | number;
   name: string;
@@ -12,31 +12,26 @@ type InputProps = {
   valid?: boolean;
   errorMessage?: string;
 };
-const TextInput: React.FC<InputProps> = (props) => {
+const TextInput: React.FC<InputProps> = props => {
   return (
-    <div className="mb-3">
-      {props.helperLabel && (
-        <p style={{ marginBottom: "1px" }}>{props.helperLabel}</p>
-      )}
-      <label htmlFor={props.name} className="form-label">
+    <div className='mb-3'>
+      {props.helperLabel && <p style={{ marginBottom: '1px' }}>{props.helperLabel}</p>}
+      <label htmlFor={props.name} className='form-label'>
         {props.label}
       </label>
-      <div className="input-group">
+      <div className='input-group'>
         <input
           value={props.value}
           onChange={props.onChange}
           type={props.type}
-          className="form-control"
+          className='form-control'
           name={props.name}
           placeholder={props.placeholder}
           defaultValue={props.default}
         />
       </div>
       {!props.valid && (
-        <div
-          style={{ display: !props.valid ? "block" : "none" }}
-          className="invalid-feedback"
-        >
+        <div style={{ display: !props.valid ? 'block' : 'none' }} className='invalid-feedback'>
           {props.errorMessage}
         </div>
       )}

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Carousel from "react-bootstrap/Carousel";
+import React, { useState } from 'react';
+import Carousel from 'react-bootstrap/Carousel';
 
 const SizeTable: React.FC = () => {
   const [index, setIndex] = useState(0);
@@ -10,19 +10,14 @@ const SizeTable: React.FC = () => {
 
   return (
     <div>
-      <h3 style={{paddingTop: "0"}}>T-Shirt Größentabelle</h3>
+      <h3 style={{ paddingTop: '0' }}>T-Shirt Größentabelle</h3>
       <p>alle Maße in cm</p>
-      <Carousel
-        variant="dark"
-        indicators={false}
-        activeIndex={index}
-        onSelect={handleSelect}
-      >
+      <Carousel variant='dark' indicators={false} activeIndex={index} onSelect={handleSelect}>
         <Carousel.Item>
-          <div style={{ paddingBottom: "25px", textAlign: "center" }}>
+          <div style={{ paddingBottom: '25px', textAlign: 'center' }}>
             <h2>Tailliert</h2>
-            <div style={{ overflowX: "auto"}}>
-              <table className="size-table center" id="slimfit_table">
+            <div style={{ overflowX: 'auto' }}>
+              <table className='size-table center' id='slimfit_table'>
                 <tr>
                   <th>Größe</th>
                   <th>Weite</th>
@@ -55,8 +50,8 @@ const SizeTable: React.FC = () => {
         <Carousel.Item>
           <div>
             <h2>Unisex</h2>
-            <div style={{ overflowX: "auto", marginBottom: "30px" }}>
-              <table className="center size-table" id="unisex_table">
+            <div style={{ overflowX: 'auto', marginBottom: '30px' }}>
+              <table className='center size-table' id='unisex_table'>
                 <tr>
                   <th>Größe</th>
                   <th>Weite</th>
