@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;
 
-use crate::constants::REASON_FOR_PAYMENT_LENGTH;
+use crate::constants::{REASON_FOR_PAYMENT_LENGTH, STATUS_LINK_LENGTH};
 use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
@@ -92,8 +92,14 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     let conn = &mut establish_connection();
     let runner_start_number = runner::next_start_number(conn);
     let reason_for_payment = runner::create_random_payment(REASON_FOR_PAYMENT_LENGTH);
+    let status_link = runner::create_status_link(STATUS_LINK_LENGTH);
     // Write data into data base
-    let new_runner = NewRunner::from((&info, runner_start_number, reason_for_payment.as_str()));
+    let new_runner = NewRunner::from((
+        &info,
+        runner_start_number,
+        reason_for_payment.as_str(),
+        status_link.as_str(),
+    ));
     let returned_runner = insert_runner(conn, new_runner);
     if info.shipping_info.tshirt_toggle == "on" {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
@@ -106,6 +112,7 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
             email_value,
             returned_runner.donation.clone(),
             returned_runner.reason_for_payment.clone(),
+            returned_runner.status_link.clone(),
         );
     }
 

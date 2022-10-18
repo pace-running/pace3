@@ -15,18 +15,15 @@ struct EmailInfo {
 
 pub fn send_registration_email(
     email: String,
-
     donation: String,
-
     reason_for_payment: String,
+    status_link: String,
 ) -> bool {
     dotenv().ok();
     let sender_email =
         std::env::var("SENDER_EMAIL").unwrap_or_else(|_| "SENDER_EMAIL must be set.".to_string());
     let smtp_password =
         std::env::var("SMTP_PASSWORD").unwrap_or_else(|_| "SMTP_PASSWORD must be set.".to_string());
-
-    let status_link = "https://pace3.lauf-gegen-rechts.de/".to_string();
 
     let mut ctx = Context::new();
     let email_info = EmailInfo {
