@@ -137,7 +137,7 @@ const Join: NextPage = () => {
           <Modal name={'previewModal'} open={showPreviewModal} onClose={() => setShowPreviewModal(false)}>
             <div>
               <h3>T-Shirt Vorschau</h3>
-              <img src='tshirt_preview.png' width={200} height={200}></img>
+              <img src='tshirt_preview.png' alt='T-shirt Preview' width={200} height={200}></img>
             </div>
           </Modal>
 

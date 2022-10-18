@@ -131,6 +131,7 @@ mod tests {
         assert_eq!(runner.donation, info.runner_info.donation);
         assert_eq!(runner.start_number, expected_start_number);
         assert_eq!(runner.reason_for_payment, expected_reason_for_payment);
+        assert_eq!(runner.status_link, expected_status_link);
     }
 
     #[actix_web::test]
