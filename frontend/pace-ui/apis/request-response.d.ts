@@ -29,5 +29,6 @@ interface InfoResponseData {
   start_number: string;
   donation: string;
   payment: string;
+  status_link: string;
   email_provided: boolean;
 }

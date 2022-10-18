@@ -11,6 +11,7 @@ const RunnerContext = createContext<RunnerContextType>({
     start_number: '',
     donation: '',
     payment: '',
+    status_link: '',
     email_provided: false
   },
   setInfoResponseData: () => {}
@@ -30,6 +31,7 @@ const RunnerContextProvider: React.FC<any> = ({ children }) => {
     start_number: '',
     donation: '',
     payment: '',
+    status_link: '',
     email_provided: false
   });
 

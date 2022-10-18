@@ -30,6 +30,7 @@ pub struct ResponseBody<T> {
     start_number: Option<i64>,
     donation: Option<String>,
     reason_for_payment: Option<String>,
+    status_link: Option<String>,
     email_provided: Option<bool>,
     #[serde(flatten)]
     inner_response: T,
@@ -81,6 +82,7 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
             start_number: None,
             donation: None,
             reason_for_payment: None,
+            status_link: None,
             email_provided: None,
             inner_response: Response {
                 success_message: None,
@@ -121,6 +123,7 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
         start_number: Some(returned_runner.start_number),
         donation: Some(returned_runner.donation),
         reason_for_payment: Some(returned_runner.reason_for_payment),
+        status_link: Some(returned_runner.status_link),
         email_provided,
         inner_response: Response {
             success_message: Some("Data received".to_string()),
