@@ -34,6 +34,7 @@ pub struct Shipping {
     pub postal_code: String,
     pub city: String,
     pub runner_id: i32,
+    pub delivery_status: String,
 }
 
 impl<'a> From<(&'a Info, i32)> for NewShipping<'a> {

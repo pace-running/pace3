@@ -20,6 +20,7 @@ diesel::table! {
         running_level -> Varchar,
         donation -> Varchar,
         reason_for_payment -> Varchar,
+        payment_status -> Bool,
     }
 }
 
@@ -37,6 +38,7 @@ diesel::table! {
         postal_code -> Varchar,
         city -> Varchar,
         runner_id -> Int4,
+        delivery_status -> Varchar,
     }
 }
 

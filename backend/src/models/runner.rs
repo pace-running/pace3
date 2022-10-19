@@ -35,6 +35,7 @@ pub struct Runner {
     pub running_level: String,
     pub donation: String,
     pub reason_for_payment: String,
+    pub payment_status: bool,
 }
 
 impl<'a> From<(&'a Info, i64, &'a str)> for NewRunner<'a> {

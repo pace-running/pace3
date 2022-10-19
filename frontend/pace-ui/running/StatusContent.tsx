@@ -89,9 +89,9 @@ const StatusContent: React.FC<Props> = props => {
               }}
             >
               <p>
-                Modell: {props.statusContent.tshirt_model}
+                Modell: {props.statusContent.tshirt_model === 'unisex' ? 'Unisex' : 'Tailliert'}
                 <br />
-                Größe: {props.statusContent.tshirt_size}
+                Größe: <span style={{ textTransform: 'uppercase' }}>{props.statusContent.tshirt_size}</span>
               </p>
               <p>
                 {props.statusContent.address_firstname} {props.statusContent.address_lastname}

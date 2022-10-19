@@ -44,7 +44,10 @@ const RegistrationConfirmation: React.FC<Props> = props => {
       </div>
       <p>Unter folgenden Link kannst du jederzeit den aktuellen Stand der Bearbeitung einsehen.</p>
       <p>
-        <a href={`/status/?runner_id=${props.responseData.runner_id}&start_number=${props.responseData.start_number}`} style={{ color: 'red' }}>
+        <a
+          href={`/status/?runner_id=${props.responseData.runner_id}&start_number=${props.responseData.start_number}`}
+          style={{ color: 'red' }}
+        >
           Meinen Anmeldestatus abrufen
         </a>
       </p>

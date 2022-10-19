@@ -19,9 +19,9 @@ use super::email::send_registration_email;
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Response {
-    success_message: Option<String>,
-    error_message: Option<String>,
-    status_code: u16,
+    pub success_message: Option<String>,
+    pub error_message: Option<String>,
+    pub status_code: u16,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
