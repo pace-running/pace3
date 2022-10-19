@@ -129,8 +129,8 @@ fn get_email_configuration() -> EmailConfiguration {
         std::env::var("SENDER_EMAIL").unwrap_or_else(|_| "SENDER_EMAIL must be set.".to_string());
     let smtp_password =
         std::env::var("SMTP_PASSWORD").unwrap_or_else(|_| "SMTP_PASSWORD must be set.".to_string());
-    let smtp_transport =
-        std::env::var("SMTP_TRANSPORT").unwrap_or_else(|_| "SMTP_TRANSPORT must be set.".to_string());
+    let smtp_transport = std::env::var("SMTP_TRANSPORT")
+        .unwrap_or_else(|_| "SMTP_TRANSPORT must be set.".to_string());
 
     let config_data_provided = !sender_email.contains("must be set")
         && !smtp_password.contains("must be set")
