@@ -11,7 +11,7 @@ struct EmailDetails {
     receiver_email: String,
     template_name: &'static str,
     subject: &'static str,
-    email_info: EmailInfo, // Only to extract which data should be send to the html template
+    email_info: EmailInfo, // Only to extract which data should be sent to the html template
 }
 
 #[derive(Deserialize, Serialize)]
@@ -25,7 +25,7 @@ struct EmailInfo {
 
 struct EmailConfiguration {
     sender_email: String,
-    smtp_protocol: String,
+    smtp_transport: String,
     credentials: Credentials,
     config_data_provided: bool,
 }
@@ -108,7 +108,7 @@ fn send_email_with_subject(email_details: EmailDetails) -> bool {
         .unwrap();
 
     // Open a remote connection to gmail
-    let mailer = SmtpTransport::relay(&email_configuration.smtp_protocol)
+    let mailer = SmtpTransport::relay(&email_configuration.smtp_transport)
         .unwrap()
         .credentials(email_configuration.credentials)
         .build();
@@ -129,18 +129,18 @@ fn get_email_configuration() -> EmailConfiguration {
         std::env::var("SENDER_EMAIL").unwrap_or_else(|_| "SENDER_EMAIL must be set.".to_string());
     let smtp_password =
         std::env::var("SMTP_PASSWORD").unwrap_or_else(|_| "SMTP_PASSWORD must be set.".to_string());
-    let smtp_protocol =
-        std::env::var("SMTP_PROTOCOL").unwrap_or_else(|_| "SMTP_PROTOCOL must be set.".to_string());
+    let smtp_transport =
+        std::env::var("SMTP_TRANSPORT").unwrap_or_else(|_| "SMTP_TRANSPORT must be set.".to_string());
 
     let config_data_provided = !sender_email.contains("must be set")
         && !smtp_password.contains("must be set")
-        && !smtp_protocol.contains("must be set");
+        && !smtp_transport.contains("must be set");
 
     let credentials = Credentials::new(sender_email.to_string(), smtp_password);
 
     EmailConfiguration {
         sender_email,
-        smtp_protocol,
+        smtp_transport,
         credentials,
         config_data_provided,
     }
