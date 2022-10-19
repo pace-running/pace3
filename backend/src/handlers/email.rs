@@ -114,13 +114,13 @@ fn send_email_with_subject(email_details: EmailDetails) -> bool {
         .build();
 
     // Send the email
-    return match mailer.send(&email_content) {
+    match mailer.send(&email_content) {
         Ok(_) => {
             println!("Email sent successfully!");
             true
         }
         Err(_) => false,
-    };
+    }
 }
 
 fn get_email_configuration() -> EmailConfiguration {
