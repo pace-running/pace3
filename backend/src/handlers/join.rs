@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;
 
-use crate::constants::{REASON_FOR_PAYMENT_LENGTH, STATUS_LINK_LENGTH};
+use crate::constants::REASON_FOR_PAYMENT_LENGTH;
 use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
@@ -30,7 +30,6 @@ pub struct ResponseBody<T> {
     start_number: Option<i64>,
     donation: Option<String>,
     reason_for_payment: Option<String>,
-    status_link: Option<String>,
     email_provided: Option<bool>,
     #[serde(flatten)]
     inner_response: T,
@@ -82,7 +81,6 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
             start_number: None,
             donation: None,
             reason_for_payment: None,
-            status_link: None,
             email_provided: None,
             inner_response: Response {
                 success_message: None,
@@ -94,14 +92,8 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     let conn = &mut establish_connection();
     let runner_start_number = runner::next_start_number(conn);
     let reason_for_payment = runner::create_random_payment(REASON_FOR_PAYMENT_LENGTH);
-    let status_link = runner::create_status_link(STATUS_LINK_LENGTH);
     // Write data into data base
-    let new_runner = NewRunner::from((
-        &info,
-        runner_start_number,
-        reason_for_payment.as_str(),
-        status_link.as_str(),
-    ));
+    let new_runner = NewRunner::from((&info, runner_start_number, reason_for_payment.as_str()));
     let returned_runner = insert_runner(conn, new_runner);
     if info.shipping_info.tshirt_toggle == "on" {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
@@ -116,7 +108,6 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
             email_value,
             returned_runner.donation.clone(),
             returned_runner.reason_for_payment.clone(),
-            returned_runner.status_link.clone(),
         );
     }
 
@@ -125,7 +116,6 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
         start_number: Some(returned_runner.start_number),
         donation: Some(returned_runner.donation),
         reason_for_payment: Some(returned_runner.reason_for_payment),
-        status_link: Some(returned_runner.status_link),
         email_provided,
         inner_response: Response {
             success_message: Some("Data received".to_string()),

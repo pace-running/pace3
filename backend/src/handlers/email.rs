@@ -20,7 +20,6 @@ struct EmailInfo {
     start_number: String,
     donation: String,
     reason_for_payment: String,
-    status_link: String,
 }
 
 struct EmailConfiguration {
@@ -28,6 +27,7 @@ struct EmailConfiguration {
     smtp_transport: String,
     credentials: Credentials,
     config_data_provided: bool,
+    url_host: String,
 }
 
 pub fn send_registration_email(
@@ -36,7 +36,6 @@ pub fn send_registration_email(
     receiver_email: String,
     donation: String,
     reason_for_payment: String,
-    status_link: String,
 ) -> bool {
     let email_details = EmailDetails {
         receiver_email,
@@ -47,7 +46,6 @@ pub fn send_registration_email(
             start_number,
             donation,
             reason_for_payment,
-            status_link,
         },
     };
     send_email_with_subject(email_details)
@@ -58,7 +56,6 @@ pub fn send_payment_confirmation(
     start_number: String,
     receiver_email: String,
     donation: String,
-    status_link: String,
 ) -> bool {
     let email_details = EmailDetails {
         receiver_email,
@@ -69,14 +66,12 @@ pub fn send_payment_confirmation(
             start_number,
             donation,
             reason_for_payment: String::from(""),
-            status_link,
         },
     };
     send_email_with_subject(email_details)
 }
 
 fn send_email_with_subject(email_details: EmailDetails) -> bool {
-    dotenv().ok();
     let email_configuration = get_email_configuration();
 
     if !email_configuration.config_data_provided {
@@ -91,6 +86,7 @@ fn send_email_with_subject(email_details: EmailDetails) -> bool {
     };
     let template = web::Data::new(tera);
     context.insert("email_info", &email_details.email_info);
+    context.insert("url_host", &email_configuration.url_host);
     let rendered = template
         .render(email_details.template_name, &context)
         .unwrap();
@@ -131,10 +127,13 @@ fn get_email_configuration() -> EmailConfiguration {
         std::env::var("SMTP_PASSWORD").unwrap_or_else(|_| "SMTP_PASSWORD must be set.".to_string());
     let smtp_transport = std::env::var("SMTP_TRANSPORT")
         .unwrap_or_else(|_| "SMTP_TRANSPORT must be set.".to_string());
+    let url_host =
+        std::env::var("URL_HOST").unwrap_or_else(|_| "URL_HOST must be set.".to_string());
 
     let config_data_provided = !sender_email.contains("must be set")
         && !smtp_password.contains("must be set")
-        && !smtp_transport.contains("must be set");
+        && !smtp_transport.contains("must be set")
+        && !url_host.contains("must be set");
 
     let credentials = Credentials::new(sender_email.to_string(), smtp_password);
 
@@ -143,5 +142,6 @@ fn get_email_configuration() -> EmailConfiguration {
         smtp_transport,
         credentials,
         config_data_provided,
+        url_host,
     }
 }

@@ -20,7 +20,6 @@ diesel::table! {
         running_level -> Varchar,
         donation -> Varchar,
         reason_for_payment -> Varchar,
-        status_link -> Varchar,
     }
 }
 

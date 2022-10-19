@@ -3,7 +3,7 @@ use diesel::PgConnection;
 use rand::Rng;
 use serde::Serialize;
 
-use crate::constants::{BLACKLIST_START_NUMBERS, CHARSET, CHARSET_ALL};
+use crate::constants::{BLACKLIST_START_NUMBERS, CHARSET};
 use crate::get_next_start_number;
 use crate::schema::runners;
 
@@ -21,7 +21,6 @@ pub struct NewRunner<'a> {
     pub running_level: &'a str,
     pub donation: &'a str,
     pub reason_for_payment: &'a str,
-    pub status_link: &'a str,
 }
 
 #[derive(Queryable, Serialize)]
@@ -36,13 +35,11 @@ pub struct Runner {
     pub running_level: String,
     pub donation: String,
     pub reason_for_payment: String,
-    pub status_link: String,
 }
 
-impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
-    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str, &'a str)) -> Self {
-        let (info, next_start_number, reason_for_payment, status_link) =
-            info_with_start_number_and_payment;
+impl<'a> From<(&'a Info, i64, &'a str)> for NewRunner<'a> {
+    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str)) -> Self {
+        let (info, next_start_number, reason_for_payment) = info_with_start_number_and_payment;
 
         NewRunner {
             start_number: next_start_number,
@@ -54,7 +51,6 @@ impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
             running_level: &info.runner_info.running_level,
             donation: &info.runner_info.donation,
             reason_for_payment,
-            status_link,
         }
     }
 }
@@ -82,17 +78,6 @@ pub fn create_random_payment(length: usize) -> String {
     format!("LGR-{}", reason_for_payment)
 }
 
-pub fn create_status_link(length: usize) -> String {
-    let mut rng = rand::thread_rng();
-    let suffix: String = (0..length)
-        .map(|_| {
-            let index = rng.gen_range(0..CHARSET_ALL.len());
-            CHARSET_ALL[index] as char
-        })
-        .collect();
-    format!("https://pace3.lauf-gegen-rechts.de/status/{}", suffix)
-}
-
 #[cfg(test)]
 mod tests {
     use crate::builders::InfoBuilder;
@@ -114,13 +99,7 @@ mod tests {
         let info = InfoBuilder::minimal_default().build();
         let expected_start_number = 10;
         let expected_reason_for_payment = "LGR-HUMKD";
-        let expected_status_link = "aaaaaaaaaaaa";
-        let runner = NewRunner::from((
-            &info,
-            expected_start_number,
-            expected_reason_for_payment,
-            expected_status_link,
-        ));
+        let runner = NewRunner::from((&info, expected_start_number, expected_reason_for_payment));
 
         assert_eq!(runner.firstname.unwrap(), info.runner_info.firstname);
         assert_eq!(runner.lastname.unwrap(), info.runner_info.lastname);
@@ -131,7 +110,6 @@ mod tests {
         assert_eq!(runner.donation, info.runner_info.donation);
         assert_eq!(runner.start_number, expected_start_number);
         assert_eq!(runner.reason_for_payment, expected_reason_for_payment);
-        assert_eq!(runner.status_link, expected_status_link);
     }
 
     #[actix_web::test]
