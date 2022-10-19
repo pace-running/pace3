@@ -5,7 +5,7 @@ import { useJoinFormContext } from '../../context/JoinFormContext';
 import Button from '../../components/Button';
 import { useRouter } from 'next/router';
 import { JoinFormValues } from '../../utility/joinFormSchema';
-import { submitJoinInfo } from '../../apis/join';
+import { submitJoinInfo } from '../../apis/api';
 import RunnerContext from '../../context/RunnerContext';
 
 const mapJoinFormDataToRequestData = (formData: JoinFormValues) => ({

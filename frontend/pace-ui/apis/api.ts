@@ -5,3 +5,9 @@ export async function submitJoinInfo(data: InfoRequestData) {
     headers: { 'content-type': 'application/json' }
   });
 }
+
+export async function fetchRunnerDetails(runner_id: string) {
+  return await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/runner/${runner_id}`, {
+    headers: { 'content-type': 'application/json' }
+  });
+}
