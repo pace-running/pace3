@@ -31,6 +31,21 @@ spec:
                 secretKeyRef:
                   key: DATABASE_URL
                   name: database-url
+            - name: SENDER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  key: SENDER_EMAIL
+                  name: sender-email
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SMTP_PASSWORD
+                  name: smtp-password
+            - name: SMTP_TRANSPORT
+              valueFrom:
+                secretKeyRef:
+                  key: SMTP_TRANSPORT
+                  name: smtp-transport
         - name: pace-frontend
           image: registry.k3s.colodeck.de/pace3-frontend:latest
           ports:
