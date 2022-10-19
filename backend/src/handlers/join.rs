@@ -111,6 +111,8 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     let email_provided = Some(email_value.ne(""));
     if let Some(true) = email_provided {
         send_registration_email(
+            returned_runner.id.to_string(),
+            returned_runner.start_number.to_string(),
             email_value,
             returned_runner.donation.clone(),
             returned_runner.reason_for_payment.clone(),
