@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useCallback, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchRunnerDetails } from '../../apis/api';
 import BaseLayout from '../../components/Layout/baseLayout';
 import StatusContent from '../../running/StatusContent';
@@ -13,15 +13,19 @@ const StatusPage: NextPage = () => {
   const [statusContent, setStatusContent] = useState<StatusResponseData>();
   const [isPageFound, setIsPageFound] = useState(false);
 
-  useMemo(async () => {
-    if (!isPageFound && runner_id && verification_code) {
-      const response = await fetchRunnerDetails(runner_id, verification_code);
-      if (response.data.status_code === 200) {
-        // set contents with response data
-        setStatusContent(response.data);
-        setIsPageFound(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (runner_id && verification_code) {
+        const response = await fetchRunnerDetails(runner_id, verification_code);
+        if (response.status === 200) {
+          // set contents with response data
+          setStatusContent(response.data);
+          setIsPageFound(true);
+        }
       }
-    }
+    };
+
+    fetchData();
   }, [runner_id, verification_code]);
 
   return (

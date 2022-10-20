@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../components/Button';
 
 interface Props {
-  statusContent?: StatusResponseData;
+  statusContent: StatusResponseData | undefined;
 }
 
 const StatusContent: React.FC<Props> = props => {
