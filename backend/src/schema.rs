@@ -21,6 +21,7 @@ diesel::table! {
         donation -> Varchar,
         reason_for_payment -> Varchar,
         payment_status -> Bool,
+        verification_code -> Varchar,
     }
 }
 
