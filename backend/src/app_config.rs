@@ -6,9 +6,9 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("")
             .service(web::resource("/").route(web::get().to(hello::index)))
             .service(web::resource("/join").route(web::get().to(join::form_request)))
-            .service(web::resource("/api/submit").route(web::post().to(join::register)))
+            .service(web::resource("/api/runners").route(web::post().to(join::register)))
             .service(
-                web::resource("/api/runner/{runner_id}").route(web::get().to(runner::get_runner)),
+                web::resource("/api/runners/{runner_id}").route(web::get().to(runner::get_runner)),
             )
             .service(web::resource("/summary").route(web::post().to(summary::show)))
             .service(web::resource("/health").route(web::get().to(health::health_endpoint)))
