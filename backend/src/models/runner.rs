@@ -1,9 +1,12 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
+use rand::distributions::{Alphanumeric, DistString};
 use rand::Rng;
 use serde::Serialize;
 
-use crate::constants::{BLACKLIST_START_NUMBERS, CHARSET};
+use crate::constants::{
+    BLACKLIST_START_NUMBERS, CHARSET, REASON_FOR_PAYMENT_LENGTH, VERIFICATION_CODE_LENGTH,
+};
 use crate::get_next_start_number;
 use crate::schema::runners;
 
@@ -21,6 +24,7 @@ pub struct NewRunner<'a> {
     pub running_level: &'a str,
     pub donation: &'a str,
     pub reason_for_payment: &'a str,
+    pub verification_code: &'a str,
 }
 
 #[derive(Queryable, Serialize)]
@@ -36,11 +40,13 @@ pub struct Runner {
     pub donation: String,
     pub reason_for_payment: String,
     pub payment_status: bool,
+    pub verification_code: String,
 }
 
-impl<'a> From<(&'a Info, i64, &'a str)> for NewRunner<'a> {
-    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str)) -> Self {
-        let (info, next_start_number, reason_for_payment) = info_with_start_number_and_payment;
+impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
+    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str, &'a str)) -> Self {
+        let (info, next_start_number, reason_for_payment, verification_code) =
+            info_with_start_number_and_payment;
 
         NewRunner {
             start_number: next_start_number,
@@ -52,6 +58,7 @@ impl<'a> From<(&'a Info, i64, &'a str)> for NewRunner<'a> {
             running_level: &info.runner_info.running_level,
             donation: &info.runner_info.donation,
             reason_for_payment,
+            verification_code,
         }
     }
 }
@@ -66,10 +73,10 @@ pub fn next_start_number(conn: &mut PgConnection) -> i64 {
     next
 }
 
-pub fn create_random_payment(length: usize) -> String {
+pub fn create_random_payment() -> String {
     let mut rng = rand::thread_rng();
 
-    let reason_for_payment: String = (0..length)
+    let reason_for_payment: String = (0..REASON_FOR_PAYMENT_LENGTH)
         .map(|_| {
             let index = rng.gen_range(0..CHARSET.len());
             CHARSET[index] as char
@@ -79,9 +86,14 @@ pub fn create_random_payment(length: usize) -> String {
     format!("LGR-{}", reason_for_payment)
 }
 
+pub fn create_verification_code() -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), VERIFICATION_CODE_LENGTH)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::builders::InfoBuilder;
+    use crate::constants::VERIFICATION_CODE_LENGTH;
     use crate::establish_connection;
 
     use super::*;
@@ -100,7 +112,13 @@ mod tests {
         let info = InfoBuilder::minimal_default().build();
         let expected_start_number = 10;
         let expected_reason_for_payment = "LGR-HUMKD";
-        let runner = NewRunner::from((&info, expected_start_number, expected_reason_for_payment));
+        let expected_verification_code = "dfas127sdh";
+        let runner = NewRunner::from((
+            &info,
+            expected_start_number,
+            expected_reason_for_payment,
+            expected_verification_code,
+        ));
 
         assert_eq!(runner.firstname.unwrap(), info.runner_info.firstname);
         assert_eq!(runner.lastname.unwrap(), info.runner_info.lastname);
@@ -111,11 +129,12 @@ mod tests {
         assert_eq!(runner.donation, info.runner_info.donation);
         assert_eq!(runner.start_number, expected_start_number);
         assert_eq!(runner.reason_for_payment, expected_reason_for_payment);
+        assert_eq!(runner.verification_code, expected_verification_code);
     }
 
     #[actix_web::test]
     async fn unit_reason_for_payment() {
-        let reason_for_payment = create_random_payment(5);
+        let reason_for_payment = create_random_payment();
 
         assert_eq!(reason_for_payment.len(), 9);
         assert!(reason_for_payment.as_str().contains("LGR-"));
@@ -123,6 +142,16 @@ mod tests {
             .as_str()
             .to_uppercase()
             .eq(&reason_for_payment));
+    }
+
+    #[actix_web::test]
+    async fn unit_create_verification_code() {
+        let verification_code_1 = create_verification_code();
+        let verification_code_2 = create_verification_code();
+
+        assert_eq!(verification_code_1.len(), VERIFICATION_CODE_LENGTH);
+        assert_eq!(verification_code_2.len(), VERIFICATION_CODE_LENGTH);
+        assert_ne!(verification_code_1, verification_code_2)
     }
 
     #[test]

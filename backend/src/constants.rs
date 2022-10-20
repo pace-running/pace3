@@ -6,3 +6,5 @@ pub const BLACKLIST_START_NUMBERS: [i64; 20] = [
 pub const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 pub const REASON_FOR_PAYMENT_LENGTH: usize = 5;
+
+pub const VERIFICATION_CODE_LENGTH: usize = 64;

@@ -20,6 +20,7 @@ struct EmailInfo {
     start_number: String,
     donation: String,
     reason_for_payment: String,
+    verification_code: String,
 }
 
 struct EmailConfiguration {
@@ -36,6 +37,7 @@ pub fn send_registration_email(
     receiver_email: String,
     donation: String,
     reason_for_payment: String,
+    verification_code: String,
 ) -> bool {
     let email_details = EmailDetails {
         receiver_email,
@@ -46,6 +48,7 @@ pub fn send_registration_email(
             start_number,
             donation,
             reason_for_payment,
+            verification_code,
         },
     };
     send_email_with_subject(email_details)
@@ -56,6 +59,7 @@ pub fn send_payment_confirmation(
     start_number: String,
     receiver_email: String,
     donation: String,
+    verification_code: String,
 ) -> bool {
     let email_details = EmailDetails {
         receiver_email,
@@ -66,6 +70,7 @@ pub fn send_payment_confirmation(
             start_number,
             donation,
             reason_for_payment: String::from(""),
+            verification_code,
         },
     };
     send_email_with_subject(email_details)
