@@ -30,6 +30,7 @@ interface InfoResponseData {
   donation: string;
   payment: string;
   email_provided: boolean;
+  verification_code: string;
 }
 
 interface StatusResponseData {

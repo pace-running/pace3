@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { fetchRunnerDetails } from '../../apis/api';
 import BaseLayout from '../../components/Layout/baseLayout';
 import StatusContent from '../../running/StatusContent';
@@ -8,23 +8,21 @@ import StatusContent from '../../running/StatusContent';
 const StatusPage: NextPage = () => {
   const router = useRouter();
   const runner_id = router.query.runner_id as string;
+  const verification_code = router.query.verification_code as string;
 
   const [statusContent, setStatusContent] = useState<StatusResponseData>();
   const [isPageFound, setIsPageFound] = useState(false);
-  let counter = 1;
 
-  const loadContent = useCallback(async () => {
-    if (runner_id && counter > 0) {
-      const response = await fetchRunnerDetails(runner_id);
+  useMemo(async () => {
+    if (!isPageFound && runner_id && verification_code) {
+      const response = await fetchRunnerDetails(runner_id, verification_code);
       if (response.data.status_code === 200) {
         // set contents with response data
         setStatusContent(response.data);
         setIsPageFound(true);
       }
-      counter--;
     }
-  }, [runner_id]);
-  loadContent(); // This gets called repeatedly, workaround with counter should be temporary
+  }, [runner_id, verification_code]);
 
   return (
     <BaseLayout pageTitle='Status'>

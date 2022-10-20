@@ -59,13 +59,15 @@ const SummaryPage: NextPage = () => {
         const start_number = response.data.start_number.toString();
         const donation = response.data.donation.toString();
         const payment = response.data.reason_for_payment.toString();
+        const verification_code = response.data.verification_code.toString();
         const email_provided = response.data.email_provided as boolean;
         setInfoResponseData({
           runner_id,
           start_number,
           donation,
           payment,
-          email_provided
+          email_provided,
+          verification_code
         });
         await router.push({
           pathname: '/confirmation',
