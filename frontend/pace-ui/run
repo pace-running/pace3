@@ -35,6 +35,13 @@ task_build() {
   npm run build
 }
 
+##DOC fmt - Run formatting
+task_fmt() {
+  log_running_command "formatting..."
+  npx prettier --write "**/*.ts"
+  npx prettier --write "**/*.tsx"
+}
+
 ###############################################################################
 # Start
 ###############################################################################
