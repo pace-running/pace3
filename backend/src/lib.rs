@@ -2,6 +2,7 @@ use std::env;
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::Error;
 use dotenvy::dotenv;
 
 use self::models::runner::{NewRunner, Runner};
@@ -35,6 +36,26 @@ pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
         .values(&new_runner)
         .get_result(conn)
         .expect("Error saving runner")
+}
+
+pub fn retrieve_runner_by_id(conn: &mut PgConnection, id: i32) -> Runner {
+    use crate::schema::runners::dsl::runners;
+
+    runners
+        .find(id)
+        .get_result::<Runner>(conn)
+        .unwrap_or_else(|_| panic!("Could not retrieve runner with id {}", id))
+}
+
+pub fn retrieve_shipping_by_runner_id(
+    conn: &mut PgConnection,
+    queried_id: i32,
+) -> Result<Shipping, Error> {
+    use crate::schema::shippings::dsl::*;
+
+    shippings
+        .filter(runner_id.eq(queried_id))
+        .get_result::<Shipping>(conn)
 }
 
 pub fn insert_shipping(conn: &mut PgConnection, new_shipping: NewShipping) -> Shipping {

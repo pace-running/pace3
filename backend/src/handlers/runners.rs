@@ -5,7 +5,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use tera::Context;
 
-use crate::establish_connection;
 use crate::insert_runner;
 use crate::insert_shipping;
 use crate::models::event;
@@ -13,14 +12,55 @@ use crate::models::info::Info;
 use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
+use crate::{establish_connection, retrieve_runner_by_id, retrieve_shipping_by_runner_id};
 
 use super::email::send_registration_email;
 
+#[derive(Deserialize)]
+pub struct TokenRequestData {
+    verification_code: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+pub struct RunnerResponse {
+    #[serde(flatten)]
+    runner_details: Option<RunnerDetails>,
+    is_tshirt_booked: bool,
+    #[serde(flatten)]
+    shipping_details: Option<ShippingDetails>,
+    #[serde(flatten)]
+    inner_response: Response,
+}
+
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+pub struct RunnerDetails {
+    runner_id: String,
+    start_number: String,
+    donation: String,
+    payment: String,
+    is_paid: bool,
+}
+
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+pub struct ShippingDetails {
+    tshirt_model: String,
+    tshirt_size: String,
+    country: String,
+    address_firstname: String,
+    address_lastname: String,
+    street_name: String,
+    house_number: String,
+    address_extra: Option<String>,
+    postal_code: String,
+    city: String,
+    delivery_status: String,
+}
+
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Response {
-    pub success_message: Option<String>,
-    pub error_message: Option<String>,
-    pub status_code: u16,
+    success_message: Option<String>,
+    error_message: Option<String>,
+    status_code: u16,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -73,7 +113,7 @@ pub fn has_bad_data(form: &Info) -> bool {
         || (donation < 5)
 }
 
-pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
+pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
         return Ok(HttpResponse::BadRequest().json(ResponseWithBody {
@@ -134,6 +174,69 @@ pub async fn register(form: Json<Info>) -> Result<HttpResponse, Error> {
     }))
 }
 
+pub async fn get_runner(
+    request_data: web::Path<i32>,
+    token: web::Query<TokenRequestData>,
+) -> Result<HttpResponse, Error> {
+    let runner_id = request_data.into_inner();
+    let connection = &mut establish_connection();
+    let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
+
+    if retrieved_runner
+        .verification_code
+        .ne(&token.verification_code)
+    {
+        return Ok(HttpResponse::BadRequest().json(Response {
+            success_message: None,
+            error_message: Some("Code could not be verified".to_string()),
+            status_code: StatusCode::BAD_REQUEST.as_u16(),
+        }));
+    }
+
+    let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
+
+    let runner_details = Option::from(RunnerDetails {
+        runner_id: retrieved_runner.id.to_string(),
+        start_number: retrieved_runner.start_number.to_string(),
+        donation: retrieved_runner.donation,
+        payment: retrieved_runner.reason_for_payment,
+        is_paid: retrieved_runner.payment_status,
+    });
+
+    let inner_response = Response {
+        success_message: Some("Data received".to_string()),
+        error_message: None,
+        status_code: StatusCode::OK.as_u16(),
+    };
+
+    match retrieved_shipping_result {
+        Ok(shipping) => Ok(HttpResponse::Ok().json(RunnerResponse {
+            runner_details,
+            is_tshirt_booked: true,
+            shipping_details: Option::from(ShippingDetails {
+                tshirt_model: shipping.tshirt_model,
+                tshirt_size: shipping.tshirt_size,
+                country: shipping.country,
+                address_firstname: shipping.firstname,
+                address_lastname: shipping.lastname,
+                street_name: shipping.street_name,
+                house_number: shipping.house_number,
+                address_extra: shipping.address_extra,
+                postal_code: shipping.postal_code,
+                city: shipping.city,
+                delivery_status: shipping.delivery_status,
+            }),
+            inner_response,
+        })),
+        Err(_) => Ok(HttpResponse::Ok().json(RunnerResponse {
+            runner_details,
+            is_tshirt_booked: false,
+            shipping_details: None,
+            inner_response,
+        })),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use actix_web::body::{to_bytes, MessageBody};
@@ -142,7 +245,7 @@ mod tests {
     use tera::Tera;
 
     use crate::builders::InfoBuilder;
-    use crate::handlers::join::{form_request, register, Response};
+    use crate::handlers::runners::{create_runner, form_request, Response};
 
     trait BodyTest {
         fn as_str(&self) -> &str;
@@ -172,7 +275,7 @@ mod tests {
     async fn integration_minimal_submit() {
         let participant = InfoBuilder::minimal_default().build();
         let input_data = web::Json(participant);
-        let response = register(input_data).await.unwrap();
+        let response = create_runner(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = response.into_body().try_into_bytes().unwrap();
         let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
@@ -188,7 +291,7 @@ mod tests {
     async fn integration_submit_form_with_shipping() {
         let participant = InfoBuilder::default().build();
         let input_data = web::Json(participant);
-        let response = register(input_data).await.unwrap();
+        let response = create_runner(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = response.into_body().try_into_bytes().unwrap();
         let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
@@ -204,7 +307,7 @@ mod tests {
     async fn integration_submit_wrong_form() {
         let participant = InfoBuilder::default().with_house_number("").build();
         let input_data = web::Json(participant);
-        let response = register(input_data).await.unwrap();
+        let response = create_runner(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
         let bytes = response.into_body().try_into_bytes().unwrap();
         let actual_response: Response = serde_json::from_slice(&bytes).unwrap();

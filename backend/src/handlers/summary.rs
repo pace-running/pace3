@@ -3,7 +3,7 @@ use tera::Context;
 
 use crate::models::{event, info::Info};
 
-use super::join::has_bad_data;
+use super::runners::has_bad_data;
 
 pub async fn show(
     form: web::Form<Info>,

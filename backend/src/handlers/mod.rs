@@ -3,7 +3,6 @@ pub mod email;
 pub mod health;
 pub mod hello;
 pub mod imprint;
-pub(crate) mod join;
 pub mod privacy_notice;
-pub mod runner;
+pub mod runners;
 pub mod summary;

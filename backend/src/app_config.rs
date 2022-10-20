@@ -1,14 +1,14 @@
-use crate::handlers::{admin, health, hello, imprint, join, privacy_notice, runner, summary};
+use crate::handlers::{admin, health, hello, imprint, privacy_notice, runners, summary};
 use actix_web::web;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("")
             .service(web::resource("/").route(web::get().to(hello::index)))
-            .service(web::resource("/join").route(web::get().to(join::form_request)))
-            .service(web::resource("/api/runners").route(web::post().to(join::register)))
+            .service(web::resource("/join").route(web::get().to(runners::form_request)))
+            .service(web::resource("/api/runners").route(web::post().to(runners::create_runner)))
             .service(
-                web::resource("/api/runners/{runner_id}").route(web::get().to(runner::get_runner)),
+                web::resource("/api/runners/{runner_id}").route(web::get().to(runners::get_runner)),
             )
             .service(web::resource("/summary").route(web::post().to(summary::show)))
             .service(web::resource("/health").route(web::get().to(health::health_endpoint)))
