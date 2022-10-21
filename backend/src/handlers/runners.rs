@@ -246,6 +246,7 @@ mod tests {
 
     use crate::builders::InfoBuilder;
     use crate::handlers::runners::*;
+    use crate::models::runner::create_verification_code;
 
     trait BodyTest {
         fn as_str(&self) -> &str;
@@ -366,5 +367,23 @@ mod tests {
             },
         };
         assert_eq!(returned_runner, expected_runner);
+    }
+
+    #[actix_web::test]
+    async fn integration_wrong_verification_code_rejected() {
+        let participant = InfoBuilder::default().build();
+        let input_data = web::Json(participant.clone());
+        let post_response = create_runner(input_data).await.unwrap();
+        assert_eq!(post_response.status(), StatusCode::OK);
+        let bytes = post_response.into_body().try_into_bytes().unwrap();
+        let created_runner: ResponseWithBody = serde_json::from_slice(&bytes).unwrap();
+        let runner_id: i32 = created_runner.runner_id.clone().unwrap().parse().unwrap();
+        let verification_code_token = TokenRequestData {
+            verification_code: create_verification_code(),
+        };
+        let get_response = get_runner(Path::from(runner_id), Query(verification_code_token))
+            .await
+            .unwrap();
+        assert_eq!(get_response.status(), StatusCode::FORBIDDEN);
     }
 }
