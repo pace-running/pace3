@@ -1,13 +1,16 @@
-describe('Lighthouse', () => {
-
-    it('uses Lighthouse on main page', () => {
-        cy.visit(`${Cypress.config().baseUrl}`)
-        //cy.lighthouse()
+context("Main page", () => {
+    beforeEach(() => {
+      cy.visit("https://pace3.lauf-gegen-rechts.de");
     });
 
-    it('uses Lighthouse on join page', () => {
-        cy.visit(`${Cypress.config().baseUrl}/join`)
-        // cy.lighthouse()
+  it("should verify the score of the main page", () => {
+    cy.lighthouse({
+      accessibility: 50,
+      "best-practices": 50,
+      seo: 50,
+      pwa: 30,
+      performance: 50,
     });
 });
-
+ 
+    });
