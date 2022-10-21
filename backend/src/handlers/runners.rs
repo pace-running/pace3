@@ -240,12 +240,12 @@ pub async fn get_runner(
 #[cfg(test)]
 mod tests {
     use actix_web::body::{to_bytes, MessageBody};
-    use actix_web::web::Bytes;
+    use actix_web::web::{Bytes, Path, Query};
     use actix_web::{http::StatusCode, web};
     use tera::Tera;
 
     use crate::builders::InfoBuilder;
-    use crate::handlers::runners::{create_runner, form_request, Response};
+    use crate::handlers::runners::*;
 
     trait BodyTest {
         fn as_str(&self) -> &str;
@@ -317,5 +317,54 @@ mod tests {
             status_code: 400,
         };
         assert_eq!(actual_response, expected_response);
+    }
+
+    #[actix_web::test]
+    async fn integration_get_runner_by_id() {
+        let participant = InfoBuilder::default().build();
+        let input_data = web::Json(participant.clone());
+        let post_response = create_runner(input_data).await.unwrap();
+        assert_eq!(post_response.status(), StatusCode::OK);
+        let bytes = post_response.into_body().try_into_bytes().unwrap();
+        let created_runner: ResponseWithBody = serde_json::from_slice(&bytes).unwrap();
+        let runner_id: i32 = created_runner.runner_id.clone().unwrap().parse().unwrap();
+        let verification_code = TokenRequestData {
+            verification_code: created_runner.verification_code.unwrap(),
+        };
+        let get_response = get_runner(Path::from(runner_id), Query(verification_code))
+            .await
+            .unwrap();
+        assert_eq!(get_response.status(), StatusCode::OK);
+        let bytes = get_response.into_body().try_into_bytes().unwrap();
+        let returned_runner: RunnerResponse = serde_json::from_slice(&bytes).unwrap();
+        let expected_runner = RunnerResponse {
+            runner_details: Option::from(RunnerDetails {
+                runner_id: created_runner.runner_id.unwrap(),
+                start_number: created_runner.start_number.unwrap().to_string(),
+                donation: created_runner.donation.unwrap(),
+                payment: created_runner.reason_for_payment.unwrap(),
+                is_paid: false,
+            }),
+            is_tshirt_booked: true,
+            shipping_details: Option::from(ShippingDetails {
+                tshirt_model: participant.shipping_info.tshirt_model.to_string(),
+                tshirt_size: participant.shipping_info.tshirt_size.to_string(),
+                country: participant.shipping_info.country.to_string(),
+                address_firstname: participant.shipping_info.address_firstname.to_string(),
+                address_lastname: participant.shipping_info.address_lastname.to_string(),
+                street_name: participant.shipping_info.street_name.to_string(),
+                house_number: participant.shipping_info.house_number.to_string(),
+                address_extra: Some(participant.shipping_info.address_extra.to_string()),
+                postal_code: participant.shipping_info.postal_code.to_string(),
+                city: participant.shipping_info.city.to_string(),
+                delivery_status: "In Bearbeitung".to_string(),
+            }),
+            inner_response: Response {
+                success_message: Some("Data received".to_string()),
+                error_message: None,
+                status_code: StatusCode::OK.as_u16(),
+            },
+        };
+        assert_eq!(returned_runner, expected_runner);
     }
 }
