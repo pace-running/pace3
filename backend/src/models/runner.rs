@@ -24,6 +24,7 @@ pub struct NewRunner<'a> {
     pub running_level: &'a str,
     pub donation: &'a str,
     pub reason_for_payment: &'a str,
+    pub payment_status: bool,
     pub verification_code: &'a str,
 }
 
@@ -58,6 +59,7 @@ impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
             running_level: &info.runner_info.running_level,
             donation: &info.runner_info.donation,
             reason_for_payment,
+            payment_status: false,
             verification_code,
         }
     }
@@ -112,7 +114,8 @@ mod tests {
         let info = InfoBuilder::minimal_default().build();
         let expected_start_number = 10;
         let expected_reason_for_payment = "LGR-HUMKD";
-        let expected_verification_code = "dfas127sdh";
+        let expected_verification_code =
+            "8xGH3xrkTHeYBzBrgPO9YBSKO9rZGcc0e8MKjACQ0KuLrpjrwpy1MhehHHqNN1XX";
         let runner = NewRunner::from((
             &info,
             expected_start_number,
@@ -129,6 +132,7 @@ mod tests {
         assert_eq!(runner.donation, info.runner_info.donation);
         assert_eq!(runner.start_number, expected_start_number);
         assert_eq!(runner.reason_for_payment, expected_reason_for_payment);
+        assert_eq!(runner.payment_status, false);
         assert_eq!(runner.verification_code, expected_verification_code);
     }
 

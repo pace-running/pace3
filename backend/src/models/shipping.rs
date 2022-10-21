@@ -1,8 +1,19 @@
-use diesel::prelude::*;
-
-use crate::schema::shippings;
-
 use super::info::Info;
+use crate::schema::shippings;
+use diesel::prelude::*;
+use std::convert::AsRef;
+use strum_macros::AsRefStr;
+
+#[derive(AsRefStr)]
+#[allow(dead_code, clippy::upper_case_acronyms)]
+enum DeliveryStatus {
+    #[strum(serialize = "In Bearbeitung")]
+    PROCESSED,
+    #[strum(serialize = "Versendet")]
+    SHIPPED,
+    #[strum(serialize = "Zugestellt")]
+    DELIVERED,
+}
 
 #[derive(Insertable)]
 #[diesel(table_name = shippings)]
@@ -18,6 +29,7 @@ pub struct NewShipping<'a> {
     pub postal_code: &'a str,
     pub city: &'a str,
     pub runner_id: i32,
+    pub delivery_status: &'a str,
 }
 
 #[derive(Queryable)]
@@ -52,15 +64,15 @@ impl<'a> From<(&'a Info, i32)> for NewShipping<'a> {
             postal_code: &info.shipping_info.postal_code,
             city: &info.shipping_info.city,
             runner_id,
+            delivery_status: DeliveryStatus::PROCESSED.as_ref(),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::builders::InfoBuilder;
-
     use super::*;
+    use crate::builders::InfoBuilder;
 
     #[actix_web::test]
     async fn unit_create_new_shipping_test() {
@@ -77,5 +89,6 @@ mod tests {
         assert_eq!(shipping.postal_code, info.shipping_info.postal_code);
         assert_eq!(shipping.city, info.shipping_info.city);
         assert_eq!(shipping.runner_id, runner_id);
+        assert_eq!(shipping.delivery_status, "In Bearbeitung");
     }
 }
