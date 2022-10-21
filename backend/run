@@ -59,8 +59,6 @@ task_migrate() {
 ##DOC start - Start the application
 task_start() {
   log_running_command "application..."
-  docker-compose up --force-recreate -d
-  sleep 5
   task_migrate
   cargo run
 }
