@@ -186,10 +186,10 @@ pub async fn get_runner(
         .verification_code
         .ne(&token.verification_code)
     {
-        return Ok(HttpResponse::BadRequest().json(Response {
+        return Ok(HttpResponse::Forbidden().json(Response {
             success_message: None,
             error_message: Some("Code could not be verified".to_string()),
-            status_code: StatusCode::BAD_REQUEST.as_u16(),
+            status_code: StatusCode::FORBIDDEN.as_u16(),
         }));
     }
 
