@@ -275,7 +275,7 @@ mod tests {
     #[actix_web::test]
     async fn integration_minimal_submit() {
         let participant = InfoBuilder::minimal_default().build();
-        let input_data = web::Json(participant);
+        let input_data = Json(participant);
         let response = create_runner(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = response.into_body().try_into_bytes().unwrap();
@@ -291,7 +291,7 @@ mod tests {
     #[actix_web::test]
     async fn integration_submit_form_with_shipping() {
         let participant = InfoBuilder::default().build();
-        let input_data = web::Json(participant);
+        let input_data = Json(participant);
         let response = create_runner(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = response.into_body().try_into_bytes().unwrap();
@@ -307,7 +307,7 @@ mod tests {
     #[actix_web::test]
     async fn integration_submit_wrong_form() {
         let participant = InfoBuilder::default().with_house_number("").build();
-        let input_data = web::Json(participant);
+        let input_data = Json(participant);
         let response = create_runner(input_data).await.unwrap();
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
         let bytes = response.into_body().try_into_bytes().unwrap();
@@ -323,12 +323,17 @@ mod tests {
     #[actix_web::test]
     async fn integration_get_runner_by_id() {
         let participant = InfoBuilder::default().build();
-        let input_data = web::Json(participant.clone());
+        let input_data = Json(participant.clone());
         let post_response = create_runner(input_data).await.unwrap();
         assert_eq!(post_response.status(), StatusCode::OK);
         let bytes = post_response.into_body().try_into_bytes().unwrap();
         let created_runner: ResponseWithBody = serde_json::from_slice(&bytes).unwrap();
-        let runner_id: i32 = created_runner.runner_id.clone().unwrap().parse().unwrap();
+        let runner_id = created_runner
+            .runner_id
+            .as_ref()
+            .unwrap()
+            .parse::<i32>()
+            .unwrap();
         let verification_code = TokenRequestData {
             verification_code: created_runner.verification_code.unwrap(),
         };
@@ -372,12 +377,17 @@ mod tests {
     #[actix_web::test]
     async fn integration_wrong_verification_code_rejected() {
         let participant = InfoBuilder::default().build();
-        let input_data = web::Json(participant.clone());
+        let input_data = Json(participant.clone());
         let post_response = create_runner(input_data).await.unwrap();
         assert_eq!(post_response.status(), StatusCode::OK);
         let bytes = post_response.into_body().try_into_bytes().unwrap();
         let created_runner: ResponseWithBody = serde_json::from_slice(&bytes).unwrap();
-        let runner_id: i32 = created_runner.runner_id.clone().unwrap().parse().unwrap();
+        let runner_id = created_runner
+            .runner_id
+            .as_ref()
+            .unwrap()
+            .parse::<i32>()
+            .unwrap();
         let verification_code_token = TokenRequestData {
             verification_code: create_verification_code(),
         };
@@ -385,5 +395,13 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(get_response.status(), StatusCode::FORBIDDEN);
+        let bytes = get_response.into_body().try_into_bytes().unwrap();
+        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
+        let expected_response = Response {
+            success_message: None,
+            error_message: Some("Code could not be verified".to_string()),
+            status_code: StatusCode::FORBIDDEN.as_u16(),
+        };
+        assert_eq!(expected_response, actual_response);
     }
 }

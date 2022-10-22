@@ -30,9 +30,7 @@ pub fn has_https() -> bool {
 }
 
 pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
-    use crate::schema::runners;
-
-    diesel::insert_into(runners::table)
+    diesel::insert_into(schema::runners::table)
         .values(&new_runner)
         .get_result(conn)
         .expect("Error saving runner")
