@@ -97,7 +97,8 @@ const StatusContent: React.FC<Props> = props => {
                 {props.statusContent.address_firstname} {props.statusContent.address_lastname}
                 <br />
                 {props.statusContent.street_name} {props.statusContent.house_number}
-                {props.statusContent.address_extra ? (<br/>):(<></>)}{props.statusContent.address_extra}
+                {props.statusContent.address_extra ? <br /> : <></>}
+                {props.statusContent.address_extra}
                 <br />
                 {props.statusContent.postal_code} {props.statusContent.city}
                 <br />
