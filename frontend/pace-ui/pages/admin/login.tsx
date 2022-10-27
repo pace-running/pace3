@@ -12,7 +12,7 @@ const submitForm = async (event: React.SyntheticEvent) => {
     username: { value: string };
     password: { value: string };
   };
-  let loginData = {
+  const loginData = {
     username: target.username.value,
     password: target.password.value
   };
