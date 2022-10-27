@@ -26,6 +26,8 @@ spec:
           env:
             - name: HTTPS_ENABLED
               value: "true"
+            - name: URL_HOST
+              value: "lauf-gegen-rechts.de"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
