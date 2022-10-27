@@ -120,7 +120,10 @@ fn send_email_with_subject(email_details: EmailDetails) -> bool {
             println!("Email sent successfully!");
             true
         }
-        Err(_) => false,
+        Err(err) => {
+            println!("Failed to send mail: {}", err);
+            false
+        }
     }
 }
 
