@@ -30,7 +30,8 @@ RUN cargo build --release
 ####################################################################################################
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install libpq5 -y
+RUN apt-get update && apt-get install libpq5 ca-certificates -y
+RUN update-ca-certificates
 
 # Import from builder.
 COPY --from=builder /etc/passwd /etc/passwd
