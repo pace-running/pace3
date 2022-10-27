@@ -35,17 +35,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: SENDER_EMAIL
-                  name: sender-email
+                  name: smtp
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  key: SMTP_USER
+                  name: smtp
             - name: SMTP_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: SMTP_PASSWORD
-                  name: smtp-password
+                  name: smtp
             - name: SMTP_TRANSPORT
               valueFrom:
                 secretKeyRef:
                   key: SMTP_TRANSPORT
-                  name: smtp-transport
+                  name: smtp
         - name: pace-frontend
           image: registry.k3s.colodeck.de/pace3-frontend:latest
           ports:
