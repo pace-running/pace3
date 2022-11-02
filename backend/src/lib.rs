@@ -14,6 +14,7 @@ pub mod constants;
 pub mod handlers;
 pub mod models;
 pub mod schema;
+pub mod services;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();

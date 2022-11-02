@@ -11,7 +11,7 @@ struct EmailDetails {
     receiver_email: String,
     template_name: &'static str,
     subject: &'static str,
-    email_info: EmailInfo, // Only to extract which data should be sent to the html template
+    email_info: EmailInfo,
 }
 
 #[derive(Deserialize, Serialize)]
