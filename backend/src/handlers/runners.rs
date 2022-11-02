@@ -3,18 +3,15 @@ use actix_web::web::Json;
 use actix_web::{web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
-use tera::Context;
 
 use crate::insert_runner;
 use crate::insert_shipping;
-use crate::models::event;
 use crate::models::info::Info;
 use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
+use crate::services::email::send_registration_email;
 use crate::{establish_connection, retrieve_runner_by_id, retrieve_shipping_by_runner_id};
-
-use super::email::send_registration_email;
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {
@@ -76,13 +73,6 @@ pub struct ResponseBody<T> {
 }
 
 type ResponseWithBody = ResponseBody<Response>;
-
-pub async fn form_request(tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
-    let mut ctx = Context::new();
-    ctx.insert("event", &event::current_event());
-    let rendered = tmpl.render("join.html", &ctx).unwrap();
-    Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
-}
 
 pub fn has_bad_data(form: &Info) -> bool {
     let donation: u16 = form
@@ -239,38 +229,13 @@ pub async fn get_runner(
 
 #[cfg(test)]
 mod tests {
-    use actix_web::body::{to_bytes, MessageBody};
-    use actix_web::web::{Bytes, Path, Query};
-    use actix_web::{http::StatusCode, web};
-    use tera::Tera;
+    use actix_web::body::MessageBody;
+    use actix_web::http::StatusCode;
+    use actix_web::web::{Path, Query};
 
     use crate::builders::InfoBuilder;
     use crate::handlers::runners::*;
     use crate::models::runner::create_verification_code;
-
-    trait BodyTest {
-        fn as_str(&self) -> &str;
-    }
-
-    impl BodyTest for Bytes {
-        fn as_str(&self) -> &str {
-            std::str::from_utf8(self).unwrap()
-        }
-    }
-
-    #[actix_web::test]
-    async fn unit_form_page() {
-        let tera = match Tera::new("templates/**/*") {
-            Ok(t) => t,
-            Err(_e) => std::process::exit(1),
-        };
-        let data = web::Data::new(tera);
-        let resp = form_request(data).await.unwrap();
-        assert_eq!(resp.status(), StatusCode::OK);
-
-        let body = to_bytes(resp.into_body()).await.unwrap();
-        assert!(body.as_str().contains("<h1>Anmeldung</h1>"))
-    }
 
     #[actix_web::test]
     async fn integration_minimal_submit() {
