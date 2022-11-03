@@ -12,3 +12,9 @@ export async function fetchRunnerDetails(runner_id: string, verification_code: s
     headers: { 'content-type': 'application/json' }
   });
 }
+
+export async function fetchAllRunners() {
+  return await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/runners`, {
+    headers: { 'content-type': 'application/json' }
+  });
+}

@@ -53,3 +53,19 @@ interface StatusResponseData {
   city: string;
   delivery_status: string;
 }
+
+interface RunnerResponseData {
+  id: number; // necessary???
+  firstname: string;
+  lastname: string;
+  team: string;
+  email: string;
+  repeat: string;
+  starting_point: string;
+  running_level: string;
+  donation: string;
+  confirm: string;
+  verification_code: string;
+  reason_for_payment: string;
+  payment_status: string;
+}
