@@ -26,39 +26,48 @@ const Admin: NextPage = () => {
   return (
     <div>
       <h1>Admin</h1>
-      {/* <>{console.log(`Runners List: ${runnerList}`)}</> */}
       <h2>Registered Runners:</h2>
-      <div>
-        <table id='runnersTable'>
-          <tr>
+      <table id='runnersTable'>
+        <thead>
+          <tr key={'head'}>
             <th>ID</th>
             <th>Name</th>
             <th>Team</th>
+            <th>Email</th>
             <th>Starting point</th>
             <th>Running Level</th>
             <th>Donation</th>
             <th>Payment Status</th>
+            <th></th>
           </tr>
-          {runnerList?.map((runner,key)=>{
-            return (
-              <tr key={key}>
-                <td>{runner.id}</td>
-                <td>{runner.firstname} {runner.lastname}</td>
-                <td>{runner.team}</td>
-                <td>{runner.starting_point}</td>
-                <td>{runner.running_level}</td>
-                <td>{runner.donation}</td>
-                <td>{runner.payment_status?'True':'False'}</td>
-                <td>
-                  <Button name={`btn-verify-payment-${runner.id}`} label={'Verify Payment'} type={'button'} onClick={()=>{
+        </thead>
+        {runnerList?.map((runner, key) => {
+          return (
+            <tr key={key}>
+              <td>{runner.id}</td>
+              <td>
+                {runner.firstname} {runner.lastname}
+              </td>
+              <td>{runner.team}</td>
+              <td>{runner.email}</td>
+              <td>{runner.starting_point}</td>
+              <td>{runner.running_level}</td>
+              <td>{runner.donation}</td>
+              <td>{runner.payment_status ? 'True' : 'False'}</td>
+              <td>
+                <Button
+                  name={`btn-verify-payment-${runner.id}`}
+                  label={'Verify Payment'}
+                  type={'button'}
+                  onClick={() => {
                     verify_payment(runner.id.toString());
-                  }}/>
-                </td>
-              </tr>
-            );
-          })}
-        </table>
-      </div>
+                  }}
+                />
+              </td>
+            </tr>
+          );
+        })}
+      </table>
     </div>
   );
 };
