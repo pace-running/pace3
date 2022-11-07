@@ -1,9 +1,10 @@
-use crate::handlers::{admin, runners};
+use crate::handlers::{admin, health, runners};
 use actix_web::web;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("")
+            .service(web::resource("/health").route(web::get().to(health::health)))
             .service(web::resource("/api/runners").route(web::post().to(runners::create_runner)))
             .service(
                 web::resource("/api/runners/{runner_id}").route(web::get().to(runners::get_runner)),
