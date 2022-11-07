@@ -31,7 +31,7 @@ pub async fn check_password(
     }
 }
 
-pub async fn show_runners(/*_: Identity*/) -> Result<HttpResponse, Error> {
+pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
     let database_result = runners.load::<Runner>(connection);

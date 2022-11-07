@@ -30,6 +30,12 @@ pub fn has_https() -> bool {
     https_enabled.eq("true")
 }
 
+pub fn session_key() -> String {
+    env::var("SESSION_KEY").unwrap_or(
+        "DEFAULTSESSIONKEYDONOTUSEINPRODUCTIONORYOUMIGHTDIEAVERYSLOWANDPAINFULLDEATH".to_string(),
+    )
+}
+
 pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
     diesel::insert_into(schema::runners::table)
         .values(&new_runner)

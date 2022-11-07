@@ -4,11 +4,11 @@ use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, http, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
 use pace::app_config::routes;
-use pace::has_https;
+use pace::{has_https, session_key};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let secret_key = Key::generate();
+    let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
         .build()

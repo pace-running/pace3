@@ -53,6 +53,12 @@ spec:
                 secretKeyRef:
                   key: SMTP_TRANSPORT
                   name: smtp
+            - name: SESSION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: session
+                  key: KEY
+
         - name: pace-frontend
           image: registry.k3s.colodeck.de/pace3-frontend:latest
           ports:
