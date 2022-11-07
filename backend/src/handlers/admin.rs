@@ -2,7 +2,7 @@ use crate::establish_connection;
 use crate::models::runner::Runner;
 use crate::models::users::{LoginData, LoginResponse, User};
 use actix_identity::Identity;
-use actix_web::web::Json;
+use actix_web::web::{self, Json};
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
 use diesel::prelude::*;
 
@@ -31,13 +31,30 @@ pub async fn check_password(
     }
 }
 
-pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
+pub async fn show_runners(/*_: Identity*/) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
     let database_result = runners.load::<Runner>(connection);
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&database_result.unwrap()).unwrap()))
+}
+
+pub async fn verify_payment(/*_: Identity, */ r_id: web::Path<i32>) -> Result<HttpResponse, Error> {
+    let runner_id = r_id.into_inner();
+    use crate::schema::runners::dsl::*;
+    let connection = &mut establish_connection();
+    let result = diesel::update(runners.find(id))
+        .set(payment_status.eq(true))
+        .get_result::<Runner>(connection)
+        .unwrap();
+    println!(
+        "Payment Status of runner {}: {}",
+        runner_id, result.payment_status
+    );
+    Ok(HttpResponse::Ok()
+        .content_type("text/json")
+        .body(serde_json::to_string(&result).unwrap()))
 }
 
 pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {

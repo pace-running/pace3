@@ -67,5 +67,5 @@ interface RunnerResponseData {
   confirm: string;
   verification_code: string;
   reason_for_payment: string;
-  payment_status: string;
+  payment_status: bool;
 }

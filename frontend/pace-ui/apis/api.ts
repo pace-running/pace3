@@ -18,3 +18,9 @@ export async function fetchAllRunners() {
     headers: { 'content-type': 'application/json' }
   });
 }
+
+export async function verify_payment(runner_id: string) {
+  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/verification/${runner_id}`, runner_id, {
+    headers: { 'content-type': 'application/json' }
+  });
+}

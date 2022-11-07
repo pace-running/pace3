@@ -24,7 +24,7 @@ pub struct NewRunner<'a> {
     pub running_level: &'a str,
     pub donation: &'a str,
     pub reason_for_payment: &'a str,
-    pub payment_status: bool,
+    pub payment_status: &'a bool,
     pub verification_code: &'a str,
 }
 
@@ -59,7 +59,7 @@ impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
             running_level: &info.runner_info.running_level,
             donation: &info.runner_info.donation,
             reason_for_payment,
-            payment_status: false,
+            payment_status: &false,
             verification_code,
         }
     }
