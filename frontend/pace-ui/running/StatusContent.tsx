@@ -15,7 +15,7 @@ const StatusContent: React.FC<Props> = props => {
         kannst. Dies ist besonders wichtig, falls du keine Email hinterlegt hast.{' '}
       </b>
       <div>
-        <h2 style={{fontSize: '1.75rem'}}>Deine Startnummer</h2>
+        <h2 style={{ fontSize: '1.75rem' }}>Deine Startnummer</h2>
         <p style={{ color: '#795548', fontSize: '36px' }}>{props.statusContent?.start_number}</p>
         <Button
           name={'downloadStartNumberBtn'}

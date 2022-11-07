@@ -16,12 +16,12 @@ const TextInput: React.FC<InputProps> = props => {
   return (
     <div className='mb-3'>
       {props.helperLabel && <p style={{ marginBottom: '1px' }}>{props.helperLabel}</p>}
-      <label htmlFor={props.name+'_input'} className='form-label'>
+      <label htmlFor={props.name + '_input'} className='form-label'>
         {props.label}
       </label>
       <div className='input-group'>
         <input
-          id={props.name+'_input'}
+          id={props.name + '_input'}
           value={props.value}
           onChange={props.onChange}
           type={props.type}

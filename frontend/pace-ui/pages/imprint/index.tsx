@@ -8,7 +8,7 @@ const Imprint: NextPage = () => {
         <h1>Impressum</h1>
         Anbieterangaben gem. § 5 TMG
         <br />
-        <h2 style={{fontSize: '1.5rem'}}>Fußball-Club St. Pauli v. 1910 e.V.</h2>
+        <h2 style={{ fontSize: '1.5rem' }}>Fußball-Club St. Pauli v. 1910 e.V.</h2>
         - Abteilung: Marathon -<br />
         Harald-Stender-Platz 1<br />
         20359 Hamburg
