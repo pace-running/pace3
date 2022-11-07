@@ -31,7 +31,7 @@ pub async fn check_password(
     }
 }
 
-pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
+pub async fn show_runners(/*_: Identity*/) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
     let database_result = runners.load::<Runner>(connection);
@@ -40,7 +40,7 @@ pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
         .body(serde_json::to_string(&database_result.unwrap()).unwrap()))
 }
 
-pub async fn verify_payment(_: Identity, r_id: web::Path<i32>) -> Result<HttpResponse, Error> {
+pub async fn verify_payment(/* : Identity, */r_id: web::Path<i32>) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
@@ -48,6 +48,7 @@ pub async fn verify_payment(_: Identity, r_id: web::Path<i32>) -> Result<HttpRes
         .set(payment_status.eq(true))
         .get_result::<Runner>(connection)
         .unwrap();
+    // println!("Payment status of runner {}: {}",result.id,result.payment_status);
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&result).unwrap()))

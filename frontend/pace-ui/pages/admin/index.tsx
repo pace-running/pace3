@@ -41,32 +41,37 @@ const Admin: NextPage = () => {
             <th></th>
           </tr>
         </thead>
-        {runnerList?.map((runner, key) => {
-          return (
-            <tr key={key}>
-              <td>{runner.id}</td>
-              <td>
-                {runner.firstname} {runner.lastname}
-              </td>
-              <td>{runner.team}</td>
-              <td>{runner.email}</td>
-              <td>{runner.starting_point}</td>
-              <td>{runner.running_level}</td>
-              <td>{runner.donation}</td>
-              <td>{runner.payment_status ? 'True' : 'False'}</td>
-              <td>
-                <Button
-                  name={`btn-verify-payment-${runner.id}`}
-                  label={'Verify Payment'}
-                  type={'button'}
-                  onClick={() => {
-                    verify_payment(runner.id.toString());
-                  }}
-                />
-              </td>
-            </tr>
-          );
-        })}
+        <tbody>
+          {runnerList
+            ?.sort((a, b) => (a.id > b.id ? 1 : -1))
+            ?.map((runner, key) => {
+              return (
+                <tr key={key}>
+                  <td>{runner.id}</td>
+                  <td>
+                    {runner.firstname} {runner.lastname}
+                  </td>
+                  <td>{runner.team}</td>
+                  <td>{runner.email}</td>
+                  <td>{runner.starting_point}</td>
+                  <td>{runner.running_level}</td>
+                  <td>{runner.donation}</td>
+                  <td>{runner.payment_status ? 'True' : 'False'}</td>
+                  <td>
+                    <Button
+                      name={`btn-verify-payment-${runner.id}`}
+                      label={'Verify Payment'}
+                      type={'button'}
+                      disabled={runner.payment_status}
+                      onClick={() => {
+                        verify_payment(runner.id.toString());
+                      }}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+        </tbody>
       </table>
     </div>
   );
