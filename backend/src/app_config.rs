@@ -13,7 +13,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/api/admin/logout").route(web::post().to(admin::logout)))
             .service(
                 web::resource("/api/admin/verification/{runner_id}")
-                    .route(web::post().to(admin::verify_payment)),
+                    .route(web::post().to(admin::confirm_payment)),
             )
             .service(web::resource("/api/admin/runners").route(web::get().to(admin::show_runners))),
     );

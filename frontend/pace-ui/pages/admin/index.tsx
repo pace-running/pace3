@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
-import { fetchAllRunners, verify_payment } from '../../apis/api';
+import { fetchAllRunners, verify_payment as confirm_payment } from '../../apis/api';
 import Button from '../../components/Button';
 
 const Admin: NextPage = () => {
@@ -59,12 +59,13 @@ const Admin: NextPage = () => {
                   <td>{runner.payment_status ? 'True' : 'False'}</td>
                   <td>
                     <Button
-                      name={`btn-verify-payment-${runner.id}`}
-                      label={'Verify Payment'}
+                      name={`btn-confirm-payment-${runner.id}`}
+                      label={'Confirm Payment'}
                       type={'button'}
                       disabled={runner.payment_status}
                       onClick={() => {
-                        verify_payment(runner.id.toString());
+                        confirm_payment(runner.id.toString());
+                        
                       }}
                     />
                   </td>

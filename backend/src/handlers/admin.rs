@@ -40,8 +40,8 @@ pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
         .body(serde_json::to_string(&database_result.unwrap()).unwrap()))
 }
 
-pub async fn verify_payment(
-    /* : Identity, */ r_id: web::Path<i32>,
+pub async fn confirm_payment(
+    _: Identity,  r_id: web::Path<i32>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
     use crate::schema::runners::dsl::*;
