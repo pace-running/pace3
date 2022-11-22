@@ -1,4 +1,5 @@
 import type { NextPage } from 'next';
+import router from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { fetchAllRunners, verify_payment as confirm_payment } from '../../apis/api';
 import Button from '../../components/Button';
@@ -11,17 +12,19 @@ const Admin: NextPage = () => {
     const fetchRunners = async () => {
       if (!runnersLoaded) {
         console.log('Loading Runners');
-        const response = await fetchAllRunners();
-        if (response.status === 200) {
+        const response = await fetchAllRunners().catch(() => {});
+        if (response?.status === 200) {
           // set contents with response data
           setRunnerList(response.data);
           setRunnersLoaded(true);
+        } else {
+          router.push('/admin/login');
         }
       }
     };
 
     fetchRunners();
-  }, []);
+  }, [runnersLoaded]);
 
   return (
     <div>
@@ -30,14 +33,13 @@ const Admin: NextPage = () => {
       <table id='runnersTable'>
         <thead>
           <tr key={'head'}>
-            <th>ID</th>
+            <th>Start number</th>
             <th>Name</th>
             <th>Team</th>
             <th>Email</th>
-            <th>Starting point</th>
-            <th>Running Level</th>
             <th>Donation</th>
-            <th>Payment Status</th>
+            <th>Reason for payment</th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -47,16 +49,14 @@ const Admin: NextPage = () => {
             ?.map((runner, key) => {
               return (
                 <tr key={key}>
-                  <td>{runner.id}</td>
+                  <td>{runner.start_number}</td>
                   <td>
                     {runner.firstname} {runner.lastname}
                   </td>
                   <td>{runner.team}</td>
                   <td>{runner.email}</td>
-                  <td>{runner.starting_point}</td>
-                  <td>{runner.running_level}</td>
                   <td>{runner.donation}</td>
-                  <td>{runner.payment_status ? 'True' : 'False'}</td>
+                  <td>{runner.reason_for_payment}</td>
                   <td>
                     <Button
                       name={`btn-confirm-payment-${runner.id}`}
@@ -65,8 +65,15 @@ const Admin: NextPage = () => {
                       disabled={runner.payment_status}
                       onClick={() => {
                         confirm_payment(runner.id.toString());
-                        
+                        setRunnersLoaded(false);
                       }}
+                    />
+                  </td>
+                  <td>
+                    <Button name={`btn-edit-runner-${runner.id}`}
+                    label={'Edit Runner'}
+                    type={'button'}
+                    onClick={()=>{}}
                     />
                   </td>
                 </tr>
