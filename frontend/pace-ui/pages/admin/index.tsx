@@ -9,6 +9,10 @@ const Admin: NextPage = () => {
   const [runnersLoaded, setRunnersLoaded] = useState(false);
   const [searchCategory, setSearchCategory] = useState('name');
   const [searchPrompt, setSearchPrompt] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSelectorContent, setPageSelectorContent] = useState(1);
+
+  const rowsPerPage = 10;
 
   const filterRunnerList = function () {
     if (searchCategory === 'name') {
@@ -40,7 +44,7 @@ const Admin: NextPage = () => {
     fetchRunners();
   }, [runnersLoaded]);
 
-  const radioChange = e => setSearchCategory(e.target.value);
+  const radioChange = (e: { target: { value: React.SetStateAction<string>; }; }) => setSearchCategory(e.target.value);
 
   return (
     <div style={{ margin: '50px' }}>
@@ -52,6 +56,7 @@ const Admin: NextPage = () => {
             type='text'
             name='search_prompt'
             value={searchPrompt}
+            style={{ width: '50%' }}
             onChange={e => setSearchPrompt(e.target.value)}
           />
           <br />
@@ -102,19 +107,69 @@ const Admin: NextPage = () => {
           </label>
           <br />
         </div>
+        <Button
+          name={'btn-start-search'}
+          label={'Start search'}
+          type={'button'}
+          onClick={() => {
+            setRunnersLoaded(false);
+          }}
+        />
       </div>
-      <Button
-        name={'btn-start-search'}
-        label={'Start search'}
-        type={'button'}
-        onClick={() => {
-          setRunnersLoaded(false);
-        }}
-      />
       <h2>Registered Runners:</h2>
+
+      <div>
+        <span>
+          <Button
+            name={'btn-page-down'}
+            label={'⬅'}
+            disabled={currentPage === 1}
+            type={'button'}
+            styling={'admin-btn'}
+            onClick={() => {
+              setCurrentPage(currentPage - 1);
+            }}
+          />
+          &nbsp;&nbsp;&nbsp;
+          {currentPage}/{runnerList? Math.max(1,Math.ceil(runnerList?.length/rowsPerPage)) : 1}
+          &nbsp;&nbsp;&nbsp;
+          <Button
+            name={'btn-page-up'}
+            label={'➡️'}
+            disabled={currentPage * rowsPerPage >= (runnerList ? runnerList?.length : 0)}
+            type={'button'}
+            styling={'admin-btn'}
+            onClick={() => {
+              setCurrentPage(currentPage + 1);
+            }}
+          />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input
+            type={'text'}
+            value={pageSelectorContent}
+            style={{ width: '5%' }}
+            placeholder={'enter page number'}
+            onChange={e => {
+              setPageSelectorContent(+e.target.value);
+            }}
+          />
+          &nbsp;&nbsp;&nbsp;
+          <Button
+            name={'btn-go-to-page'}
+            type={'button'}
+            label={'go to page'}
+            onClick={() => {
+              setCurrentPage(pageSelectorContent);
+            }}
+          />
+        </span>
+      </div>
+      <br />
+
       <table id='runnersTable'>
         <thead>
           <tr key={'head'}>
+            <th>ID</th>
             <th>Start number</th>
             <th>Name</th>
             <th>Team</th>
@@ -128,9 +183,11 @@ const Admin: NextPage = () => {
         <tbody>
           {runnerList
             ?.sort((a, b) => (a.id > b.id ? 1 : -1))
+            ?.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
             ?.map((runner, key) => {
               return (
                 <tr key={key}>
+                  <td>{runner.id}</td>
                   <td>{runner.start_number}</td>
                   <td>
                     {runner.firstname} {runner.lastname}
@@ -147,7 +204,7 @@ const Admin: NextPage = () => {
                       disabled={runner.payment_status}
                       onClick={() => {
                         confirm_payment(runner.id.toString());
-                        setRunnersLoaded(false);
+                        setTimeout(()=>{setRunnersLoaded(false);},200);
                       }}
                     />
                   </td>
@@ -156,7 +213,7 @@ const Admin: NextPage = () => {
                       name={`btn-edit-runner-${runner.id}`}
                       label={'Edit Runner'}
                       type={'button'}
-                      onClick={() => {}}
+                      onClick={() => {router.push(`admin/edit/${runner.id}`);}}
                     />
                   </td>
                 </tr>
@@ -164,6 +221,7 @@ const Admin: NextPage = () => {
             })}
         </tbody>
       </table>
+      <div style={{height: '100px'}}></div>
     </div>
   );
 };
