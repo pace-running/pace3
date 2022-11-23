@@ -12,7 +12,7 @@ const Admin: NextPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSelectorContent, setPageSelectorContent] = useState(1);
 
-  const rowsPerPage = 10;
+  const rowsPerPage = 15;
 
   const filterRunnerList = function () {
     if (searchCategory === 'name') {
@@ -50,6 +50,12 @@ const Admin: NextPage = () => {
     <div style={{ margin: '50px' }}>
       <h1>Admin</h1>
       <div>
+        <h4>Statistics:</h4>
+        <p>Search filters apply to statistics!</p>
+        <p>Total runners: {runnerList?.length}</p>
+        <p>Runners starting from Hamburg: {runnerList&&runnerList.reduce<number>((acc: number,r: RunnerResponseData) => (r.starting_point==='hamburg'?acc+1:acc),0)}</p>
+        <p>Total donation amount: {runnerList&&runnerList.reduce<number>((acc,r)=>acc+Number(r.donation),0)}</p>
+
         <h3>Search:</h3>
         <div style={{ marginBottom: '20px' }}>
           <input
@@ -62,6 +68,7 @@ const Admin: NextPage = () => {
           <br />
         </div>
         <div>
+          <span>
           <label>
             <input
               type='radio'
@@ -70,9 +77,9 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />{' '}
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Start number</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Start number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
-          <br />
+
           <label>
             <input
               type='radio'
@@ -81,9 +88,9 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
-          <br />
+
           <label>
             <input
               type='radio'
@@ -92,9 +99,9 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Email</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
-          <br />
+
           <label>
             <input
               type='radio'
@@ -103,11 +110,9 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reason for payment</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reason for payment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
-          <br />
-        </div>
-        <Button
+          <Button
           name={'btn-start-search'}
           label={'Start search'}
           type={'button'}
@@ -115,7 +120,10 @@ const Admin: NextPage = () => {
             setRunnersLoaded(false);
           }}
         />
+          </span>
+        </div>
       </div>
+
       <h2>Registered Runners:</h2>
 
       <div>
@@ -170,12 +178,12 @@ const Admin: NextPage = () => {
         <thead>
           <tr key={'head'}>
             <th>ID</th>
-            <th>Start number</th>
+            <th>Start <br/>number</th>
             <th>Name</th>
             <th>Team</th>
             <th>Email</th>
-            <th>Donation</th>
-            <th>Reason for payment</th>
+            <th>Donation <br/> amount</th>
+            <th>Payment<br/>subject </th>
             <th></th>
             <th></th>
           </tr>
