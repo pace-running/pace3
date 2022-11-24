@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { fetchAllRunners, confirm_payment } from '../../apis/api';
+import { fetchAllRunners, change_payment_status } from '../../apis/api';
 import Button from '../../components/Button';
 
 const Admin: NextPage = () => {
@@ -50,13 +50,13 @@ const Admin: NextPage = () => {
     <div style={{ margin: '50px' }}>
       <h1>Admin</h1>
       <div>
-        <h4>Statistics:</h4>
-        <p>Search filters apply to statistics!</p>
-        <p>Total runners: {runnerList?.length}</p>
-        <p>Runners starting from Hamburg: {runnerList&&runnerList.reduce<number>((acc: number,r: RunnerResponseData) => (r.starting_point==='hamburg'?acc+1:acc),0)}</p>
-        <p>Total donation amount: {runnerList&&runnerList.reduce<number>((acc,r)=>acc+Number(r.donation),0)}</p>
+        <h4>Statistiken:</h4>
+        <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
+        <p>Läufer gesamt: {runnerList?.length}</p>
+        <p>Läufer, die Hamburg starten: {runnerList&&runnerList.reduce<number>((acc: number,r: RunnerResponseData) => (r.starting_point==='hamburg'?acc+1:acc),0)}</p>
+        <p>Spenden gesamt: {runnerList&&runnerList.reduce<number>((acc,r)=>acc+Number(r.donation),0)}</p>
 
-        <h3>Search:</h3>
+        <h3>Suche:</h3>
         <div style={{ marginBottom: '20px' }}>
           <input
             type='text'
@@ -77,7 +77,7 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />{' '}
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Start number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Startnummer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
 
           <label>
@@ -99,7 +99,7 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E-mail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
 
           <label>
@@ -110,7 +110,7 @@ const Admin: NextPage = () => {
               className='form-check-input'
               onChange={radioChange}
             />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reason for payment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Verwendungszweck &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
           </label>
           <Button
           name={'btn-start-search'}
@@ -124,7 +124,7 @@ const Admin: NextPage = () => {
         </div>
       </div>
 
-      <h2>Registered Runners:</h2>
+      <h2>Registrierte Läufer:</h2>
 
       <div>
         <span>
@@ -156,7 +156,7 @@ const Admin: NextPage = () => {
             type={'text'}
             value={pageSelectorContent}
             style={{ width: '5%' }}
-            placeholder={'enter page number'}
+            placeholder={'Seitenzahl'}
             onChange={e => {
               setPageSelectorContent(+e.target.value);
             }}
@@ -165,7 +165,7 @@ const Admin: NextPage = () => {
           <Button
             name={'btn-go-to-page'}
             type={'button'}
-            label={'go to page'}
+            label={'Gehe zu Seite'}
             onClick={() => {
               setCurrentPage(pageSelectorContent);
             }}
@@ -178,14 +178,14 @@ const Admin: NextPage = () => {
         <thead>
           <tr key={'head'}>
             <th>ID</th>
-            <th>Start <br/>number</th>
+            <th>Startnummer</th>
             <th>Name</th>
             <th>Team</th>
-            <th>Email</th>
-            <th>Donation <br/> amount</th>
-            <th>Payment<br/>subject </th>
-            <th></th>
-            <th></th>
+            <th>E-mail</th>
+            <th>Spende</th>
+            <th>Verwendungszweck</th>
+            <th>🤑✅</th>
+            <th>✍️</th>
           </tr>
         </thead>
         <tbody>
@@ -207,11 +207,11 @@ const Admin: NextPage = () => {
                   <td>
                     <Button
                       name={`btn-confirm-payment-${runner.id}`}
-                      label={'Confirm Payment'}
+                      label={runner.payment_status?'Bezahlt':'Nicht bezahlt'}
+                      styling={runner.payment_status?'paid-btn':'not-paid-btn'}
                       type={'button'}
-                      disabled={runner.payment_status}
                       onClick={() => {
-                        confirm_payment(runner.id.toString());
+                        change_payment_status(runner.id.toString());
                         setTimeout(()=>{setRunnersLoaded(false);},200);
                       }}
                     />
@@ -219,7 +219,7 @@ const Admin: NextPage = () => {
                   <td>
                     <Button
                       name={`btn-edit-runner-${runner.id}`}
-                      label={'Edit Runner'}
+                      label={'Bearbeiten'}
                       type={'button'}
                       onClick={() => {router.push({
                         pathname: '/admin/edit',

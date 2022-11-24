@@ -4128,3 +4128,13 @@ select.stack:focus + select {
 .admin-btn {
     border-radius: 25px;
 }
+
+.paid-btn {
+    width: 125px;
+    background-color: green;
+}
+
+.not-paid-btn {
+    width: 125px;
+    background-color: red;
+}

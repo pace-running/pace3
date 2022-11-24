@@ -34,7 +34,7 @@ const Dropdown: React.FC<DropdownProps> = props => {
         {props.options.map(option => {
           return (
             <option
-              //   selected={option.value === props.selected}
+              // selected={option.value === props.selected}
               value={option.value}
               key={option.label}
             >

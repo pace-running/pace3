@@ -19,14 +19,15 @@ export async function fetchAllRunners() {
   });
 }
 
-export async function confirm_payment(runner_id: string) {
-  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/verification/${runner_id}`, runner_id, {
+export async function change_payment_status(runner_id: string) {
+  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment/${runner_id}`, runner_id, {
     headers: { 'content-type': 'application/json' }
   });
 }
 
+
 export async function edit_runner(runner_id: string, data: fullRunnerData) {
-  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/full_runner/${runner_id}`, data, {
+  return await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/full_runner/${runner_id}`, data, {
     headers: { 'content-type': 'application/json' }
   });
 }

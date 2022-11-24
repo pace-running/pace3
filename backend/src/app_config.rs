@@ -12,11 +12,17 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/api/admin/login").route(web::post().to(admin::check_password)))
             .service(web::resource("/api/admin/logout").route(web::post().to(admin::logout)))
             .service(
-                web::resource("/api/admin/verification/{runner_id}")
+                web::resource("/api/admin/payment/{runner_id}")
                     .route(web::post().to(admin::confirm_payment)),
             )
             .service(web::resource("/api/admin/runners").route(web::get().to(admin::show_runners)))
-            .service(web::resource("/api/admin/full_runner/{runner_id}").route(web::get().to(admin::get_full_runner)))
-            // .service(web::resource("/api/admin/full_runner/{runner_id}").route(web::post().to(admin::edit_runner)))
+            .service(
+                web::resource("/api/admin/full_runner/{runner_id}")
+                    .route(web::get().to(admin::get_full_runner)),
+            )
+            .service(
+                web::resource("/api/admin/full_runner/{runner_id}")
+                    .route(web::put().to(admin::edit_runner)),
+            ),
     );
 }

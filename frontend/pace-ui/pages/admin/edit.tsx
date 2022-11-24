@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { confirm_payment, edit_runner, get_full_runner } from '../../apis/api';
+import { change_payment_status, edit_runner, get_full_runner } from '../../apis/api';
 import Button from '../../components/Button';
 import Checkbox from '../../components/Checkbox';
 import Dropdown from '../../components/Dropdown';
@@ -34,6 +34,7 @@ const Edit: NextPage = () => {
           setIsPageFound(true);
           values.is_tshirt_booked = runnerData ? runnerData?.is_tshirt_booked : false;
           values.payment_status = runnerData ? runnerData?.payment_status : false;
+          //   (document.getElementById('starting_point') as HTMLInputElement)?.value = (runnerData?.starting_point);
         }
       }
     };
@@ -48,7 +49,7 @@ const Edit: NextPage = () => {
     email: formData.email ?? runnerData?.email ?? '',
     starting_point: formData.starting_point ?? runnerData?.starting_point ?? '',
     running_level: formData.running_level ?? runnerData?.running_level ?? '',
-    donation: formData.donation?formData.donation.toString() : runnerData?.donation ?? '5',
+    donation: formData.donation ? formData.donation.toString() : runnerData?.donation ?? '5',
     is_tshirt_booked: formData.is_tshirt_booked ?? false,
     tshirt_model: formData.tshirt_model ?? runnerData?.tshirt_model ?? '',
     tshirt_size: formData.tshirt_size ?? runnerData?.tshirt_size ?? '',
@@ -68,7 +69,7 @@ const Edit: NextPage = () => {
   });
 
   const submitForm = (values: EditRunnerValues) => {
-    console.log('submitting...')
+    console.log('submitting...');
     edit_runner(runner_id, mapEditRunnerDataToFullRunnerData(values));
     router.push('/admin');
   };
@@ -154,7 +155,6 @@ const Edit: NextPage = () => {
               name={'starting_point'}
               label={'Von wo wirst du laufen? *'}
               options={startingOptions}
-              selected={''}
               onChange={handleChange}
               default={runnerData?.starting_point}
               valid={!errors.starting_point}
@@ -189,7 +189,12 @@ const Edit: NextPage = () => {
               role='switch'
               onChange={() => setFieldValue('is_tshirt_booked', !values.is_tshirt_booked)}
             />
-            <div style={{ pointerEvents: values.is_tshirt_booked ? 'auto' : 'none', color: values.is_tshirt_booked ? 'black': 'gray'}}>
+            <div
+              style={{
+                pointerEvents: values.is_tshirt_booked ? 'auto' : 'none',
+                color: values.is_tshirt_booked ? 'black' : 'gray'
+              }}
+            >
               <Dropdown
                 name={'tshirt_model'}
                 label={'Modell'}
@@ -312,12 +317,18 @@ const Edit: NextPage = () => {
             />
 
             <span>
-            Zahlungsstatus: {values.payment_status?'Bezahlt':'Zahlung ausstehend'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <Button name={'btn-confirm-payment'} label={'Zahlung bestätigen'} disabled={values.payment_status} type={'button'} onClick={()=>{
-                confirm_payment(runner_id.toString());
-                values.payment_status = true;
-                setIsPageFound(false);
-            }} />
+              Zahlungsstatus: {values.payment_status ? 'Bezahlt' : 'Zahlung ausstehend'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button
+                name={'btn-confirm-payment'}
+                label={values.payment_status?'Bezahlt':'Nicht bezahlt'}
+                styling={values.payment_status?'paid-btn':'not-paid-btn'}
+                type={'button'}
+                onClick={() => {
+                  change_payment_status(runner_id.toString());
+                  values.payment_status = true;
+                  setTimeout(()=>{setIsPageFound(false);},100);
+                }}
+              />
             </span>
 
             <TextInput
