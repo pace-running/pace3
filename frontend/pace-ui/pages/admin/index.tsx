@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { fetchAllRunners, verify_payment as confirm_payment } from '../../apis/api';
+import { fetchAllRunners, confirm_payment } from '../../apis/api';
 import Button from '../../components/Button';
 
 const Admin: NextPage = () => {
@@ -221,7 +221,10 @@ const Admin: NextPage = () => {
                       name={`btn-edit-runner-${runner.id}`}
                       label={'Edit Runner'}
                       type={'button'}
-                      onClick={() => {router.push(`admin/edit/${runner.id}`);}}
+                      onClick={() => {router.push({
+                        pathname: '/admin/edit',
+                        query: {id: runner.id.toString()}
+                      });}}
                     />
                   </td>
                 </tr>

@@ -13,6 +13,7 @@ type DropdownProps = {
   onChange?: ChangeEventHandler;
   valid?: boolean;
   errorMessage?: string;
+  default?: string | number;
 };
 
 const Dropdown: React.FC<DropdownProps> = props => {
@@ -27,6 +28,7 @@ const Dropdown: React.FC<DropdownProps> = props => {
         className='form-select'
         aria-label={props.label}
         onChange={props.onChange}
+        defaultValue={props.default}
       >
         <option style={{ display: 'none' }}>Bitte auswählen</option>
         {props.options.map(option => {

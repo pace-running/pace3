@@ -15,6 +15,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                 web::resource("/api/admin/verification/{runner_id}")
                     .route(web::post().to(admin::confirm_payment)),
             )
-            .service(web::resource("/api/admin/runners").route(web::get().to(admin::show_runners))),
+            .service(web::resource("/api/admin/runners").route(web::get().to(admin::show_runners)))
+            .service(web::resource("/api/admin/full_runner/{runner_id}").route(web::get().to(admin::get_full_runner)))
+            // .service(web::resource("/api/admin/full_runner/{runner_id}").route(web::post().to(admin::edit_runner)))
     );
 }

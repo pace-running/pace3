@@ -20,7 +20,7 @@ export const countryOptions = [
   { label: 'Albania', value: 'Albania' }
 ];
 
-export const getSizeOptions = (modelOptionValue: String | undefined): { label: string; value: string }[] => {
+export const getSizeOptions = (modelOptionValue: string | undefined): { label: string; value: string }[] => {
   const defaultSizes = [
     { label: 'S', value: 's' },
     { label: 'M', value: 'm' },

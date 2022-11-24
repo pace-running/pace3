@@ -70,3 +70,32 @@ interface RunnerResponseData {
   reason_for_payment: string;
   payment_status: bool;
 }
+
+interface fullRunnerData {
+  id: string;
+  firstname: string;
+  lastname: string;
+  team: string;
+  email: string;
+  starting_point: string;
+  running_level: string;
+  donation: string;
+
+  is_tshirt_booked: boolean;
+  tshirt_model: string;
+  tshirt_size: string;
+  country: string;
+  address_firstname: string;
+  address_lastname: string;
+  street_name: string;
+  house_number: string;
+  address_extra: string;
+  postal_code: string;
+  city: string;
+
+  start_number: string;
+  verification_code: string;
+  reason_for_payment: string;
+  payment_status: bool;
+  delivery_status: string;
+}
