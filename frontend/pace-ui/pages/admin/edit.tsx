@@ -34,6 +34,9 @@ const Edit: NextPage = () => {
           setIsPageFound(true);
           values.is_tshirt_booked = runnerData ? runnerData?.is_tshirt_booked : false;
           values.payment_status = runnerData ? runnerData?.payment_status : false;
+          values.donation = runnerData ? +runnerData?.donation : 5;
+          values.tshirt_model = runnerData ? runnerData.tshirt_model : 'unisex';
+          values.tshirt_size = runnerData ? runnerData.tshirt_size : 'm';
         }
       }
     };
@@ -93,9 +96,9 @@ const Edit: NextPage = () => {
       address_extra: runnerData?.address_extra,
       postal_code: runnerData?.postal_code,
       city: runnerData?.city,
-      start_number: runnerData?.start_number ?? '',
-      verification_code: runnerData?.verification_code ?? '',
-      reason_for_payment: runnerData?.reason_for_payment ?? '',
+      start_number: runnerData?.start_number,
+      verification_code: runnerData?.verification_code,
+      reason_for_payment: runnerData?.reason_for_payment,
       payment_status: runnerData?.payment_status,
       delivery_status: runnerData?.delivery_status
     },

@@ -41,7 +41,7 @@ export type EditRunnerValues = {
   email?: string;
   starting_point?: string;
   running_level?: string;
-  donation: number;
+  donation?: number;
 
   is_tshirt_booked: boolean;
   tshirt_model?: string;
@@ -55,9 +55,9 @@ export type EditRunnerValues = {
   postal_code?: string;
   city?: string;
 
-  start_number: string;
-  verification_code: string;
-  reason_for_payment: string;
-  payment_status: boolean;
+  start_number?: string;
+  verification_code?: string;
+  reason_for_payment?: string;
+  payment_status?: boolean;
   delivery_status?: string;
 };
