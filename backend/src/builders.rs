@@ -12,8 +12,8 @@ impl InfoBuilder {
             team: "FC St. Pauli".to_string(),
             email: "test@example.com".to_string(),
             repeat: "test@example.com".to_string(),
-            starting_point: "somewhere".to_string(),
-            running_level: "mediocre".to_string(),
+            starting_point: "other".to_string(),
+            running_level: "sometimes".to_string(),
             donation: "5".to_string(),
             confirm: "on".to_string(),
         }
