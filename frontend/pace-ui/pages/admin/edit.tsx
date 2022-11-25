@@ -22,7 +22,7 @@ const Edit: NextPage = () => {
   const [isPageFound, setIsPageFound] = useState(false);
 
   const [runnerData, setRunnerData] = useState<fullRunnerData>();
-  // console.log(runner_id);
+
   useEffect(() => {
     const fetchData = async () => {
       if (runner_id) {
@@ -34,7 +34,7 @@ const Edit: NextPage = () => {
           setIsPageFound(true);
           values.is_tshirt_booked = runnerData ? runnerData?.is_tshirt_booked : false;
           values.payment_status = runnerData ? runnerData?.payment_status : false;
-          //   (document.getElementById('starting_point') as HTMLInputElement)?.value = (runnerData?.starting_point);
+
         }
       }
     };
@@ -104,7 +104,6 @@ const Edit: NextPage = () => {
     onSubmit: submitForm
   });
 
-  console.log(runnerData);
 
   return (
     <div>

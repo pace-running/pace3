@@ -29,7 +29,6 @@ const Admin: NextPage = () => {
   useEffect(() => {
     const fetchRunners = async () => {
       if (!runnersLoaded) {
-        console.log('Loading Runners');
         const response = await fetchAllRunners().catch(() => {});
         if (response?.status === 200) {
           // set contents with response data
