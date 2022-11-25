@@ -34,7 +34,6 @@ const Edit: NextPage = () => {
           setIsPageFound(true);
           values.is_tshirt_booked = runnerData ? runnerData?.is_tshirt_booked : false;
           values.payment_status = runnerData ? runnerData?.payment_status : false;
-
         }
       }
     };
@@ -103,7 +102,6 @@ const Edit: NextPage = () => {
     validationSchema: EditRunnerSchema,
     onSubmit: submitForm
   });
-
 
   return (
     <div>
@@ -319,13 +317,15 @@ const Edit: NextPage = () => {
               Zahlungsstatus: {values.payment_status ? 'Bezahlt' : 'Zahlung ausstehend'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <Button
                 name={'btn-confirm-payment'}
-                label={values.payment_status?'Bezahlt':'Nicht bezahlt'}
-                styling={values.payment_status?'paid-btn':'not-paid-btn'}
+                label={values.payment_status ? 'Bezahlt' : 'Nicht bezahlt'}
+                styling={values.payment_status ? 'paid-btn' : 'not-paid-btn'}
                 type={'button'}
                 onClick={() => {
                   change_payment_status(runner_id.toString());
                   values.payment_status = true;
-                  setTimeout(()=>{setIsPageFound(false);},100);
+                  setTimeout(() => {
+                    setIsPageFound(false);
+                  }, 100);
                 }}
               />
             </span>

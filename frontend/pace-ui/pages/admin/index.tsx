@@ -43,7 +43,7 @@ const Admin: NextPage = () => {
     fetchRunners();
   }, [runnersLoaded]);
 
-  const radioChange = (e: { target: { value: React.SetStateAction<string>; }; }) => setSearchCategory(e.target.value);
+  const radioChange = (e: { target: { value: React.SetStateAction<string> } }) => setSearchCategory(e.target.value);
 
   return (
     <div style={{ margin: '50px' }}>
@@ -52,8 +52,15 @@ const Admin: NextPage = () => {
         <h4>Statistiken:</h4>
         <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
         <p>Läufer gesamt: {runnerList?.length}</p>
-        <p>Läufer, die Hamburg starten: {runnerList&&runnerList.reduce<number>((acc: number,r: RunnerResponseData) => (r.starting_point==='hamburg'?acc+1:acc),0)}</p>
-        <p>Spenden gesamt: {runnerList&&runnerList.reduce<number>((acc,r)=>acc+Number(r.donation),0)}</p>
+        <p>
+          Läufer, die Hamburg starten:{' '}
+          {runnerList &&
+            runnerList.reduce<number>(
+              (acc: number, r: RunnerResponseData) => (r.starting_point === 'hamburg' ? acc + 1 : acc),
+              0
+            )}
+        </p>
+        <p>Spenden gesamt: {runnerList && runnerList.reduce<number>((acc, r) => acc + Number(r.donation), 0)}</p>
 
         <h3>Suche:</h3>
         <div style={{ marginBottom: '20px' }}>
@@ -68,57 +75,62 @@ const Admin: NextPage = () => {
         </div>
         <div>
           <span>
-          <label>
-            <input
-              type='radio'
-              value='start_number'
-              name='search_condition'
-              className='form-check-input'
-              onChange={radioChange}
-            />{' '}
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Startnummer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-          </label>
+            <label>
+              <input
+                type='radio'
+                value='start_number'
+                name='search_condition'
+                className='form-check-input'
+                onChange={radioChange}
+              />{' '}
+              <p>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Startnummer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </p>
+            </label>
 
-          <label>
-            <input
-              type='radio'
-              value='name'
-              name='search_condition'
-              className='form-check-input'
-              onChange={radioChange}
-            />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-          </label>
+            <label>
+              <input
+                type='radio'
+                value='name'
+                name='search_condition'
+                className='form-check-input'
+                onChange={radioChange}
+              />
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+            </label>
 
-          <label>
-            <input
-              type='radio'
-              value='email'
-              name='search_condition'
-              className='form-check-input'
-              onChange={radioChange}
-            />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E-mail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-          </label>
+            <label>
+              <input
+                type='radio'
+                value='email'
+                name='search_condition'
+                className='form-check-input'
+                onChange={radioChange}
+              />
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E-mail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+            </label>
 
-          <label>
-            <input
-              type='radio'
-              value='reason_for_payment'
-              name='search_condition'
-              className='form-check-input'
-              onChange={radioChange}
+            <label>
+              <input
+                type='radio'
+                value='reason_for_payment'
+                name='search_condition'
+                className='form-check-input'
+                onChange={radioChange}
+              />
+              <p>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Verwendungszweck
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </p>
+            </label>
+            <Button
+              name={'btn-start-search'}
+              label={'Start search'}
+              type={'button'}
+              onClick={() => {
+                setRunnersLoaded(false);
+              }}
             />
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Verwendungszweck &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-          </label>
-          <Button
-          name={'btn-start-search'}
-          label={'Start search'}
-          type={'button'}
-          onClick={() => {
-            setRunnersLoaded(false);
-          }}
-        />
           </span>
         </div>
       </div>
@@ -138,7 +150,7 @@ const Admin: NextPage = () => {
             }}
           />
           &nbsp;&nbsp;&nbsp;
-          {currentPage}/{runnerList? Math.max(1,Math.ceil(runnerList?.length/rowsPerPage)) : 1}
+          {currentPage}/{runnerList ? Math.max(1, Math.ceil(runnerList?.length / rowsPerPage)) : 1}
           &nbsp;&nbsp;&nbsp;
           <Button
             name={'btn-page-up'}
@@ -206,12 +218,14 @@ const Admin: NextPage = () => {
                   <td>
                     <Button
                       name={`btn-confirm-payment-${runner.id}`}
-                      label={runner.payment_status?'Bezahlt':'Nicht bezahlt'}
-                      styling={runner.payment_status?'paid-btn':'not-paid-btn'}
+                      label={runner.payment_status ? 'Bezahlt' : 'Nicht bezahlt'}
+                      styling={runner.payment_status ? 'paid-btn' : 'not-paid-btn'}
                       type={'button'}
                       onClick={() => {
                         change_payment_status(runner.id.toString());
-                        setTimeout(()=>{setRunnersLoaded(false);},200);
+                        setTimeout(() => {
+                          setRunnersLoaded(false);
+                        }, 200);
                       }}
                     />
                   </td>
@@ -220,10 +234,12 @@ const Admin: NextPage = () => {
                       name={`btn-edit-runner-${runner.id}`}
                       label={'Bearbeiten'}
                       type={'button'}
-                      onClick={() => {router.push({
-                        pathname: '/admin/edit',
-                        query: {id: runner.id.toString()}
-                      });}}
+                      onClick={() => {
+                        router.push({
+                          pathname: '/admin/edit',
+                          query: { id: runner.id.toString() }
+                        });
+                      }}
                     />
                   </td>
                 </tr>
@@ -231,7 +247,7 @@ const Admin: NextPage = () => {
             })}
         </tbody>
       </table>
-      <div style={{height: '100px'}}></div>
+      <div style={{ height: '100px' }}></div>
     </div>
   );
 };
