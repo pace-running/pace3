@@ -21,7 +21,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .route(web::get().to(admin::get_full_runner)),
             )
             .service(
-                web::resource("/api/admin/full_runner/{runner_id}")
+                web::resource("/api/admin/edit_runner/{runner_id}")
                     .route(web::put().to(admin::edit_runner)),
             ),
     );

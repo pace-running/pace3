@@ -21,7 +21,7 @@ pub struct FullRunnerDetails {
     starting_point: String,
     running_level: String,
     donation: String,
-    start_number: i64,
+    start_number: String,
     verification_code: String,
     reason_for_payment: String,
     payment_status: bool,
@@ -50,9 +50,9 @@ pub struct Response {
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct FullRunnerResponse {
+    is_tshirt_booked: bool,
     #[serde(flatten)]
     runner_details: Option<FullRunnerDetails>,
-    is_tshirt_booked: bool,
     #[serde(flatten)]
     shipping_details: Option<ShippingDetails>,
     #[serde(flatten)]
@@ -150,7 +150,7 @@ pub async fn get_full_runner(
         starting_point: retrieved_runner.starting_point,
         running_level: retrieved_runner.running_level,
         donation: retrieved_runner.donation,
-        start_number: retrieved_runner.start_number,
+        start_number: retrieved_runner.start_number.to_string(),
         verification_code: retrieved_runner.verification_code,
         reason_for_payment: retrieved_runner.reason_for_payment,
         payment_status: retrieved_runner.payment_status,
@@ -199,12 +199,11 @@ pub async fn edit_runner(
     println!("info: {:?}", info);
 
     let runner_details = info.runner_details.unwrap();
-    let shipping_details = info.shipping_details.unwrap();
 
     // change runner
     let updated_runner = diesel::update(runners.find(runner_ID))
         .set((
-            start_number.eq(runner_details.start_number),
+            start_number.eq(runner_details.start_number.parse::<i64>().unwrap_or(-1)),
             firstname.eq(runner_details.firstname),
             lastname.eq(runner_details.lastname),
             email.eq(runner_details.email),
@@ -221,6 +220,7 @@ pub async fn edit_runner(
     // delete old shipping, then insert new one
     if info.is_tshirt_booked {
         use crate::schema::shippings::dsl::*;
+        let shipping_details = info.shipping_details.unwrap();
         let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
         insert_shipping(
             connection,

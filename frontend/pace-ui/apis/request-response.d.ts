@@ -72,7 +72,7 @@ interface RunnerResponseData {
 }
 
 interface fullRunnerData {
-  id: string;
+  runner_id: string;
   firstname: string;
   lastname: string;
   team: string;

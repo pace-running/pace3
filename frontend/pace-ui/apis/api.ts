@@ -27,7 +27,7 @@ export async function change_payment_status(runner_id: string) {
 
 export async function edit_runner(runner_id: string, data: fullRunnerData) {
   console.log(`PUT request with data of ${data.firstname} ${data.lastname}`);
-  return await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/full_runner/${runner_id}`, data, {
+  return await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/edit_runner/${runner_id}`, data, {
     headers: { 'content-type': 'application/json' }
   });
 }
