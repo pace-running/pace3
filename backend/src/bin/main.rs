@@ -23,7 +23,7 @@ async fn main() -> std::io::Result<()> {
                 origin.as_bytes().ends_with(b"localhost:3000")
                     || origin.as_bytes().ends_with(b"lauf-gegen-rechts.de")
             })
-            .allowed_methods(vec!["GET", "POST"])
+            .allowed_methods(vec!["GET", "POST","PUT"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
                 http::header::ACCEPT,
