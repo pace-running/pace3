@@ -206,6 +206,7 @@ pub async fn edit_runner(
             start_number.eq(runner_details.start_number.parse::<i64>().unwrap_or(-1)),
             firstname.eq(runner_details.firstname),
             lastname.eq(runner_details.lastname),
+            team.eq(runner_details.team),
             email.eq(runner_details.email),
             starting_point.eq(runner_details.starting_point),
             running_level.eq(runner_details.running_level),
