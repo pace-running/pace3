@@ -24,7 +24,7 @@ impl InfoBuilder {
             tshirt_toggle: "on".to_string(),
             tshirt_model: "unisex".to_string(),
             tshirt_size: "l".to_string(),
-            country: "DE".to_string(),
+            country: "Deutschland".to_string(),
             address_firstname: "Hans".to_string(),
             address_lastname: "Meyer".to_string(),
             street_name: "Street".to_string(),
