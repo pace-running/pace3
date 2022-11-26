@@ -31,9 +31,9 @@ pub fn has_https() -> bool {
 }
 
 pub fn session_key() -> String {
-    env::var("SESSION_KEY").unwrap_or(
-        "DEFAULTSESSIONKEYDONOTUSEINPRODUCTIONORYOUMIGHTDIEAVERYSLOWANDPAINFULLDEATH".to_string(),
-    )
+    env::var("SESSION_KEY").unwrap_or_else(|_| {
+        "DEFAULTSESSIONKEYDONOTUSEINPRODUCTIONORYOUMIGHTDIEAVERYSLOWANDPAINFULLDEATH".to_string()
+    })
 }
 
 pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {

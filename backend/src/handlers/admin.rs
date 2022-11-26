@@ -1,6 +1,7 @@
-use crate::models::runner::Runner;
+use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
+use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_shipping, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
 };
@@ -118,13 +119,17 @@ pub async fn modify_payment_status(
         .set(payment_status.eq(!payment_st))
         .get_result::<Runner>(connection)
         .unwrap();
-    // println!("Payment status of runner {}: {}",result.id,result.payment_status);
+    let email_value = result.email.as_ref().unwrap();
+    let is_email_provided = email_value.ne("");
+    let is_paid = result.payment_status;
+    if is_paid && is_email_provided {
+        send_payment_confirmation_email(&result);
+    }
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&result).unwrap()))
 }
 
-// add identity later
 pub async fn get_full_runner(
     _: Identity,
     request_data: web::Path<i32>,
@@ -143,10 +148,10 @@ pub async fn get_full_runner(
 
     let runner_details = Option::from(FullRunnerDetails {
         runner_id: retrieved_runner.id.to_string(),
-        firstname: retrieved_runner.firstname.unwrap_or("".to_string()),
-        lastname: retrieved_runner.lastname.unwrap_or("".to_string()),
-        team: retrieved_runner.team.unwrap_or("".to_string()),
-        email: retrieved_runner.email.unwrap_or("".to_string()),
+        firstname: retrieved_runner.firstname.unwrap_or_else(|| "".to_string()),
+        lastname: retrieved_runner.lastname.unwrap_or_else(|| "".to_string()),
+        team: retrieved_runner.team.unwrap_or_else(|| "".to_string()),
+        email: retrieved_runner.email.unwrap_or_else(|| "".to_string()),
         starting_point: retrieved_runner.starting_point,
         running_level: retrieved_runner.running_level,
         donation: retrieved_runner.donation,
@@ -233,7 +238,11 @@ pub async fn edit_runner(
                 lastname: &shipping_details.address_lastname,
                 street_name: &shipping_details.street_name,
                 house_number: &shipping_details.house_number,
-                address_extra: Some(&shipping_details.address_extra.unwrap_or("".to_string())),
+                address_extra: Some(
+                    &shipping_details
+                        .address_extra
+                        .unwrap_or_else(|| "".to_string()),
+                ),
                 postal_code: &shipping_details.postal_code,
                 city: &shipping_details.city,
                 runner_id: runner_ID,
@@ -256,4 +265,16 @@ fn forbidden() -> HttpResponse {
     HttpResponse::Forbidden()
         .content_type("application/json")
         .body("\"result\": \"fail\"")
+}
+
+fn send_payment_confirmation_email(runner: &Runner) -> bool {
+    let email_value = runner.email.as_ref().unwrap();
+    let verification_code = create_verification_code();
+    send_payment_confirmation(
+        runner.id.to_string(),
+        runner.start_number.to_string(),
+        email_value.to_string(),
+        runner.donation.to_string(),
+        verification_code,
+    )
 }
