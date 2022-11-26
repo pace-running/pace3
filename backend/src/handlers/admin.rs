@@ -148,10 +148,10 @@ pub async fn get_full_runner(
 
     let runner_details = Option::from(FullRunnerDetails {
         runner_id: retrieved_runner.id.to_string(),
-        firstname: retrieved_runner.firstname.unwrap_or_else(|| "".to_string()),
-        lastname: retrieved_runner.lastname.unwrap_or_else(|| "".to_string()),
-        team: retrieved_runner.team.unwrap_or_else(|| "".to_string()),
-        email: retrieved_runner.email.unwrap_or_else(|| "".to_string()),
+        firstname: retrieved_runner.firstname.unwrap_or_default(),
+        lastname: retrieved_runner.lastname.unwrap_or_default(),
+        team: retrieved_runner.team.unwrap_or_default(),
+        email: retrieved_runner.email.unwrap_or_default(),
         starting_point: retrieved_runner.starting_point,
         running_level: retrieved_runner.running_level,
         donation: retrieved_runner.donation,
@@ -238,11 +238,7 @@ pub async fn edit_runner(
                 lastname: &shipping_details.address_lastname,
                 street_name: &shipping_details.street_name,
                 house_number: &shipping_details.house_number,
-                address_extra: Some(
-                    &shipping_details
-                        .address_extra
-                        .unwrap_or_else(|| "".to_string()),
-                ),
+                address_extra: Some(&shipping_details.address_extra.unwrap_or_default()),
                 postal_code: &shipping_details.postal_code,
                 city: &shipping_details.city,
                 runner_id: runner_ID,
