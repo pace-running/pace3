@@ -42,6 +42,7 @@ pub struct Runner {
     pub reason_for_payment: String,
     pub payment_status: bool,
     pub verification_code: String,
+    pub payment_confirmation_mail_sent: bool,
 }
 
 impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {

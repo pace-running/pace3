@@ -1,0 +1,2 @@
+ALTER TABLE runners
+DROP COLUMN payment_confirmation_mail_sent;

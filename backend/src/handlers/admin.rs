@@ -122,8 +122,12 @@ pub async fn modify_payment_status(
     let email_value = result.email.as_ref().unwrap();
     let is_email_provided = email_value.ne("");
     let is_paid = result.payment_status;
-    if is_paid && is_email_provided {
+    let mail_not_sent_yet = !result.payment_confirmation_mail_sent;
+    if is_paid && is_email_provided && mail_not_sent_yet {
         send_payment_confirmation_email(&result);
+        let _ = diesel::update(runners.find(runner_id))
+            .set(payment_confirmation_mail_sent.eq(true))
+            .get_result::<Runner>(connection);
     }
     Ok(HttpResponse::Ok()
         .content_type("text/json")
@@ -200,8 +204,8 @@ pub async fn edit_runner(
     use crate::schema::runners::dsl::*;
 
     let connection = &mut establish_connection();
-    println!("runner_id: {}", runner_ID);
-    println!("info: {:?}", info);
+    // println!("runner_id: {}", runner_ID);
+    // println!("info: {:?}", info);
 
     let runner_details = info.runner_details.unwrap();
 
