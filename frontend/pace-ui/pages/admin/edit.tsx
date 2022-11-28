@@ -67,7 +67,8 @@ const Edit: NextPage = () => {
     verification_code: formData.verification_code ?? runnerData?.verification_code ?? '',
     reason_for_payment: formData.reason_for_payment ?? runnerData?.reason_for_payment ?? '',
     payment_status: formData.payment_status ?? runnerData?.payment_status ?? '',
-    delivery_status: formData.delivery_status ?? runnerData?.delivery_status ?? ''
+    delivery_status: formData.delivery_status ?? runnerData?.delivery_status ?? '',
+    payment_confirmation_mail_sent: runnerData?.payment_confirmation_mail_sent ?? false
   });
 
   const submitForm = (values: EditRunnerValues) => {
@@ -150,7 +151,6 @@ const Edit: NextPage = () => {
               label={'Email'}
               placeholder={runnerData?.email}
             />
-
             <Dropdown
               name={'starting_point'}
               label={'Von wo wirst du laufen? *'}
@@ -167,7 +167,6 @@ const Edit: NextPage = () => {
               default={runnerData?.running_level}
               valid={!errors.running_level}
             />
-
             <TextInput
               type={'number'}
               name={'donation'}
@@ -179,9 +178,7 @@ const Edit: NextPage = () => {
               label={'Ich möchte spenden (mindestens 5€)'}
               helperLabel={'Wie möchtest du beitragen? *'}
             />
-
             <h2>Fan T-Shirt</h2>
-
             <Checkbox
               name={'tshirt_toggle'}
               check={values.is_tshirt_booked}
@@ -287,7 +284,6 @@ const Edit: NextPage = () => {
                 errorMessage={errors.city}
               />
             </div>
-
             <h3>Additional Info</h3>
             <TextInput
               type={'text'}
@@ -297,7 +293,6 @@ const Edit: NextPage = () => {
               label={'Startnummer *'}
               placeholder={runnerData?.start_number}
             />
-
             <TextInput
               type={'text'}
               value={values.verification_code}
@@ -306,7 +301,6 @@ const Edit: NextPage = () => {
               label={'Verification Code (möglichst nicht ändern!)'}
               placeholder={runnerData?.verification_code}
             />
-
             <TextInput
               type={'text'}
               value={values.reason_for_payment}
@@ -315,7 +309,6 @@ const Edit: NextPage = () => {
               label={'Verwendungszweck'}
               placeholder={runnerData?.reason_for_payment}
             />
-
             <span>
               Zahlungsstatus: {values.payment_status ? 'Bezahlt' : 'Zahlung ausstehend'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <Button
@@ -332,7 +325,10 @@ const Edit: NextPage = () => {
                 }}
               />
             </span>
-
+            <br /><br />
+            Bestätigungsmail zur Zahlung:{' '}
+            {runnerData?.payment_confirmation_mail_sent ? 'versendet' : 'noch nicht versendet'}
+            <br /><br />
             <TextInput
               type={'text'}
               value={values.delivery_status}
@@ -341,7 +337,7 @@ const Edit: NextPage = () => {
               label={'Lieferstatus'}
               placeholder={runnerData?.delivery_status}
             />
-
+            <br />
             <Button
               name={'submitButton'}
               label={'Änderungen bestätigen'}

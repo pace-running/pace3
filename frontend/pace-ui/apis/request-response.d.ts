@@ -98,4 +98,5 @@ interface fullRunnerData {
   reason_for_payment: string;
   payment_status: bool;
   delivery_status: string;
+  payment_confirmation_mail_sent: boolean;
 }

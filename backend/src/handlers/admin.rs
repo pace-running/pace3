@@ -26,6 +26,7 @@ pub struct FullRunnerDetails {
     verification_code: String,
     reason_for_payment: String,
     payment_status: bool,
+    payment_confirmation_mail_sent: bool,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -163,6 +164,7 @@ pub async fn get_full_runner(
         verification_code: retrieved_runner.verification_code,
         reason_for_payment: retrieved_runner.reason_for_payment,
         payment_status: retrieved_runner.payment_status,
+        payment_confirmation_mail_sent: retrieved_runner.payment_confirmation_mail_sent,
     });
 
     match retrieved_shipping_result {
