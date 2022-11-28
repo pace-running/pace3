@@ -178,7 +178,12 @@ const Admin: NextPage = () => {
             type={'button'}
             label={'Gehe zu Seite'}
             onClick={() => {
-              setCurrentPage(pageSelectorContent);
+              const maxPage = runnerList ? Math.ceil(runnerList?.length / rowsPerPage) : 1;
+              let targetPage = pageSelectorContent;
+              if(Number.isNaN(pageSelectorContent) || pageSelectorContent < 1) targetPage = 1;
+              if(pageSelectorContent > maxPage) targetPage = maxPage;
+              setPageSelectorContent(targetPage);
+              setCurrentPage(targetPage);
             }}
           />
         </span>

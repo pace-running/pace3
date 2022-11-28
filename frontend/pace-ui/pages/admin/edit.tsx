@@ -284,7 +284,7 @@ const Edit: NextPage = () => {
                 errorMessage={errors.city}
               />
             </div>
-            <h3>Additional Info</h3>
+            <h3>Zusätzliche Informationen:</h3>
             <TextInput
               type={'text'}
               value={values.start_number}
