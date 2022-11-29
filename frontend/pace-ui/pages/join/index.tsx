@@ -216,20 +216,25 @@ const Join: NextPage = () => {
                   label={'Land *'}
                   options={euCountryOptions}
                   selected={''}
-                  onChange={handleChange}
+                  onChange={e => {
+                    setFieldValue('country',(e.target as HTMLInputElement).value);
+                  }}
                   errorMessage={errors.country}
+                  valid={!errors.country}
                 />
               )}
 
               {shippingRegion === 'non-eu' && (
                 <TextInput
                   value={values.country}
-                  onChange={handleChange}
+                  onChange={e => {
+                    setFieldValue('country',(e.target as HTMLInputElement).value);
+                  }}
                   type={'text'}
                   name={'country-non-eu'}
                   label={'Land *'}
-                  // valid={!errors.country}
-                  // errorMessage={errors.country}
+                  valid={!errors.country}
+                  errorMessage={errors.country}
                 />
               )}
 
@@ -308,7 +313,7 @@ const Join: NextPage = () => {
                   Datenschutzbestimmungen
                 </a>{' '}
                 der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung
-                meiner Daten (Vorname, Nachname, E-Mail, Teamname freiwillig ist und ich sie jederzeit widerrufen kann.
+                meiner Daten (Vorname, Nachname, E-Mail, Teamname) freiwillig ist und ich sie jederzeit widerrufen kann.
               </span>
             }
             check={values.tos_confirmed}
