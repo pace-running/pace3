@@ -7,13 +7,7 @@ import Button from '../../components/Button';
 import Checkbox from '../../components/Checkbox';
 import Dropdown from '../../components/Dropdown';
 import TextInput from '../../components/TextInput';
-import {
-  countryOptions,
-  getSizeOptions,
-  modelOptions,
-  runningLevelOptions,
-  startingOptions
-} from '../../utility/dropdownOptions';
+import { getSizeOptions, modelOptions, runningLevelOptions, startingOptions } from '../../utility/dropdownOptions';
 import { EditRunnerSchema, EditRunnerValues } from '../../utility/editRunnerSchema';
 
 const Edit: NextPage = () => {
@@ -208,12 +202,14 @@ const Edit: NextPage = () => {
               />
 
               <h3>Lieferanschrift</h3>
-              <Dropdown
+
+              <TextInput
+                value={values.country}
+                onChange={handleChange}
+                type={'text'}
                 name={'country'}
                 label={'Land *'}
-                options={countryOptions}
-                default={runnerData?.country}
-                onChange={handleChange}
+                placeholder={runnerData?.country}
               />
               <TextInput
                 value={values.address_firstname}
@@ -325,10 +321,12 @@ const Edit: NextPage = () => {
                 }}
               />
             </span>
-            <br /><br />
+            <br />
+            <br />
             Bestätigungsmail zur Zahlung:{' '}
             {runnerData?.payment_confirmation_mail_sent ? 'versendet' : 'noch nicht versendet'}
-            <br /><br />
+            <br />
+            <br />
             <TextInput
               type={'text'}
               value={values.delivery_status}

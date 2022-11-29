@@ -9,9 +9,10 @@ import TextInput from '../../components/TextInput';
 import SizeTable from '../../components/SizeTable';
 import Modal from '../../components/Modal';
 import {
-  countryOptions,
+  euCountryOptions,
   getSizeOptions,
   modelOptions,
+  regionOptions,
   runningLevelOptions,
   startingOptions
 } from '../../utility/dropdownOptions';
@@ -25,6 +26,7 @@ const Join: NextPage = () => {
 
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showSizesModal, setShowSizesModal] = useState(false);
+  const [shippingRegion, setShippingRegion] = useState('');
 
   const submitForm = (values: JoinFormValues) => {
     setJoinFormData(values);
@@ -175,14 +177,62 @@ const Join: NextPage = () => {
               />
 
               <h3>Lieferanschrift</h3>
+
               <Dropdown
-                name={'country'}
-                label={'Land *'}
-                options={countryOptions}
+                name={'region'}
+                label={'Region *'}
+                options={regionOptions}
                 selected={''}
-                onChange={handleChange}
-                errorMessage={errors.country}
+                onChange={e => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (value === 'de') setFieldValue('country', 'Deutschland');
+                  if (value === 'non-eu') setFieldValue('country', '');
+                  setShippingRegion(value);
+                }}
+                // errorMessage={errors.country}
               />
+
+              {shippingRegion === 'de' && (
+                <div className='mb-3'>
+                  <label htmlFor={'static-country-de'} className='form-label'>
+                    Land *
+                  </label>
+                  <div className='input-group'>
+                    <input
+                      id={'static-country-de'}
+                      type={'text'}
+                      value={'Deutschland'}
+                      className='form-control'
+                      name={'static-country-de'}
+                      readOnly
+                    />
+                  </div>
+                </div>
+              )}
+
+              {shippingRegion === 'eu' && (
+                <Dropdown
+                  name={'country-eu'}
+                  label={'Land *'}
+                  options={euCountryOptions}
+                  selected={''}
+                  onChange={handleChange}
+                  errorMessage={errors.country}
+                />
+              )}
+
+              {shippingRegion === 'non-eu' && (
+                <TextInput
+                  value={values.country}
+                  onChange={handleChange}
+                  type={'text'}
+                  name={'country-non-eu'}
+                  label={'Land *'}
+                  // valid={!errors.country}
+                  // errorMessage={errors.country}
+                />
+              )}
+
               <TextInput
                 value={values.address_firstname}
                 onChange={handleChange}

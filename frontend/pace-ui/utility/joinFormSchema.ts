@@ -1,11 +1,11 @@
 import * as Yup from 'yup';
 
 // TODO: Fix validation for shipping information fields
-const requiredTShirtField = 
-  Yup.string().when('tshirt_toggle', {
+const requiredTShirtField = Yup.string().when('tshirt_toggle', {
   is: true,
-  then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!'),
-});Yup.string();
+  then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+});
+Yup.string();
 
 export const JoinFormSchema = Yup.object().shape({
   firstname: Yup.string()
