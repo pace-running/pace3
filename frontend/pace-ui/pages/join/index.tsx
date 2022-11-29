@@ -163,6 +163,7 @@ const Join: NextPage = () => {
                 options={modelOptions}
                 selected={''}
                 onChange={handleChange}
+                errorMessage={errors.tshirt_model}
               />
               <Dropdown
                 name={'tshirt_size'}
@@ -170,6 +171,7 @@ const Join: NextPage = () => {
                 options={getSizeOptions(values.tshirt_model)}
                 selected={''}
                 onChange={handleChange}
+                errorMessage={errors.tshirt_size}
               />
 
               <h3>Lieferanschrift</h3>
@@ -179,6 +181,7 @@ const Join: NextPage = () => {
                 options={countryOptions}
                 selected={''}
                 onChange={handleChange}
+                errorMessage={errors.country}
               />
               <TextInput
                 value={values.address_firstname}
