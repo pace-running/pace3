@@ -107,17 +107,13 @@ pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
 pub async fn modify_payment_status(
     _: Identity,
     r_id: web::Path<i32>,
+    target_status: Json<bool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
-    let payment_st = runners
-        .find(runner_id)
-        .get_result::<Runner>(connection)
-        .unwrap()
-        .payment_status;
     let result = diesel::update(runners.find(runner_id))
-        .set(payment_status.eq(!payment_st))
+        .set(payment_status.eq(target_status.into_inner()))
         .get_result::<Runner>(connection)
         .unwrap();
     let email_value = result.email.as_ref().unwrap();

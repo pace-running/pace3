@@ -19,8 +19,8 @@ export async function fetchAllRunners() {
   });
 }
 
-export async function change_payment_status(runner_id: string) {
-  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment/${runner_id}`, runner_id, {
+export async function change_payment_status(runner_id: string, truth: boolean) {
+  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/payment/${runner_id}`, truth, {
     headers: { 'content-type': 'application/json' }
   });
 }

@@ -190,7 +190,7 @@ const Admin: NextPage = () => {
       </div>
       <br />
 
-      <table id='runnersTable'>
+      <table id='runnersTable' style={{overflow: 'scroll'}}>
         <thead>
           <tr key={'head'}>
             <th>ID</th>
@@ -227,10 +227,10 @@ const Admin: NextPage = () => {
                       styling={runner.payment_status ? 'paid-btn' : 'not-paid-btn'}
                       type={'button'}
                       onClick={() => {
-                        change_payment_status(runner.id.toString());
+                        change_payment_status(runner.id.toString(),!runner.payment_status);
                         setTimeout(() => {
                           setRunnersLoaded(false);
-                        }, 200);
+                        }, 100);
                       }}
                     />
                   </td>

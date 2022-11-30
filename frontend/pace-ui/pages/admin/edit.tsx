@@ -313,8 +313,8 @@ const Edit: NextPage = () => {
                 styling={values.payment_status ? 'paid-btn' : 'not-paid-btn'}
                 type={'button'}
                 onClick={() => {
-                  change_payment_status(runner_id.toString());
-                  values.payment_status = true;
+                  change_payment_status(runner_id.toString(),!values.payment_status);
+                  values.payment_status = !values.payment_status;
                   setTimeout(() => {
                     setIsPageFound(false);
                   }, 100);
