@@ -217,7 +217,7 @@ const Join: NextPage = () => {
                   options={euCountryOptions}
                   selected={''}
                   onChange={e => {
-                    setFieldValue('country',(e.target as HTMLInputElement).value);
+                    setFieldValue('country', (e.target as HTMLInputElement).value);
                   }}
                   errorMessage={errors.country}
                   valid={!errors.country}
@@ -228,7 +228,7 @@ const Join: NextPage = () => {
                 <TextInput
                   value={values.country}
                   onChange={e => {
-                    setFieldValue('country',(e.target as HTMLInputElement).value);
+                    setFieldValue('country', (e.target as HTMLInputElement).value);
                   }}
                   type={'text'}
                   name={'country-non-eu'}

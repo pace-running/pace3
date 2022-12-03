@@ -67,8 +67,7 @@ const Edit: NextPage = () => {
 
   const submitForm = (values: EditRunnerValues) => {
     console.log('submitting...');
-    edit_runner(runner_id, mapEditRunnerDataToFullRunnerData(values));
-    router.push('/admin');
+    edit_runner(runner_id, mapEditRunnerDataToFullRunnerData(values)).then(_ => router.push('/admin'));
   };
 
   const { handleChange, setFieldValue, values, handleSubmit, errors } = useFormik<EditRunnerValues>({
@@ -313,11 +312,10 @@ const Edit: NextPage = () => {
                 styling={values.payment_status ? 'paid-btn' : 'not-paid-btn'}
                 type={'button'}
                 onClick={() => {
-                  change_payment_status(runner_id.toString(),!values.payment_status);
-                  values.payment_status = !values.payment_status;
-                  setTimeout(() => {
+                  change_payment_status(runner_id.toString(), !values.payment_status).then(_ => {
+                    values.payment_status = !values.payment_status;
                     setIsPageFound(false);
-                  }, 100);
+                  });
                 }}
               />
             </span>
