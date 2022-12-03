@@ -44,7 +44,8 @@ task_create_migration() {
 ##DOC migrate - Run database migration
 task_migrate() {
   log_running_command "Run database migrations..."
-  docker-compose up --force-recreate -d
+  docker-compose down
+  docker-compose up -d
   sleep 5
   cargo install diesel_cli --force --no-default-features --features postgres
   diesel setup
@@ -82,8 +83,6 @@ task_test_unit() {
 ##DOC test_integration - Run all integration tests
 task_test_integration() {
   log_running_command "integration tests..."
-  docker-compose up --force-recreate -d
-  sleep 5
   task_migrate
   cargo test integration -- --nocapture
   docker-compose down
