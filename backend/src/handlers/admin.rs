@@ -5,6 +5,7 @@ use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_shipping, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
 };
+use actix_files::Files;
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
 use actix_web::web::{self, Json};
@@ -252,6 +253,13 @@ pub async fn edit_runner(
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&updated_runner).unwrap()))
+}
+
+pub async fn register_payments ( csv: web::Data<Files>) -> Result<HttpResponse, Error> {
+    println!("File: {:?}", csv.into_inner());
+    Ok(HttpResponse::Ok()
+        .content_type("text/json")
+        .body(serde_json::to_string(&"".to_string()).unwrap()))
 }
 
 pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {

@@ -37,3 +37,9 @@ export async function get_full_runner(runner_id: string) {
     headers: { 'content-type': 'application/json' }
   });
 }
+
+export async function upload_payment_csv(file: File){
+  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/finance`, file,  {
+    headers: { 'content-type': 'multipart/form-data' }
+  });
+}
