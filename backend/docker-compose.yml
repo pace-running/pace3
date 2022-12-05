@@ -3,12 +3,14 @@ version: '3.8'
 services:
 
   db:
-    image: postgres:14.1-alpine
+    image: postgres:alpine
     container_name: db
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: "test_pass"
+      POSTGRES_DB: "pace3"
+      POSTGRES_USER: "pace3_user"
+      POSTGRES_PASSWORD: "pace3_pass"
     volumes:
       - ./db-init/init-user-db.sql:/docker-entrypoint-initdb.d/init-user-db.sql
     healthcheck:
