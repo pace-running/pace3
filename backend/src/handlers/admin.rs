@@ -255,7 +255,7 @@ pub async fn edit_runner(
         .body(serde_json::to_string(&updated_runner).unwrap()))
 }
 
-pub async fn register_payments ( csv: web::Data<Files>) -> Result<HttpResponse, Error> {
+pub async fn register_payments(csv: web::Data<Files>) -> Result<HttpResponse, Error> {
     println!("File: {:?}", csv.into_inner());
     Ok(HttpResponse::Ok()
         .content_type("text/json")
