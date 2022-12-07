@@ -3,7 +3,8 @@ use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
 use crate::services::email::send_payment_confirmation;
 use crate::{
-    establish_connection, insert_shipping, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
+    establish_connection, insert_shipping, retrieve_donation_by_reason_for_payment,
+    retrieve_runner_by_id, retrieve_shipping_by_runner_id,
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
@@ -71,6 +72,13 @@ pub struct FullRunnerInfo {
     shipping_details: Option<ShippingDetails>,
 }
 
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+pub struct FaultyTransaction {
+    runner_ids: Option<Vec<String>>,
+    reason_for_payment: String,
+    amount: String,
+}
+
 pub async fn check_password(
     request: HttpRequest,
     login_data: Json<LoginData>,
@@ -111,22 +119,8 @@ pub async fn modify_payment_status(
     target_status: Json<bool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
-    use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
-    let result = diesel::update(runners.find(runner_id))
-        .set(payment_status.eq(target_status.into_inner()))
-        .get_result::<Runner>(connection)
-        .unwrap();
-    let email_value = result.email.as_ref().unwrap();
-    let is_email_provided = email_value.ne("");
-    let is_paid = result.payment_status;
-    let mail_not_sent_yet = !result.payment_confirmation_mail_sent;
-    if is_paid && is_email_provided && mail_not_sent_yet {
-        send_payment_confirmation_email(&result);
-        let _ = diesel::update(runners.find(runner_id))
-            .set(payment_confirmation_mail_sent.eq(true))
-            .get_result::<Runner>(connection);
-    }
+    let result = change_payment_status(connection, runner_id, target_status.into_inner());
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&result).unwrap()))
@@ -255,7 +249,10 @@ pub async fn edit_runner(
         .body(serde_json::to_string(&updated_runner).unwrap()))
 }
 
-pub async fn parse_payment_csv(mut raw_data: web::Payload) -> Result<HttpResponse, Error> {
+pub async fn parse_payment_csv(
+    _: Identity,
+    mut raw_data: web::Payload,
+) -> Result<HttpResponse, Error> {
     let mut bytes_mut = web::BytesMut::new();
     while let Some(item) = raw_data.next().await {
         bytes_mut.extend_from_slice(&item?);
@@ -268,6 +265,8 @@ pub async fn parse_payment_csv(mut raw_data: web::Payload) -> Result<HttpRespons
     }
     // println!("String: {}",csv_string);
     let mut reader = csv::Reader::from_reader(csv_string.as_bytes());
+
+    let mut faulty_transaction_list: Vec<Option<FaultyTransaction>> = Vec::new();
     for (i, record) in reader.byte_records().enumerate() {
         if i > 12 {
             let record = record.unwrap_or_default();
@@ -275,41 +274,75 @@ pub async fn parse_payment_csv(mut raw_data: web::Payload) -> Result<HttpRespons
                 break;
             }
             // println!("Record {}: {:?}",i,record);
-            register_payment(&String::from_utf8_lossy(record.as_slice()));
+            faulty_transaction_list.push(register_payment(&String::from_utf8_lossy(
+                record.as_slice(),
+            )));
         }
     }
 
     Ok(HttpResponse::Ok()
         .content_type("text/json")
-        .body(serde_json::to_string(&"".to_string()).unwrap()))
+        .body(serde_json::to_string(&faulty_transaction_list).unwrap()))
 }
 
-fn register_payment(row: &str) {
+fn register_payment(row: &str) -> Option<FaultyTransaction> {
     let entries = row.split(";").collect::<Vec<_>>();
-    println!(
-        "Name: {}, Vwz: {}, Betrag: {}",
-        entries[4], entries[9], entries[12]
-    );
+
+    let connection = &mut establish_connection();
     let rfp_string = entries[9];
-    println!("{:?}",filter_rfp(rfp_string));
+    let rfp_list = filter_rfp(rfp_string);
+    // println!("{:?}", rfp_list);
     let paid_amount = entries[12];
+    let mut budget: i32 = paid_amount.trim().parse().unwrap_or(0);
+
+    let mut successful_ids: Vec<String> = Vec::new();
+    for rfp in &rfp_list {
+        let result = retrieve_donation_by_reason_for_payment(connection, &rfp);
+        match result {
+            Err(_) => {
+                return Some(FaultyTransaction {
+                    runner_ids: None,
+                    reason_for_payment: rfp_list.join(", "),
+                    amount: paid_amount.to_string(),
+                })
+            }
+            Ok(returned_runner) => {
+                successful_ids.push(returned_runner.id.to_string());
+                budget = budget - returned_runner.donation.trim().parse::<i32>().unwrap();
+            }
+        }
+    }
+    if budget >= 0 {
+        for id in successful_ids {
+            change_payment_status(connection, id.trim().parse::<i32>().unwrap(), true);
+        }
+        return None;
+    } else {
+        return Some(FaultyTransaction {
+            runner_ids: Some(successful_ids),
+            reason_for_payment: rfp_list.join(", "),
+            amount: paid_amount.to_string(),
+        });
+    }
 }
 
 fn filter_rfp(rfp: &str) -> Vec<String> {
     let mut list: Vec<String> = vec![];
     let char_array: Vec<char> = rfp.chars().collect();
-    for i in 0..(char_array.len()-4) {
-        if char_array[i] == 'L' && i<char_array.len()-8 {
-            if &char_array[i+1..i+4].into_iter().collect::<String>() == "GR-"{
+    for i in 0..(char_array.len() - 4) {
+        if char_array[i] == 'L' && i < char_array.len() - 8 {
+            if &char_array[i + 1..i + 4].into_iter().collect::<String>() == "GR-" {
                 // println!("suffix: {:?}", &char_array[i+4..i+9]);
-                let mut reason = char_array[i..i+9].into_iter().collect::<String>().to_uppercase();
-                reason = str::replace(&reason,"0","O").to_string();
+                let mut reason = char_array[i..i + 9]
+                    .into_iter()
+                    .collect::<String>()
+                    .to_uppercase();
+                reason = str::replace(&reason, "0", "O").to_string();
                 list.push(reason);
             }
         }
     }
     list
-
 }
 
 pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {
@@ -323,6 +356,30 @@ fn forbidden() -> HttpResponse {
         .body("\"result\": \"fail\"")
 }
 
+pub fn change_payment_status(
+    conn: &mut PgConnection,
+    runner_id: i32,
+    target_status: bool,
+) -> Runner {
+    use crate::schema::runners::dsl::*;
+
+    let result = diesel::update(runners.find(runner_id))
+        .set(payment_status.eq(target_status))
+        .get_result::<Runner>(conn)
+        .unwrap();
+    let email_value = result.email.as_ref().unwrap();
+    let is_email_provided = email_value.ne("");
+    let is_paid = result.payment_status;
+    let mail_not_sent_yet = !result.payment_confirmation_mail_sent;
+    if is_paid && is_email_provided && mail_not_sent_yet {
+        send_payment_confirmation_email(&result);
+        let _ = diesel::update(runners.find(runner_id))
+            .set(payment_confirmation_mail_sent.eq(true))
+            .get_result::<Runner>(conn);
+    }
+    result
+}
+
 fn send_payment_confirmation_email(runner: &Runner) -> bool {
     let email_value = runner.email.as_ref().unwrap();
     let verification_code = create_verification_code();
@@ -333,4 +390,16 @@ fn send_payment_confirmation_email(runner: &Runner) -> bool {
         runner.donation.to_string(),
         verification_code,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::filter_rfp;
+
+    #[test]
+    fn unit_reason_for_payment_is_extracted_from_string() {
+        let rfp = "Vwz: �berweisung LGR-TTZLK und LGR-we0gS";
+        let result = filter_rfp(rfp);
+        assert_eq!(result, ["LGR-TTZLK", "LGR-WEOGS"]);
+    }
 }

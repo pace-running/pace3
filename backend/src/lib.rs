@@ -52,6 +52,16 @@ pub fn retrieve_runner_by_id(conn: &mut PgConnection, id: i32) -> Runner {
         .unwrap_or_else(|_| panic!("Could not retrieve runner with id {}", id))
 }
 
+pub fn retrieve_donation_by_reason_for_payment(
+    conn: &mut PgConnection,
+    rfp: &str,
+) -> Result<Runner, Error> {
+    use crate::schema::runners::dsl::*;
+    runners
+        .filter(reason_for_payment.eq(rfp))
+        .get_result::<Runner>(conn)
+}
+
 pub fn retrieve_shipping_by_runner_id(
     conn: &mut PgConnection,
     queried_id: i32,

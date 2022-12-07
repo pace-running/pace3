@@ -38,8 +38,8 @@ export async function get_full_runner(runner_id: string) {
   });
 }
 
-export async function upload_payment_csv(file: File){
-  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/finance`, file,  {
+export async function upload_payment_csv(file: File) {
+  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/finance`, file, {
     headers: { 'content-type': 'multipart/form-data' }
   });
 }

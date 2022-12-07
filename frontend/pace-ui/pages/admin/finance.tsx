@@ -6,11 +6,9 @@ const Finance: NextPage = () => {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File>();
 
-
   const allowedExtensions = ['csv'];
 
-
-  const handleFileChange = (e: any)  => {
+  const handleFileChange = (e: any) => {
     setError('');
     if (e.target.files.length) {
       const inputFile = e.target.files[0];
@@ -30,12 +28,12 @@ const Finance: NextPage = () => {
       console.log('Uploading csv file...');
       const response = await upload_payment_csv(file);
       if (response?.status === 200) {
-       console.log(response);
+        console.log(response);
       }
     } else {
       setError('Bitte wähle zunächst eine Datei aus!');
     }
-  }
+  };
 
   // const cleanReason = (reason: string) => {
   //   return reason
@@ -46,8 +44,6 @@ const Finance: NextPage = () => {
   //     .map((text: string) => text.toUpperCase())
   //     .filter((text: string) => text.startsWith(TOKEN_PREFIX));
   // };
-
-
 
   return (
     <div>
