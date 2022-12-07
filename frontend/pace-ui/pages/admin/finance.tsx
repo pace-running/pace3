@@ -16,7 +16,7 @@ const Finance: NextPage = () => {
       const inputFile = e.target.files[0];
       const fileExtension = inputFile?.type.split('/')[1];
       if (!allowedExtensions.includes(fileExtension)) {
-        setError('Please input a csv file');
+        setError('Die Datei muss im .csv-Format sein!');
         return;
       }
 
@@ -32,6 +32,8 @@ const Finance: NextPage = () => {
       if (response?.status === 200) {
        console.log(response);
       }
+    } else {
+      setError('Bitte wähle zunächst eine Datei aus!');
     }
   }
 
@@ -57,14 +59,12 @@ const Finance: NextPage = () => {
         <input onChange={handleFileChange} id='csvInput' name='file' type='File' />
       </div>
       <br />
+      <p>{error}</p>
       <div>
         <button type='button' onClick={handleParse}>
           Einlesen
         </button>
       </div>
-      {/* <div style={{ marginTop: '3rem' }}>
-        {error ? error : data.map((col, idx) => <div key={idx}>{col.join(' ')}</div>)}
-      </div> */}
       <div>
         {/* <table id='runnersTable' style={{ overflow: 'scroll' }}>
           <thead>

@@ -5,12 +5,12 @@ use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_shipping, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
 };
-use actix_files::Files;
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
 use actix_web::web::{self, Json};
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
 use diesel::prelude::*;
+use futures_util::stream::StreamExt as _;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -96,7 +96,7 @@ pub async fn check_password(
     }
 }
 
-pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
+pub async fn show_runners() -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
     let database_result = runners.load::<Runner>(connection);
@@ -255,11 +255,61 @@ pub async fn edit_runner(
         .body(serde_json::to_string(&updated_runner).unwrap()))
 }
 
-pub async fn register_payments(csv: web::Data<Files>) -> Result<HttpResponse, Error> {
-    println!("File: {:?}", csv.into_inner());
+pub async fn parse_payment_csv(mut raw_data: web::Payload) -> Result<HttpResponse, Error> {
+    let mut bytes_mut = web::BytesMut::new();
+    while let Some(item) = raw_data.next().await {
+        bytes_mut.extend_from_slice(&item?);
+    }
+    // println!("Bytes: {:?}", bytes_mut);
+    let bytes = &bytes_mut.freeze();
+    let mut csv_string = "";
+    unsafe {
+        csv_string = std::str::from_utf8_unchecked(bytes);
+    }
+    // println!("String: {}",csv_string);
+    let mut reader = csv::Reader::from_reader(csv_string.as_bytes());
+    for (i, record) in reader.byte_records().enumerate() {
+        if i > 12 {
+            let record = record.unwrap_or_default();
+            if record[0][0] == 59 {
+                break;
+            }
+            // println!("Record {}: {:?}",i,record);
+            register_payment(&String::from_utf8_lossy(record.as_slice()));
+        }
+    }
+
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&"".to_string()).unwrap()))
+}
+
+fn register_payment(row: &str) {
+    let entries = row.split(";").collect::<Vec<_>>();
+    println!(
+        "Name: {}, Vwz: {}, Betrag: {}",
+        entries[4], entries[9], entries[12]
+    );
+    let rfp_string = entries[9];
+    println!("{:?}",filter_rfp(rfp_string));
+    let paid_amount = entries[12];
+}
+
+fn filter_rfp(rfp: &str) -> Vec<String> {
+    let mut list: Vec<String> = vec![];
+    let char_array: Vec<char> = rfp.chars().collect();
+    for i in 0..(char_array.len()-4) {
+        if char_array[i] == 'L' && i<char_array.len()-8 {
+            if &char_array[i+1..i+4].into_iter().collect::<String>() == "GR-"{
+                // println!("suffix: {:?}", &char_array[i+4..i+9]);
+                let mut reason = char_array[i..i+9].into_iter().collect::<String>().to_uppercase();
+                reason = str::replace(&reason,"0","O").to_string();
+                list.push(reason);
+            }
+        }
+    }
+    list
+
 }
 
 pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {

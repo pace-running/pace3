@@ -22,7 +22,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .route(web::put().to(admin::edit_runner)),
             )
             .service(
-                web::resource("/api/admin/finance").route(web::post().to(admin::register_payments)),
+                web::resource("/api/admin/finance").route(web::post().to(admin::parse_payment_csv)),
             ),
     );
 }

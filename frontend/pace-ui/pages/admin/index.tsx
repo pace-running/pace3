@@ -227,7 +227,7 @@ const Admin: NextPage = () => {
                       styling={runner.payment_status ? 'paid-btn' : 'not-paid-btn'}
                       type={'button'}
                       onClick={() => {
-                        change_payment_status(runner.id.toString(), !runner.payment_status).then(r =>
+                        change_payment_status(runner.id.toString(), !runner.payment_status).then(() =>
                           setRunnersLoaded(false)
                         );
                       }}
