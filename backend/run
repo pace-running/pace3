@@ -44,8 +44,9 @@ task_create_migration() {
 ##DOC migrate - Run database migration
 task_migrate() {
   log_running_command "Run database migrations..."
-  docker-compose down
-  docker-compose up -d
+  # docker-compose down
+  # docker-compose up -d
+  docker-compose up --force-recreate -d
   cargo install diesel_cli --force --no-default-features --features postgres
   diesel setup
   diesel migration run
