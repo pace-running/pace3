@@ -5,6 +5,7 @@ import { upload_payment_csv } from '../../apis/api';
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File>();
+  const [wrongPayments, setWrongPayments] = useState<FaultyTransaction[]>();
 
   const allowedExtensions = ['csv'];
 
@@ -28,25 +29,15 @@ const Finance: NextPage = () => {
       console.log('Uploading csv file...');
       const response = await upload_payment_csv(file);
       if (response?.status === 200) {
-        console.log(response);
+        setWrongPayments(response.data);
       }
     } else {
       setError('Bitte wähle zunächst eine Datei aus!');
     }
   };
 
-  // const cleanReason = (reason: string) => {
-  //   return reason
-  //     .trim()
-  //     .split(/[\s,.]+/)
-  //     .filter((text: string) => text.length === TOKEN_LENGTH)
-  //     .map((text: string) => text.replace('0', 'O'))
-  //     .map((text: string) => text.toUpperCase())
-  //     .filter((text: string) => text.startsWith(TOKEN_PREFIX));
-  // };
-
   return (
-    <div>
+    <div style={{ margin: '50px' }}>
       <h1>Finanzen</h1>
       <div>
         <label htmlFor='csvInput' style={{ display: 'block' }}>
@@ -61,29 +52,32 @@ const Finance: NextPage = () => {
           Einlesen
         </button>
       </div>
+      <br />
+      <br />
       <div>
-        {/* <table id='runnersTable' style={{ overflow: 'scroll' }}>
+        <table id='runnersTable' style={{ overflow: 'scroll' }}>
           <thead>
             <tr key={'head'}>
               <th>ID</th>
               <th>Verwendungszweck</th>
               <th>angegebene Spende</th>
-              <th>erhaltener Betrag</th>
+              {/* <th>erhaltener Betrag</th> */}
             </tr>
           </thead>
           <tbody>
-            {wrongPayments.map((obj, key) => {
-              return (
-                <tr key={key}>
-                  <td>{obj?.id}</td>
-                  <td>{obj?.reason_for_payment}</td>
-                  <td>{obj?.donation}</td>
-                  <td>{obj?.received_amount}</td>
-                </tr>
-              );
-            })}
+            {wrongPayments &&
+              wrongPayments.map((obj, key) => {
+                return (
+                  <tr key={key}>
+                    <td>{obj?.runner_ids}</td>
+                    <td>{obj?.reason_for_payment}</td>
+                    <td>{obj?.amount}</td>
+                    {/* <td>{obj?.received_amount}</td> */}
+                  </tr>
+                );
+              })}
           </tbody>
-        </table> */}
+        </table>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ const Edit: NextPage = () => {
   const runner_id = router.query.id as string;
   const [isPageFound, setIsPageFound] = useState(false);
 
-  const [runnerData, setRunnerData] = useState<fullRunnerData>();
+  const [runnerData, setRunnerData] = useState<FullRunnerData>();
 
   useEffect(() => {
     const fetchData = async () => {

@@ -71,7 +71,7 @@ interface RunnerResponseData {
   payment_status: bool;
 }
 
-interface fullRunnerData {
+interface FullRunnerData {
   runner_id: string;
   firstname: string;
   lastname: string;
@@ -99,4 +99,10 @@ interface fullRunnerData {
   payment_status: bool;
   delivery_status: string;
   payment_confirmation_mail_sent: boolean;
+}
+
+interface FaultyTransaction {
+  runner_ids: string[] | undefined;
+  reason_for_payment: string;
+  amount: string;
 }

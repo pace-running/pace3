@@ -77,6 +77,7 @@ pub struct FaultyTransaction {
     runner_ids: Option<Vec<String>>,
     reason_for_payment: String,
     amount: String,
+    expected_amount: Option<String>,
 }
 
 pub async fn check_password(
@@ -259,24 +260,26 @@ pub async fn parse_payment_csv(
     }
     // println!("Bytes: {:?}", bytes_mut);
     let bytes = &bytes_mut.freeze();
-    let mut csv_string = "";
+    let csv_string;
     unsafe {
         csv_string = std::str::from_utf8_unchecked(bytes);
     }
     // println!("String: {}",csv_string);
     let mut reader = csv::Reader::from_reader(csv_string.as_bytes());
 
-    let mut faulty_transaction_list: Vec<Option<FaultyTransaction>> = Vec::new();
+    let mut faulty_transaction_list: Vec<FaultyTransaction> = Vec::new();
     for (i, record) in reader.byte_records().enumerate() {
+        // TODO: use dynamic way to determine that relevant rows have benn reached
         if i > 12 {
             let record = record.unwrap_or_default();
             if record[0][0] == 59 {
                 break;
             }
             // println!("Record {}: {:?}",i,record);
-            faulty_transaction_list.push(register_payment(&String::from_utf8_lossy(
-                record.as_slice(),
-            )));
+            let faulty_transaction = register_payment(&String::from_utf8_lossy(record.as_slice()));
+            if let Some(transaction) = faulty_transaction {
+                faulty_transaction_list.push(transaction);
+            }
         }
     }
 
@@ -304,6 +307,7 @@ fn register_payment(row: &str) -> Option<FaultyTransaction> {
                     runner_ids: None,
                     reason_for_payment: rfp_list.join(", "),
                     amount: paid_amount.to_string(),
+                    expected_amount: None,
                 })
             }
             Ok(returned_runner) => {
@@ -322,6 +326,7 @@ fn register_payment(row: &str) -> Option<FaultyTransaction> {
             runner_ids: Some(successful_ids),
             reason_for_payment: rfp_list.join(", "),
             amount: paid_amount.to_string(),
+            expected_amount: Some((paid_amount.trim().parse().unwrap_or(0) - budget).to_string()),
         });
     }
 }
