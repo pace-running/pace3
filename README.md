@@ -7,8 +7,12 @@ Pace is a registration and management application for running events and competi
 
 
 ## Running Pace
-to start both frontend and backend applications in corresponding folders (`/frontend/pace-ui` and `/backend`)
-```shell
+first install dependencies in frontend applications in `/frontend/pace-ui` 
+```
+./run install
+```
+and then start both front and backend applications in corresponding folders (`/frontend/pace-ui` and `/backend`)
+```
 ./run start
 ```
 to restart the backend application after code change, exit with `ctrl + c` and start again with 

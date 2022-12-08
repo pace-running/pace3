@@ -60,8 +60,8 @@ const Finance: NextPage = () => {
             <tr key={'head'}>
               <th>ID</th>
               <th>Verwendungszweck</th>
-              <th>angegebene Spende</th>
-              {/* <th>erhaltener Betrag</th> */}
+              <th>erhaltener Betrag</th>
+              <th>erwarteter Betrag</th>
             </tr>
           </thead>
           <tbody>
@@ -69,10 +69,10 @@ const Finance: NextPage = () => {
               wrongPayments.map((obj, key) => {
                 return (
                   <tr key={key}>
-                    <td>{obj?.runner_ids}</td>
+                    <td>{obj?.runner_ids ? obj?.runner_ids : 'Teilnehmer nicht gefunden'}</td>
                     <td>{obj?.reason_for_payment}</td>
                     <td>{obj?.amount}</td>
-                    {/* <td>{obj?.received_amount}</td> */}
+                    <td>{obj?.expected_amount}</td>
                   </tr>
                 );
               })}

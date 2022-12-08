@@ -105,4 +105,5 @@ interface FaultyTransaction {
   runner_ids: string[] | undefined;
   reason_for_payment: string;
   amount: string;
+  expected_amount: string | undefined;
 }
