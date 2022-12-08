@@ -48,6 +48,14 @@ const Admin: NextPage = () => {
   return (
     <div style={{ margin: '50px' }}>
       <h1>Admin</h1>
+      <Button
+        name={'btn-finance'}
+        label={'Zahlungsinformationen hochladen'}
+        type={'button'}
+        onClick={() => {
+          router.push('/admin/finance');
+        }}
+      />
       <div>
         <h4>Statistiken:</h4>
         <p>Statistiken beziehen sich auf den angewendeten Filter!</p>

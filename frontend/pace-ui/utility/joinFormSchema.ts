@@ -36,13 +36,17 @@ export const JoinFormSchema = Yup.object().shape({
   country: requiredTShirtField,
   address_firstname: Yup.string().when('tshirt_toggle', {
     is: true,
-    then: Yup.string().min(2, 'Vorname muss mindestens zwei Zeichen enthalten!')
-    .max(50, 'Vorname darf maximal 50 Zeichen enthalten!').required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+    then: Yup.string()
+      .min(2, 'Vorname muss mindestens zwei Zeichen enthalten!')
+      .max(50, 'Vorname darf maximal 50 Zeichen enthalten!')
+      .required('Bitte geben Sie die notwendigen Lieferinformationen an!')
   }),
   address_lastname: Yup.string().when('tshirt_toggle', {
     is: true,
-    then: Yup.string().min(2, 'Nachname muss mindestens zwei Zeichen enthalten!')
-    .max(50, 'Nachname darf maximal 50 Zeichen enthalten!').required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+    then: Yup.string()
+      .min(2, 'Nachname muss mindestens zwei Zeichen enthalten!')
+      .max(50, 'Nachname darf maximal 50 Zeichen enthalten!')
+      .required('Bitte geben Sie die notwendigen Lieferinformationen an!')
   }),
   street_name: requiredTShirtField,
   house_number: requiredTShirtField,
