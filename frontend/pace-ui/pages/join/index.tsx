@@ -183,6 +183,7 @@ const Join: NextPage = () => {
                 label={'Region *'}
                 options={regionOptions}
                 selected={''}
+                errorMessage={shippingRegion ? '' : errors.country}
                 onChange={e => {
                   const value = (e.target as HTMLInputElement).value;
                   if (value === 'de') setFieldValue('country', 'Deutschland');
