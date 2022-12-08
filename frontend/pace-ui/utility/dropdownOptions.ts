@@ -24,6 +24,7 @@ export const euCountryOptions = [
   { label: 'Griechenland', value: 'Griechenland' },
   { label: 'Irland', value: 'Irland' },
   { label: 'Italien', value: 'Italien' },
+  { label: 'Kroatien', value: 'Kroatien' },
   { label: 'Lettland', value: 'Lettland' },
   { label: 'Litauen', value: 'Litauen' },
   { label: 'Luxemburg', value: 'Luxemburg' },
