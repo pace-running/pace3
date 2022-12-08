@@ -20,3 +20,12 @@ services:
       timeout: "3s"
       start_period: "180s"
       retries: 3
+  proxy:
+    image: nginx:latest
+    container_name: proxy
+    volumes:
+      - ./nginx-local.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8089:8089"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
