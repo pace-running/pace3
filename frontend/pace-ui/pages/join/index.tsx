@@ -19,10 +19,10 @@ import {
 import { JoinFormSchema, JoinFormValues } from '../../utility/joinFormSchema';
 import { useJoinFormContext } from '../../context/JoinFormContext';
 import router from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Join: NextPage = () => {
-  const { setJoinFormData } = useJoinFormContext();
+  const { joinFormData, setJoinFormData } = useJoinFormContext();
 
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showSizesModal, setShowSizesModal] = useState(false);
@@ -38,6 +38,21 @@ const Join: NextPage = () => {
     validationSchema: JoinFormSchema,
     onSubmit: submitForm
   });
+
+  useEffect(() => {
+    if (joinFormData) {
+      for (const [key, val] of Object.entries(joinFormData)) {
+        setFieldValue(key, val);
+      }
+      values.running_level = joinFormData?.running_level;
+      values.starting_point = joinFormData?.starting_point;
+      if (joinFormData.country === 'Deutschland') {
+        setShippingRegion('de');
+      } else if (Object.keys(euCountryOptions).includes(joinFormData.country ?? '--')) {
+        setShippingRegion('eu');
+      } else setShippingRegion('non-eu');
+    }
+  }, [joinFormData]);
 
   return (
     <BaseLayout pageTitle='Anmeldung'>
@@ -95,6 +110,7 @@ const Join: NextPage = () => {
             options={startingOptions}
             selected={''}
             onChange={handleChange}
+            default={joinFormData?.starting_point}
             valid={!errors.starting_point}
             errorMessage={errors.starting_point}
           />
@@ -103,6 +119,7 @@ const Join: NextPage = () => {
             label={'Wie schätzt du dein Laufniveau ein? *'}
             options={runningLevelOptions}
             onChange={handleChange}
+            default={joinFormData?.running_level}
             valid={!errors.running_level}
             errorMessage={errors.running_level}
           />
@@ -165,6 +182,7 @@ const Join: NextPage = () => {
                 options={modelOptions}
                 selected={''}
                 onChange={handleChange}
+                default={values?.tshirt_model}
                 errorMessage={errors.tshirt_model}
               />
               <Dropdown
@@ -173,6 +191,7 @@ const Join: NextPage = () => {
                 options={getSizeOptions(values.tshirt_model)}
                 selected={''}
                 onChange={handleChange}
+                default={values?.tshirt_size}
                 errorMessage={errors.tshirt_size}
               />
 
@@ -190,7 +209,7 @@ const Join: NextPage = () => {
                   if (value === 'non-eu') setFieldValue('country', '');
                   setShippingRegion(value);
                 }}
-                // errorMessage={errors.country}
+                default={shippingRegion}
               />
 
               {shippingRegion === 'de' && (
@@ -220,6 +239,7 @@ const Join: NextPage = () => {
                   onChange={e => {
                     setFieldValue('country', (e.target as HTMLInputElement).value);
                   }}
+                  default={values?.country}
                   errorMessage={errors.country}
                   valid={!errors.country}
                 />
