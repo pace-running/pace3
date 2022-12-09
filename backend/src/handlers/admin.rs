@@ -268,18 +268,13 @@ pub async fn parse_payment_csv(
     let mut reader = csv::Reader::from_reader(csv_string.as_bytes());
 
     let mut faulty_transaction_list: Vec<FaultyTransaction> = Vec::new();
-    for (i, record) in reader.byte_records().enumerate() {
+    for record in reader.byte_records() {
         // TODO: use dynamic way to determine that relevant rows have benn reached
-        if i > 12 {
-            let record = record.unwrap_or_default();
-            if record[0][0] == 59 {
-                break;
-            }
-            // println!("Record {}: {:?}",i,record);
-            let faulty_transaction = register_payment(&String::from_utf8_lossy(record.as_slice()));
-            if let Some(transaction) = faulty_transaction {
-                faulty_transaction_list.push(transaction);
-            }
+        let record = record.unwrap_or_default();
+
+        let faulty_transaction = register_payment(&String::from_utf8_lossy(record.as_slice()));
+        if let Some(transaction) = faulty_transaction {
+            faulty_transaction_list.push(transaction);
         }
     }
 
@@ -295,6 +290,9 @@ fn register_payment(row: &str) -> Option<FaultyTransaction> {
     let rfp_string = entries[9];
     let rfp_list = filter_rfp(rfp_string);
     // println!("{:?}", rfp_list);
+    if rfp_list.len() == 0 {
+        return None;
+    }
     let paid_amount = entries[12];
     let mut budget: i32 = paid_amount.trim().parse().unwrap_or(0);
 
@@ -312,7 +310,9 @@ fn register_payment(row: &str) -> Option<FaultyTransaction> {
             }
             Ok(returned_runner) => {
                 successful_ids.push(returned_runner.id.to_string());
-                budget = budget - returned_runner.donation.trim().parse::<i32>().unwrap();
+                budget = budget
+                    - returned_runner.donation.trim().parse::<i32>().unwrap()
+                    - returned_runner.tshirt_cost.trim().parse::<i32>().unwrap();
             }
         }
     }
@@ -334,6 +334,9 @@ fn register_payment(row: &str) -> Option<FaultyTransaction> {
 fn filter_rfp(rfp: &str) -> Vec<String> {
     let mut list: Vec<String> = vec![];
     let char_array: Vec<char> = rfp.chars().collect();
+    if char_array.len() <= 9 {
+        return list;
+    }
     for i in 0..(char_array.len() - 4) {
         if char_array[i] == 'L' && i < char_array.len() - 8 {
             if &char_array[i + 1..i + 4].into_iter().collect::<String>() == "GR-" {

@@ -48,7 +48,9 @@ pub struct Runner {
 }
 
 impl<'a> From<(&'a Info, i64, &'a str, &'a str, &'a str)> for NewRunner<'a> {
-    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str, &'a str, &'a str)) -> Self {
+    fn from(
+        info_with_start_number_and_payment: (&'a Info, i64, &'a str, &'a str, &'a str),
+    ) -> Self {
         let (info, next_start_number, reason_for_payment, verification_code, tshirt_cost) =
             info_with_start_number_and_payment;
 

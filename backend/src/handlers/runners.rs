@@ -4,7 +4,6 @@ use actix_web::{web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::{insert_runner, is_eu_country};
 use crate::insert_shipping;
 use crate::models::info::Info;
 use crate::models::runner;
@@ -12,6 +11,7 @@ use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 use crate::services::email::send_registration_email;
 use crate::{establish_connection, retrieve_runner_by_id, retrieve_shipping_by_runner_id};
+use crate::{insert_runner, is_eu_country};
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {

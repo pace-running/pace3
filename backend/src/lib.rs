@@ -93,6 +93,33 @@ pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
 }
 
 pub fn is_eu_country(country: &str) -> bool {
-    let eu_countries = ["Belgien", "Bulgarien", "Dänemark", "Estland", "Finnland", "Frankreich", "Griechenland", "Irland", "Italien", "Kroatien", "Lettland", "Litauen", "Luxemburg", "Malta", "Niederlande", "Österreich", "Polen", "Portugal", "Rumänien", "Schweden", "Slowakei", "Slowenien", "Spanien", "Tschechische Republik", "Ungarn", "Zypern"];
+    let eu_countries = [
+        "Belgien",
+        "Bulgarien",
+        "Dänemark",
+        "Estland",
+        "Finnland",
+        "Frankreich",
+        "Griechenland",
+        "Irland",
+        "Italien",
+        "Kroatien",
+        "Lettland",
+        "Litauen",
+        "Luxemburg",
+        "Malta",
+        "Niederlande",
+        "Österreich",
+        "Polen",
+        "Portugal",
+        "Rumänien",
+        "Schweden",
+        "Slowakei",
+        "Slowenien",
+        "Spanien",
+        "Tschechische Republik",
+        "Ungarn",
+        "Zypern",
+    ];
     eu_countries.contains(&country)
 }
