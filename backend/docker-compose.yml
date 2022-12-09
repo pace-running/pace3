@@ -27,5 +27,3 @@ services:
       - ./nginx-local.conf:/etc/nginx/nginx.conf
     ports:
       - "8089:8089"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
