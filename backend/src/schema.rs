@@ -23,6 +23,7 @@ diesel::table! {
         payment_status -> Bool,
         verification_code -> Varchar,
         payment_confirmation_mail_sent -> Bool,
+        tshirt_cost -> Varchar,
     }
 }
 

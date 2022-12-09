@@ -1,0 +1,2 @@
+ALTER TABLE runners
+ADD COLUMN tshirt_cost VARCHAR NOT NULL DEFAULT '0';

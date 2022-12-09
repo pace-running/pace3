@@ -26,6 +26,7 @@ pub struct NewRunner<'a> {
     pub reason_for_payment: &'a str,
     pub payment_status: &'a bool,
     pub verification_code: &'a str,
+    pub tshirt_cost: &'a str,
 }
 
 #[derive(Queryable, Serialize)]
@@ -43,11 +44,12 @@ pub struct Runner {
     pub payment_status: bool,
     pub verification_code: String,
     pub payment_confirmation_mail_sent: bool,
+    pub tshirt_cost: String,
 }
 
-impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
-    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str, &'a str)) -> Self {
-        let (info, next_start_number, reason_for_payment, verification_code) =
+impl<'a> From<(&'a Info, i64, &'a str, &'a str, &'a str)> for NewRunner<'a> {
+    fn from(info_with_start_number_and_payment: (&'a Info, i64, &'a str, &'a str, &'a str)) -> Self {
+        let (info, next_start_number, reason_for_payment, verification_code, tshirt_cost) =
             info_with_start_number_and_payment;
 
         NewRunner {
@@ -62,6 +64,7 @@ impl<'a> From<(&'a Info, i64, &'a str, &'a str)> for NewRunner<'a> {
             reason_for_payment,
             payment_status: &false,
             verification_code,
+            tshirt_cost,
         }
     }
 }
@@ -122,6 +125,7 @@ mod tests {
             expected_start_number,
             expected_reason_for_payment,
             expected_verification_code,
+            "0",
         ));
 
         assert_eq!(runner.firstname.unwrap(), info.runner_info.firstname);

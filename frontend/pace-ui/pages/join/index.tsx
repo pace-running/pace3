@@ -48,7 +48,7 @@ const Join: NextPage = () => {
       values.starting_point = joinFormData?.starting_point;
       if (joinFormData.country === 'Deutschland') {
         setShippingRegion('de');
-      } else if (Object.keys(euCountryOptions).includes(joinFormData.country ?? '--')) {
+      } else if (Object.values(euCountryOptions).map(obj => obj.label).includes(joinFormData.country ?? '--')) {
         setShippingRegion('eu');
       } else setShippingRegion('non-eu');
     }

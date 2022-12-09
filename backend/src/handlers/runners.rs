@@ -4,7 +4,7 @@ use actix_web::{web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::insert_runner;
+use crate::{insert_runner, is_eu_country};
 use crate::insert_shipping;
 use crate::models::info::Info;
 use crate::models::runner;
@@ -124,12 +124,25 @@ pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
     let runner_start_number = runner::next_start_number(conn);
     let reason_for_payment = runner::create_random_payment();
     let verification_code = runner::create_verification_code();
+    let tshirt_cost;
+    if info.shipping_info.tshirt_toggle == "on" {
+        if info.shipping_info.country == "Deutschland" {
+            tshirt_cost = "15";
+        } else if is_eu_country(&info.shipping_info.country) {
+            tshirt_cost = "17";
+        } else {
+            tshirt_cost = "10";
+        }
+    } else {
+        tshirt_cost = "0";
+    }
     // Write data into data base
     let new_runner = NewRunner::from((
         &info,
         runner_start_number,
         reason_for_payment.as_str(),
         verification_code.as_str(),
+        tshirt_cost,
     ));
     let returned_runner = insert_runner(conn, new_runner);
     if info.shipping_info.tshirt_toggle == "on" {
