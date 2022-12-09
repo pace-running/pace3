@@ -1,4 +1,4 @@
-context("Main page", () => {
+context("Accessibility testing", () => {
   before(() => {
     cy.visit("https://pace3.lauf-gegen-rechts.de");
   });
