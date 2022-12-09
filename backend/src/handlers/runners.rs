@@ -131,7 +131,7 @@ pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
         } else if is_eu_country(&info.shipping_info.country) {
             tshirt_cost = "17";
         } else {
-            tshirt_cost = "10";
+            tshirt_cost = "20";
         }
     } else {
         tshirt_cost = "0";
