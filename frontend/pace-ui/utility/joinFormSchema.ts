@@ -66,6 +66,7 @@ export type JoinFormValues = {
   starting_point?: string;
   running_level?: string;
   donation: number;
+  tshirt_cost: number;
 
   tshirt_toggle: boolean;
   tshirt_model?: string;

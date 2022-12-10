@@ -29,12 +29,13 @@ const Join: NextPage = () => {
   const [shippingRegion, setShippingRegion] = useState('');
 
   const submitForm = (values: JoinFormValues) => {
+    console.log(`Tshirt_cost when submitting join: ${values.tshirt_cost}`);
     setJoinFormData(values);
     router.push('/summary');
   };
 
   const { handleChange, setFieldValue, values, handleSubmit, errors } = useFormik<JoinFormValues>({
-    initialValues: { donation: 10, tshirt_toggle: false, tos_confirmed: false },
+    initialValues: { donation: 10, tshirt_cost: 0, tshirt_toggle: false, tos_confirmed: false },
     validationSchema: JoinFormSchema,
     onSubmit: submitForm
   });
@@ -48,7 +49,11 @@ const Join: NextPage = () => {
       values.starting_point = joinFormData?.starting_point;
       if (joinFormData.country === 'Deutschland') {
         setShippingRegion('de');
-      } else if (Object.values(euCountryOptions).map(obj => obj.label).includes(joinFormData.country ?? '--')) {
+      } else if (
+        Object.values(euCountryOptions)
+          .map(obj => obj.label)
+          .includes(joinFormData.country ?? '--')
+      ) {
         setShippingRegion('eu');
       } else setShippingRegion('non-eu');
     }
@@ -169,7 +174,7 @@ const Join: NextPage = () => {
           <Checkbox
             name={'tshirt_toggle'}
             check={values.tshirt_toggle}
-            label={'Ich möchte ein T-Shirt'}
+            label={'Ich möchte ein T-Shirt (Kosten: 15€)'}
             role='switch'
             onChange={() => setFieldValue('tshirt_toggle', !values.tshirt_toggle)}
           />
@@ -208,6 +213,9 @@ const Join: NextPage = () => {
                   if (value === 'de') setFieldValue('country', 'Deutschland');
                   if (value === 'non-eu') setFieldValue('country', '');
                   setShippingRegion(value);
+                  if (value === 'de') setFieldValue('tshirt_cost', 15);
+                  if (value === 'eu') setFieldValue('tshirt_cost', 17);
+                  if (value === 'non-eu') setFieldValue('tshirt_cost', 20);
                 }}
                 default={shippingRegion}
               />

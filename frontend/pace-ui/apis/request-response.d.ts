@@ -28,6 +28,7 @@ interface InfoResponseData {
   runner_id: string;
   start_number: string;
   donation: string;
+  tshirt_cost: string;
   payment: string;
   email_provided: boolean;
   verification_code: string;
@@ -37,6 +38,7 @@ interface StatusResponseData {
   runner_id: string;
   start_number: string;
   donation: string;
+  tshirt_cost: string;
   payment: string;
   is_paid: boolean;
 

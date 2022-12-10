@@ -59,7 +59,7 @@ export const getSizeOptions = (modelOptionValue: string | undefined): { label: s
 };
 
 export const regionOptions = [
-  { label: 'Deutschland', value: 'de' },
-  { label: 'EU-Ausland', value: 'eu' },
-  { label: 'Nicht-EU Ausland', value: 'non-eu' }
+  { label: 'Deutschland (versandkostenfrei)', value: 'de' },
+  { label: 'EU-Ausland (Versandkosten: 2€)', value: 'eu' },
+  { label: 'Nicht-EU Ausland (Versandkosten: 5€)', value: 'non-eu' }
 ];

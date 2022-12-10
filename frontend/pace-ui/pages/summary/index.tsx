@@ -49,6 +49,7 @@ const SummaryPage: NextPage = () => {
     if (formData) {
       setFormData(formData);
     }
+    console.log(`Tshirt cost in formData: ${formData.tshirt_cost}`);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -58,6 +59,7 @@ const SummaryPage: NextPage = () => {
         const runner_id = response.data.runner_id.toString();
         const start_number = response.data.start_number.toString();
         const donation = response.data.donation.toString();
+        const tshirt_cost = response.data.tshirt_cost.toString();
         const payment = response.data.reason_for_payment.toString();
         const verification_code = response.data.verification_code.toString();
         const email_provided = response.data.email_provided as boolean;
@@ -67,11 +69,12 @@ const SummaryPage: NextPage = () => {
           donation,
           payment,
           email_provided,
-          verification_code
+          verification_code,
+          tshirt_cost
         });
         await router.push({
           pathname: '/confirmation',
-          query: { runner_id, start_number, donation, payment, email_provided }
+          query: { runner_id, start_number, donation, tshirt_cost, payment, email_provided }
         });
       }
     }
@@ -148,9 +151,19 @@ const SummaryPage: NextPage = () => {
 
         <div style={{ textAlign: 'left', margin: '30px', padding: '20px' }}>
           <p>Spendenbeitrag: {formData?.donation}€</p>
-          <p>Versand: kostenlos (innerhalb Deutschland)</p>
+          {formData?.tshirt_toggle && (
+            <div>
+              <p>Tshirt-Kosten: 15 €</p>
+              <p>
+                Versand:{' '}
+                {formData?.tshirt_cost === 15 ? 'kostenlos (innerhalb Deutschland)' : formData.tshirt_cost - 15}€
+              </p>
+            </div>
+          )}
           <hr></hr>
-          <p style={{ fontWeight: 'bold' }}>Zu zahlen: {formData?.donation}€</p>
+          <p style={{ fontWeight: 'bold' }}>
+            Zu zahlen: {formData?.donation && formData?.tshirt_cost ? formData?.donation + formData?.tshirt_cost : ''}€
+          </p>
         </div>
         <div style={{ textAlign: 'center' }}>
           <Button

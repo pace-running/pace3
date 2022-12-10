@@ -10,6 +10,7 @@ const RunnerContext = createContext<RunnerContextType>({
     runner_id: '',
     start_number: '',
     donation: '',
+    tshirt_cost: '',
     payment: '',
     email_provided: false,
     verification_code: ''
@@ -30,6 +31,7 @@ const RunnerContextProvider: React.FC<any> = ({ children }) => {
     runner_id: '',
     start_number: '',
     donation: '',
+    tshirt_cost: '',
     payment: '',
     email_provided: false,
     verification_code: ''
