@@ -28,7 +28,7 @@ const RegistrationConfirmation: React.FC<Props> = props => {
             textAlign: 'left'
           }}
         >
-          <h2>Spendenbetrag: {props.responseData.donation}€</h2>
+          <h2>Betrag: {Number(props.responseData.donation) + Number(props.responseData.tshirt_cost)}€</h2>
           <p>FC St. Pauli Marathon</p>
           <div
             style={{

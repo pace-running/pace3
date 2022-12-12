@@ -36,6 +36,7 @@ pub struct RunnerDetails {
     donation: String,
     payment: String,
     is_paid: bool,
+    tshirt_cost: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -207,6 +208,7 @@ pub async fn get_runner(
         donation: retrieved_runner.donation,
         payment: retrieved_runner.reason_for_payment,
         is_paid: retrieved_runner.payment_status,
+        tshirt_cost: retrieved_runner.tshirt_cost,
     });
 
     let inner_response = Response {

@@ -35,7 +35,7 @@ const StatusContent: React.FC<Props> = props => {
       >
         <div style={{ textAlign: 'left', display: 'inline-block' }}>
           <h2>ZAHLUNG</h2>
-          <h3>Spendenbetrag: {Number(props.statusContent?.donation) + Number(props.statusContent?.tshirt_cost)}€</h3>
+          <h3>Betrag: {Number(props.statusContent?.donation) + Number(props.statusContent?.tshirt_cost)}€</h3>
           {!props.statusContent?.is_paid && (
             <div
               style={{
