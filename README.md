@@ -18,16 +18,12 @@ and then start both front and backend applications in corresponding folders (`/f
 to restart the backend application after code change, exit with `ctrl + c` and start again with 
 `cargo run` so existing docker can be reused
 
-### Test
-to test admin functions with localhost `_: Identity` needs to be removed from argument in this file `backend/src/handlers/admin.rs`
+
 
 ### Access the different endpoints using a browser or curl:
+the frontend application runs on localhost:3000 but /admin doesn't work so now we use a proxy that routes to 
+localhost:8089. the admin username is `admin` and password is `xoh7Ongui4oo`
 
-`curl localhost:8080` should return "Hello World".
-
-`curl -X POST localhost 8080 -d [BODY]` should return the body passed in the POST request.
-
-`curl localhost:8080/hey` should return "Hey there!".
 
 ## Run script in backend
 
