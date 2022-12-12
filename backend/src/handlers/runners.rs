@@ -330,6 +330,7 @@ mod tests {
             runner_details: Option::from(RunnerDetails {
                 runner_id: created_runner.runner_id.unwrap(),
                 start_number: created_runner.start_number.unwrap().to_string(),
+                tshirt_cost: created_runner.tshirt_cost.unwrap(),
                 donation: created_runner.donation.unwrap(),
                 payment: created_runner.reason_for_payment.unwrap(),
                 is_paid: false,
