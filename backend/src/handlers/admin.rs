@@ -397,6 +397,7 @@ fn send_payment_confirmation_email(runner: &Runner) -> bool {
         email_value.to_string(),
         runner.donation.to_string(),
         verification_code,
+        runner.tshirt_cost.to_string(),
     )
 }
 

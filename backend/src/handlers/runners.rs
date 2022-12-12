@@ -162,6 +162,7 @@ pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
             returned_runner.donation.clone(),
             returned_runner.reason_for_payment.clone(),
             verification_code.clone(),
+            returned_runner.tshirt_cost.clone(),
         );
     }
 

@@ -38,6 +38,7 @@ pub fn send_registration_email(
     donation: String,
     reason_for_payment: String,
     verification_code: String,
+    tshirt_cost: String,
 ) -> bool {
     let email_details = EmailDetails {
         receiver_email,
@@ -46,7 +47,8 @@ pub fn send_registration_email(
         email_info: EmailInfo {
             runner_id,
             start_number,
-            donation,
+            donation: (donation.parse::<i32>().unwrap() + tshirt_cost.parse::<i32>().unwrap())
+                .to_string(),
             reason_for_payment,
             verification_code,
         },
@@ -60,6 +62,7 @@ pub fn send_payment_confirmation(
     receiver_email: String,
     donation: String,
     verification_code: String,
+    tshirt_cost: String,
 ) -> bool {
     let email_details = EmailDetails {
         receiver_email,
@@ -68,7 +71,8 @@ pub fn send_payment_confirmation(
         email_info: EmailInfo {
             runner_id,
             start_number,
-            donation,
+            donation: (donation.parse::<i32>().unwrap() + tshirt_cost.parse::<i32>().unwrap())
+                .to_string(),
             reason_for_payment: String::from(""),
             verification_code,
         },
