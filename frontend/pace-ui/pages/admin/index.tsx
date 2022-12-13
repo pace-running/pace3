@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { fetchAllRunners, change_payment_status } from '../../apis/api';
+import {change_payment_status, fetchFilteredRunners} from '../../apis/api';
 import Button from '../../components/Button';
 
 const Admin: NextPage = () => {
@@ -29,10 +29,10 @@ const Admin: NextPage = () => {
   useEffect(() => {
     const fetchRunners = async () => {
       if (!runnersLoaded) {
-        const response = await fetchAllRunners().catch(() => {});
+        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt).catch(() => {});
         if (response?.status === 200) {
           // set contents with response data
-          setRunnerList(response.data);
+          setRunnerList(response.data.runner_list);
           setRunnersLoaded(true);
         } else {
           router.push('/admin/login');

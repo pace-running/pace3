@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::Rng;
+use serde::Deserialize;
 use serde::Serialize;
 
 use crate::constants::{
@@ -29,7 +30,7 @@ pub struct NewRunner<'a> {
     pub tshirt_cost: &'a str,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Queryable, Serialize, Deserialize)]
 pub struct Runner {
     pub id: i32,
     pub start_number: i64,

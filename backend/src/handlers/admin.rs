@@ -15,6 +15,13 @@ use futures_util::stream::StreamExt as _;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+pub struct QueryInfo {
+    page_number: i32,
+    search_category: String,
+    search_keyword: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct FullRunnerDetails {
     runner_id: String,
     firstname: String,
@@ -80,6 +87,12 @@ pub struct FaultyTransaction {
     expected_amount: Option<String>,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct RunnerListResponse {
+    runner_list: Vec<Runner>,
+    total_number_rows: usize,
+}
+
 pub async fn check_password(
     request: HttpRequest,
     login_data: Json<LoginData>,
@@ -105,13 +118,21 @@ pub async fn check_password(
     }
 }
 
-pub async fn show_runners(_: Identity) -> Result<HttpResponse, Error> {
+pub async fn show_runners(
+    _: Identity,
+    params: web::Query<QueryInfo>,
+) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
-    let database_result = runners.load::<Runner>(connection);
+    let database_result = runners.load::<Runner>(connection).unwrap();
+    let total_number_rows = database_result.len();
+    let response = RunnerListResponse {
+        runner_list: database_result,
+        total_number_rows,
+    };
     Ok(HttpResponse::Ok()
         .content_type("text/json")
-        .body(serde_json::to_string(&database_result.unwrap()).unwrap()))
+        .body(serde_json::to_string(&response).unwrap()))
 }
 
 pub async fn modify_payment_status(
