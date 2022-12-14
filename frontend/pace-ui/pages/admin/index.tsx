@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import {change_payment_status, fetchFilteredRunners} from '../../apis/api';
+import { change_payment_status, fetchFilteredRunners } from '../../apis/api';
 import Button from '../../components/Button';
 
 const Admin: NextPage = () => {

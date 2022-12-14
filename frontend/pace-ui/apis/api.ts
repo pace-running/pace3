@@ -21,7 +21,7 @@ export async function fetchAllRunners() {
 
 export async function fetchFilteredRunners(page_number: number, search_category: string, search_keyword: string) {
   return await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/runners`, {
-    params: { page_number,  search_category, search_keyword },
+    params: { page_number, search_category, search_keyword },
     headers: { 'content-type': 'application/json' }
   });
 }

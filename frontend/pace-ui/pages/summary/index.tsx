@@ -49,7 +49,7 @@ const SummaryPage: NextPage = () => {
     if (formData) {
       setFormData(formData);
     }
-    console.log(`Tshirt cost in formData: ${formData.tshirt_cost}`);
+    // console.log(`Tshirt cost in formData: ${formData.tshirt_cost}`);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -153,16 +153,22 @@ const SummaryPage: NextPage = () => {
           <p>Spendenbeitrag: {formData?.donation}€</p>
           {formData?.tshirt_toggle && (
             <div>
-              <p>Tshirt-Kosten: 15 €</p>
+              <p>T-Shirt-Kosten: 15 €</p>
               <p>
                 Versand:{' '}
-                {formData?.tshirt_cost === 15 ? 'kostenlos (innerhalb Deutschland)' : formData.tshirt_cost - 15}€
+                {formData?.tshirt_cost === 15
+                  ? 'kostenlos (innerhalb Deutschland)'
+                  : (formData.tshirt_cost - 15).toString() + '€'}
               </p>
             </div>
           )}
           <hr></hr>
           <p style={{ fontWeight: 'bold' }}>
-            Zu zahlen: {formData?.donation && formData?.tshirt_cost ? formData?.donation + formData?.tshirt_cost : ''}€
+            Zu zahlen:{' '}
+            {formData?.donation && formData?.tshirt_cost
+              ? formData?.donation + formData?.tshirt_cost
+              : formData?.donation}
+            €
           </p>
         </div>
         <div style={{ textAlign: 'center' }}>

@@ -29,7 +29,7 @@ const Join: NextPage = () => {
   const [shippingRegion, setShippingRegion] = useState('');
 
   const submitForm = (values: JoinFormValues) => {
-    console.log(`Tshirt_cost when submitting join: ${values.tshirt_cost}`);
+    // console.log(`Tshirt_cost when submitting join: ${values.tshirt_cost}`);
     setJoinFormData(values);
     router.push('/summary');
   };
@@ -176,7 +176,10 @@ const Join: NextPage = () => {
             check={values.tshirt_toggle}
             label={'Ich möchte ein T-Shirt (Kosten: 15€)'}
             role='switch'
-            onChange={() => setFieldValue('tshirt_toggle', !values.tshirt_toggle)}
+            onChange={() => {
+              if (values.tshirt_toggle) setFieldValue('tshirt_cost', 0);
+              setFieldValue('tshirt_toggle', !values.tshirt_toggle);
+            }}
           />
 
           {values.tshirt_toggle && (
