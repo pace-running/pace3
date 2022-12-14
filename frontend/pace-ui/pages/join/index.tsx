@@ -59,6 +59,14 @@ const Join: NextPage = () => {
     }
   }, [joinFormData]);
 
+  const update_tshirt_cost = (toggle: boolean, region: string) => {
+    if (toggle) {
+      if (region === 'de') setFieldValue('tshirt_cost', 15);
+      if (region === 'eu') setFieldValue('tshirt_cost', 17);
+      if (region === 'non-eu') setFieldValue('tshirt_cost', 20);
+    } else setFieldValue('tshirt_cost', 0);
+  };
+
   return (
     <BaseLayout pageTitle='Anmeldung'>
       <form onSubmit={handleSubmit}>
@@ -177,7 +185,7 @@ const Join: NextPage = () => {
             label={'Ich möchte ein T-Shirt (Kosten: 15€)'}
             role='switch'
             onChange={() => {
-              if (values.tshirt_toggle) setFieldValue('tshirt_cost', 0);
+              update_tshirt_cost(!values.tshirt_toggle, shippingRegion);
               setFieldValue('tshirt_toggle', !values.tshirt_toggle);
             }}
           />
@@ -216,9 +224,7 @@ const Join: NextPage = () => {
                   if (value === 'de') setFieldValue('country', 'Deutschland');
                   if (value === 'non-eu') setFieldValue('country', '');
                   setShippingRegion(value);
-                  if (value === 'de') setFieldValue('tshirt_cost', 15);
-                  if (value === 'eu') setFieldValue('tshirt_cost', 17);
-                  if (value === 'non-eu') setFieldValue('tshirt_cost', 20);
+                  update_tshirt_cost(true, value);
                 }}
                 default={shippingRegion}
               />
