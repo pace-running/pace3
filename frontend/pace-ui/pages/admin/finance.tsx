@@ -1,6 +1,8 @@
 import { NextPage } from 'next';
+import router from 'next/router';
 import { useState } from 'react';
 import { upload_payment_csv } from '../../apis/api';
+import Button from '../../components/Button';
 
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
@@ -9,10 +11,10 @@ const Finance: NextPage = () => {
 
   const allowedExtensions = ['csv'];
 
-  const handleFileChange = (e: any) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError('');
-    if (e.target.files.length) {
-      const inputFile = e.target.files[0];
+    if (e.currentTarget.files?.length) {
+      const inputFile = e.currentTarget.files[0];
       const fileExtension = inputFile?.type.split('/')[1];
       if (!allowedExtensions.includes(fileExtension)) {
         setError('Die Datei muss im .csv-Format sein!');
@@ -39,6 +41,17 @@ const Finance: NextPage = () => {
   return (
     <div style={{ margin: '50px' }}>
       <h1>Finanzen</h1>
+      <Button
+        name={'back-btn-admin'}
+        label={'Zurück zum Adminbereich'}
+        type={'button'}
+        onClick={() => {
+          router.push('/admin');
+        }}
+      />
+      <br />
+      <br />
+      <h2>Zahlungsinformationen Einlesen</h2>
       <div>
         <label htmlFor='csvInput' style={{ display: 'block' }}>
           Hier .csv-Datei einfügen:

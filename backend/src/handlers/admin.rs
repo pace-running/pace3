@@ -1,7 +1,6 @@
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
-use crate::schema::runners::reason_for_payment;
 use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_shipping, retrieve_donation_by_reason_for_payment,
