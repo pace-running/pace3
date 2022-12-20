@@ -11,20 +11,9 @@ const Admin: NextPage = () => {
   const [searchPrompt, setSearchPrompt] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSelectorContent, setPageSelectorContent] = useState(1);
+  const [stats, setStats] = useState([0, 0, 0]);
 
   const rowsPerPage = 15;
-
-  const filterRunnerList = function () {
-    if (searchCategory === 'name') {
-      setRunnerList(runnerList?.filter(runner => (runner.firstname + ' ' + runner.lastname).includes(searchPrompt)));
-    } else if (searchCategory === 'start_number') {
-      setRunnerList(runnerList?.filter(runner => runner.start_number == searchPrompt));
-    } else if (searchCategory === 'email') {
-      setRunnerList(runnerList?.filter(runner => runner.email.includes(searchPrompt)));
-    } else if (searchCategory === 'reason_for_payment') {
-      setRunnerList(runnerList?.filter(runner => runner.reason_for_payment.includes(searchPrompt)));
-    }
-  };
 
   useEffect(() => {
     const fetchRunners = async () => {
@@ -33,15 +22,16 @@ const Admin: NextPage = () => {
         if (response?.status === 200) {
           // set contents with response data
           setRunnerList(response.data.runner_list);
+          setStats([response.data.stats_number, response.data.stats_hamburg, response.data.stats_total_donation]);
           setRunnersLoaded(true);
         } else {
           router.push('/admin/login');
         }
       }
     };
-    filterRunnerList();
+    // filterRunnerList();
     fetchRunners();
-  }, [runnersLoaded]);
+  }, [runnersLoaded, currentPage]);
 
   const radioChange = (e: { target: { value: React.SetStateAction<string> } }) => setSearchCategory(e.target.value);
 
@@ -59,16 +49,9 @@ const Admin: NextPage = () => {
       <div>
         <h4>Statistiken:</h4>
         <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
-        <p>Läufer gesamt: {runnerList?.length}</p>
-        <p>
-          Läufer, die Hamburg starten:{' '}
-          {runnerList &&
-            runnerList.reduce<number>(
-              (acc: number, r: RunnerResponseData) => (r.starting_point === 'hamburg' ? acc + 1 : acc),
-              0
-            )}
-        </p>
-        <p>Spenden gesamt: {runnerList && runnerList.reduce<number>((acc, r) => acc + Number(r.donation), 0)}</p>
+        <p>Läufer gesamt: {stats[0]}</p>
+        <p>Läufer, die Hamburg starten: {stats[1]}</p>
+        <p>Spenden gesamt: {stats[2]}</p>
 
         <h3>Suche:</h3>
         <div style={{ marginBottom: '20px' }}>
@@ -150,24 +133,26 @@ const Admin: NextPage = () => {
           <Button
             name={'btn-page-down'}
             label={'⬅'}
-            disabled={currentPage === 1}
+            disabled={currentPage <= 1}
             type={'button'}
             styling={'admin-btn'}
             onClick={() => {
               setCurrentPage(currentPage - 1);
+              setRunnersLoaded(false);
             }}
           />
           &nbsp;&nbsp;&nbsp;
-          {currentPage}/{runnerList ? Math.max(1, Math.ceil(runnerList?.length / rowsPerPage)) : 1}
+          {currentPage}/{runnerList ? Math.max(1, Math.ceil(stats[0] / rowsPerPage)) : 1}
           &nbsp;&nbsp;&nbsp;
           <Button
             name={'btn-page-up'}
             label={'➡️'}
-            disabled={currentPage * rowsPerPage >= (runnerList ? runnerList?.length : 0)}
+            disabled={currentPage * rowsPerPage >= stats[0]}
             type={'button'}
             styling={'admin-btn'}
             onClick={() => {
               setCurrentPage(currentPage + 1);
+              setRunnersLoaded(false);
             }}
           />
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -186,7 +171,7 @@ const Admin: NextPage = () => {
             type={'button'}
             label={'Gehe zu Seite'}
             onClick={() => {
-              const maxPage = runnerList ? Math.ceil(runnerList?.length / rowsPerPage) : 1;
+              const maxPage = Math.ceil(stats[0] / rowsPerPage);
               let targetPage = pageSelectorContent;
               if (Number.isNaN(pageSelectorContent) || pageSelectorContent < 1) targetPage = 1;
               if (pageSelectorContent > maxPage) targetPage = maxPage;
@@ -213,51 +198,48 @@ const Admin: NextPage = () => {
           </tr>
         </thead>
         <tbody>
-          {runnerList
-            ?.sort((a, b) => (a.id > b.id ? 1 : -1))
-            ?.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
-            ?.map((runner, key) => {
-              return (
-                <tr key={key}>
-                  <td>{runner.id}</td>
-                  <td>{runner.start_number}</td>
-                  <td>
-                    {runner.firstname} {runner.lastname}
-                  </td>
-                  <td>{runner.team}</td>
-                  <td>{runner.email}</td>
-                  <td>{runner.donation}</td>
-                  <td>{runner.reason_for_payment}</td>
-                  <td>
-                    <Button
-                      name={`btn-confirm-payment-${runner.id}`}
-                      label={runner.payment_status ? 'Bezahlt' : 'Nicht bezahlt'}
-                      styling={runner.payment_status ? 'paid-btn' : 'not-paid-btn'}
-                      type={'button'}
-                      onClick={() => {
-                        console.log(`Changed status of runner ${runner.id}`);
-                        change_payment_status(runner.id.toString(), !runner.payment_status).then(() =>
-                          setRunnersLoaded(false)
-                        );
-                      }}
-                    />
-                  </td>
-                  <td>
-                    <Button
-                      name={`btn-edit-runner-${runner.id}`}
-                      label={'Bearbeiten'}
-                      type={'button'}
-                      onClick={() => {
-                        router.push({
-                          pathname: '/admin/edit',
-                          query: { id: runner.id.toString() }
-                        });
-                      }}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
+          {runnerList?.map((runner, key) => {
+            return (
+              <tr key={key}>
+                <td>{runner.id}</td>
+                <td>{runner.start_number}</td>
+                <td>
+                  {runner.firstname} {runner.lastname}
+                </td>
+                <td>{runner.team}</td>
+                <td>{runner.email}</td>
+                <td>{runner.donation}</td>
+                <td>{runner.reason_for_payment}</td>
+                <td>
+                  <Button
+                    name={`btn-confirm-payment-${runner.id}`}
+                    label={runner.payment_status ? 'Bezahlt' : 'Nicht bezahlt'}
+                    styling={runner.payment_status ? 'paid-btn' : 'not-paid-btn'}
+                    type={'button'}
+                    onClick={() => {
+                      console.log(`Changed status of runner ${runner.id}`);
+                      change_payment_status(runner.id.toString(), !runner.payment_status).then(() =>
+                        setRunnersLoaded(false)
+                      );
+                    }}
+                  />
+                </td>
+                <td>
+                  <Button
+                    name={`btn-edit-runner-${runner.id}`}
+                    label={'Bearbeiten'}
+                    type={'button'}
+                    onClick={() => {
+                      router.push({
+                        pathname: '/admin/edit',
+                        query: { id: runner.id.toString() }
+                      });
+                    }}
+                  />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div style={{ height: '100px' }}></div>

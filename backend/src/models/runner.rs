@@ -30,7 +30,7 @@ pub struct NewRunner<'a> {
     pub tshirt_cost: &'a str,
 }
 
-#[derive(Queryable, Serialize, Deserialize)]
+#[derive(Queryable, Serialize, Deserialize, Clone)]
 pub struct Runner {
     pub id: i32,
     pub start_number: i64,

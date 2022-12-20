@@ -1,6 +1,7 @@
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
+use crate::schema::runners::reason_for_payment;
 use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_shipping, retrieve_donation_by_reason_for_payment,
@@ -90,7 +91,9 @@ pub struct FaultyTransaction {
 #[derive(Deserialize, Serialize)]
 pub struct RunnerListResponse {
     runner_list: Vec<Runner>,
-    total_number_rows: usize,
+    stats_number: usize,
+    stats_hamburg: i32,
+    stats_total_donation: i32,
 }
 
 pub async fn check_password(
@@ -124,15 +127,64 @@ pub async fn show_runners(
 ) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
     let connection = &mut establish_connection();
+    let rows_per_page = 15;
+    let query_info = params.into_inner();
+    let page_number = query_info.page_number;
+    let search_cat = query_info.search_category;
+    let search_keyword = query_info.search_keyword;
+
     let database_result = runners.load::<Runner>(connection).unwrap();
-    let total_number_rows = database_result.len();
+    let mut filtered_result = apply_search_filter(&database_result, search_cat, search_keyword);
+
+    let stats_number = filtered_result.len();
+    let mut stats_hamburg = 0;
+    let mut stats_total_donation = 0;
+    for r in &filtered_result {
+        if r.starting_point == "hamburg" {
+            stats_hamburg += 1;
+        }
+        stats_total_donation += r.donation.parse().unwrap_or(0);
+    }
+    let last_index = std::cmp::min(
+        page_number * rows_per_page,
+        stats_number.try_into().unwrap(),
+    );
+    filtered_result.sort_by(|a, b| a.id.partial_cmp(&b.id).unwrap());
+
     let response = RunnerListResponse {
-        runner_list: database_result,
-        total_number_rows,
+        runner_list: filtered_result
+            [((page_number - 1) * rows_per_page) as usize..(last_index as usize)]
+            .to_vec(),
+        stats_number,
+        stats_hamburg,
+        stats_total_donation,
     };
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&response).unwrap()))
+}
+
+fn apply_search_filter(old_list: &Vec<Runner>, cat: String, key: String) -> Vec<Runner> {
+    let mut list = old_list.to_owned();
+    if cat == "name" {
+        list.retain(|r| {
+            let full_name = format!(
+                "{} {}",
+                r.firstname.clone().unwrap_or("".to_string()),
+                r.lastname.clone().unwrap_or("".to_string())
+            );
+            full_name.contains(&key)
+        });
+    } else if cat == "start_number" {
+        let key_number = key.parse::<i64>().unwrap_or(0);
+        list.retain(|r| r.start_number == key_number);
+    } else if cat == "email" {
+        list.retain(|r| r.email.as_ref().unwrap().contains(&key));
+    } else if cat == "reason_for_payment" {
+        let uc_key = key.to_uppercase();
+        list.retain(|r| r.reason_for_payment.contains(&uc_key));
+    }
+    list
 }
 
 pub async fn modify_payment_status(
@@ -290,7 +342,6 @@ pub async fn parse_payment_csv(
 
     let mut faulty_transaction_list: Vec<FaultyTransaction> = Vec::new();
     for record in reader.byte_records() {
-        // TODO: use dynamic way to determine that relevant rows have benn reached
         let record = record.unwrap_or_default();
 
         let faulty_transaction = register_payment(&String::from_utf8_lossy(record.as_slice()));
