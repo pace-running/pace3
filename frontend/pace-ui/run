@@ -68,10 +68,17 @@ task_tsc() {
   npm run tsc
 }
 
+##DOC test - Run testing via Jest
+task_test() {
+  log_running_command "running tests..."
+  npm test
+}
+
 ##DOC quality_check - Static check (lint) and testing
 task_quality_check() {
   task_lint
   task_tsc
+  task_test
 }
 
 ###############################################################################
