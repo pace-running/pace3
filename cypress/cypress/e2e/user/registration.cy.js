@@ -1,14 +1,14 @@
 /// <reference types="Cypress" />
 
 
-describe('should fill in registration form', () => {
+describe('registration form', () => {
 
 
     it('fills in basic information of runner', function () {
 
 
         cy.visit("https://pace3.lauf-gegen-rechts.de/")
-        cy.get('[style="position:absolute;right:5%;border:1px solid white"] > .brownbg').click()
+        cy.get('#header-button-registration').click()
 
         cy.get(':nth-child(3) > .input-group > .form-control')
             .type('Vorname')
