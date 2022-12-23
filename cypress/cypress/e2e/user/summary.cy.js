@@ -1,6 +1,6 @@
 describe('should visit summary page', () => {
     before(() => {
-        cy.visit("http://localhost:8089/join");
+        cy.visit("https://pace3.lauf-gegen-rechts.de/join");
         cy.get(':nth-child(10) > .input-group > .form-control')
             .clear()
             .type('5')
