@@ -18,7 +18,7 @@ const Header: React.FC = () => {
       </div>
       <div style={{ position: 'absolute', right: '5%', border: '1px solid white' }}>
         <button
-        id='header-button-registration'
+          id='header-button-registration'
           className='brownbg'
           onClick={e => {
             e.preventDefault();
