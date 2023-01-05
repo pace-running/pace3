@@ -14,7 +14,7 @@ export const JoinFormSchema = Yup.object().shape({
     .min(2, 'Nachname muss mindestens zwei Zeichen enthalten!')
     .max(50, 'Nachname darf maximal 50 Zeichen enthalten!'),
   team: Yup.string(),
-  email: Yup.string().email(),
+  email: Yup.string().email('E-Mail muss zulässige E-Mail-Adresse sein!'),
   repeated_email: Yup.string().test({
     message: 'E-Mail Adressen müssen übereinstimmen!',
     test: function (value) {
