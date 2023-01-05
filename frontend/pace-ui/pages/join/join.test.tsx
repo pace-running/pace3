@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Join from '.';
+import React from 'react';
 
 describe('testing of the registration page', () => {
   beforeEach(() => {
