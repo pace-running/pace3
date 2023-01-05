@@ -35,7 +35,29 @@ const Join: NextPage = () => {
   };
 
   const { handleChange, setFieldValue, values, handleSubmit, errors } = useFormik<JoinFormValues>({
-    initialValues: { donation: 10, tshirt_cost: 0, tshirt_toggle: false, tos_confirmed: false },
+    initialValues: {
+      tshirt_cost: 0,
+      tshirt_toggle: false,
+      tos_confirmed: false,
+      firstname: '',
+      lastname: '',
+      team: '',
+      email: '',
+      repeated_email: '',
+      starting_point: '',
+      running_level: '',
+      donation: 10,
+      tshirt_model: '',
+      tshirt_size: '',
+      country: '',
+      address_firstname: '',
+      address_lastname: '',
+      street_name: '',
+      house_number: '',
+      address_extra: '',
+      postal_code: '',
+      city: ''
+    },
     validationSchema: JoinFormSchema,
     onSubmit: submitForm
   });
