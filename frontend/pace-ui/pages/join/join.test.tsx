@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import Join from '.';
 import React from 'react';
-import { wait } from '@testing-library/user-event/dist/types/utils';
+
 
 describe('testing of the registration page', () => {
   beforeEach(() => {
@@ -35,10 +35,40 @@ describe('testing of the registration page', () => {
       expect(screen.getByText('E-Mail Adressen müssen übereinstimmen!'));
       await user.type(emailConfirmInput, 'email@example.com');
       // empty timeout needed, otherwise test does not wait for error message to disappear
-      await new Promise((r) => setTimeout(r,0));
+      await new Promise((r) => setTimeout(r, 0));
       await expect(screen.queryByText('E-Mail Adressen müssen übereinstimmen!')).not.toBeInTheDocument();
     });
 
+    test('dropdown menu should display obligatory options', () => {
+      const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
+      const runningLevelDropdown = screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' });
+
+      expect(startingPointDropdown).toHaveTextContent('Bitte auswählen');
+      expect(runningLevelDropdown).toHaveTextContent('Bitte auswählen');
+
+      expect(startingPointDropdown.children[1]).toHaveTextContent('in Hamburg bei der Alster vor Ort');
+      expect(startingPointDropdown.children[2]).toHaveTextContent('woanders');
+
+      expect(runningLevelDropdown.children[1]).toHaveTextContent('Ich laufe selten');
+      expect(runningLevelDropdown.children[2]).toHaveTextContent('Ich laufe gelegentlich bis regelmäßig');
+      expect(runningLevelDropdown.children[3]).toHaveTextContent('Ich laufe häufig und ambitioniert');
+
+
+    });
+    test('should check edge cases for donation field', async () => {
+      const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
+      const user = userEvent.setup();
+
+      expect(donationInput).toHaveValue(10);
+
+      (donationInput as HTMLInputElement).value = '';
+      await expect(screen.findByText('Bitte geben Sie einen Spendenbetrag an!'));
+
+      await user.type(donationInput, '4');
+      expect(donationInput).toHaveValue(4);
+      await expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
+
+    });
   });
 
   describe('submit button', () => {
@@ -53,3 +83,7 @@ describe('testing of the registration page', () => {
     });
   });
 });
+
+
+
+
