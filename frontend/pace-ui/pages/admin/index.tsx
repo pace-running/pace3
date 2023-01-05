@@ -119,6 +119,7 @@ const Admin: NextPage = () => {
               label={'Start search'}
               type={'button'}
               onClick={() => {
+                setCurrentPage(1);
                 setRunnersLoaded(false);
               }}
             />
@@ -177,6 +178,7 @@ const Admin: NextPage = () => {
               if (pageSelectorContent > maxPage) targetPage = maxPage;
               setPageSelectorContent(targetPage);
               setCurrentPage(targetPage);
+              setRunnersLoaded(false);
             }}
           />
         </span>
