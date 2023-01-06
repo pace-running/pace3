@@ -30,7 +30,7 @@ export const JoinFormSchema = Yup.object().shape({
   tshirt_toggle: Yup.boolean(),
   tshirt_model: Yup.string().when('tshirt_toggle', {
     is: true,
-    then: Yup.string().required('Bitte geben Sie die Lieferadresse an!')
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
   }),
   tshirt_size: requiredTShirtField,
   country: requiredTShirtField,
