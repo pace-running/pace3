@@ -61,7 +61,7 @@ describe('testing of the registration page', () => {
 
       expect(donationInput).toHaveValue(10);
 
-      (donationInput as HTMLInputElement).value = '';
+      (donationInput).value = '';
       await expect(screen.findByText('Bitte geben Sie einen Spendenbetrag an!'));
 
       await user.type(donationInput, '4');
