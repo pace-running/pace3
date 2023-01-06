@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { describe, expect, test } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -11,8 +10,9 @@ describe('testing of the registration page', () => {
   beforeEach(() => {
     render(<Join />);
   });
+  const user = userEvent.setup();
 
-  describe('basic information displayed', () => {
+  describe('basic registration form displayed', () => {
     test('loads and displays join page', () => {
       expect(screen.getByText('Lauf gegen Rechts'));
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
@@ -26,7 +26,6 @@ describe('testing of the registration page', () => {
     test('email input field should display correct error messages', async () => {
       const emailInput = screen.getByRole('textbox', { name: 'Email' });
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
-      const user = userEvent.setup();
 
       await user.type(emailInput, 'email');
       expect(screen.getByText('E-Mail muss zulässige E-Mail-Adresse sein!'));
@@ -35,7 +34,7 @@ describe('testing of the registration page', () => {
       expect(screen.getByText('E-Mail Adressen müssen übereinstimmen!'));
       await user.type(emailConfirmInput, 'email@example.com');
       // empty timeout needed, otherwise test does not wait for error message to disappear
-      await new Promise((r) => setTimeout(r, 0));
+      await new Promise(r => setTimeout(r, 0));
       await expect(screen.queryByText('E-Mail Adressen müssen übereinstimmen!')).not.toBeInTheDocument();
     });
 
@@ -52,22 +51,81 @@ describe('testing of the registration page', () => {
       expect(runningLevelDropdown.children[1]).toHaveTextContent('Ich laufe selten');
       expect(runningLevelDropdown.children[2]).toHaveTextContent('Ich laufe gelegentlich bis regelmäßig');
       expect(runningLevelDropdown.children[3]).toHaveTextContent('Ich laufe häufig und ambitioniert');
-
-
     });
+
     test('should check edge cases for donation field', async () => {
       const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
-      const user = userEvent.setup();
 
       expect(donationInput).toHaveValue(10);
 
-      (donationInput).value = '';
+      donationInput.value = '';
       await expect(screen.findByText('Bitte geben Sie einen Spendenbetrag an!'));
 
       await user.type(donationInput, '4');
       expect(donationInput).toHaveValue(4);
-      await expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
+      expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
+    });
+  });
 
+  describe('Tshirt form displayed', () => {
+    test('should display preview modal window after clicking corresponding button', async () => {
+      await user.click(screen.getByRole('button', { name: 'Vorschau' }));
+      expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument();
+      expect(screen.getByRole('img', { name: 'T-shirt Preview' })).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      expect(screen.queryByText('T-Shirt Vorschau')).not.toBeInTheDocument();
+      expect(screen.queryByRole('img', { name: 'T-shirt Preview' })).not.toBeInTheDocument();
+    });
+
+    test('should display modal window with size tables', async () => {
+      // Can't really test the carousel behavior because jest sees all carousel pages all the time
+      await user.click(screen.getByRole('button', { name: 'Größentabelle' }));
+      expect(screen.getByText('T-Shirt Größentabelle')).toBeInTheDocument();
+      expect(screen.getByText('Tailliert')).toBeInTheDocument();
+      expect(screen.getAllByText('XL')).toHaveLength(2);
+      expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Previous' })).toBeInTheDocument();
+      expect(screen.getByText('Unisex')).toBeInTheDocument();
+      expect(screen.getByText('XXL')).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      expect(screen.queryByText('T-Shirt Größentabelle')).not.toBeInTheDocument();
+    });
+
+    test('Toggling the Tshirt option shows / hides the shipping information fields', async () => {
+      expect(screen.queryByText('Modell')).not.toBeInTheDocument();
+      expect(screen.queryByText('Größe')).not.toBeInTheDocument();
+      expect(screen.queryByText('Lieferanschrift')).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+
+      expect(screen.queryByText('Modell')).toBeInTheDocument();
+      expect(screen.queryByText('Größe')).toBeInTheDocument();
+      expect(screen.queryByText('Lieferanschrift')).toBeInTheDocument();
+
+      await new Promise(r => setTimeout(r, 0));
+      expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+    });
+
+    test('entering shipping information hides error message', async () => {
+      await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
+      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
+      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
+        'EU-Ausland (Versandkosten: 2€)'
+      ]);
+      await new Promise(r => setTimeout(r, 0));
+      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
+
+      await user.type(screen.getByRole('textbox', { name: 'Vorname *' }), 'Niklas');
+      await user.type(screen.getByRole('textbox', { name: 'Nachname *' }), 'Niklas');
+      await user.type(screen.getByRole('textbox', { name: 'Straße *' }), 'Niklas');
+      await user.type(screen.getByRole('textbox', { name: 'Hausnummer *' }), 'Niklas');
+      await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
+      await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
+
+      await new Promise(r => setTimeout(r, 0));
+      expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
     });
   });
 
@@ -77,13 +135,9 @@ describe('testing of the registration page', () => {
     });
 
     test('accepting terms and conditions enables submit button', async () => {
-      const user = userEvent.setup();
+      console.log(screen.queryByRole('combobox', { name: 'Von wo wirst du laufen? *' })?.textContent);
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled();
     });
   });
 });
-
-
-
-
