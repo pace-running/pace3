@@ -109,6 +109,9 @@ describe('testing of the registration page', () => {
 
     test('entering shipping information hides error message', async () => {
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      await new Promise(r => setTimeout(r, 0));
+      expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
@@ -127,6 +130,34 @@ describe('testing of the registration page', () => {
       await new Promise(r => setTimeout(r, 0));
       expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
     });
+
+    test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
+      await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+
+      const modelDropdown = screen.getByRole('combobox', {name: 'Modell'});
+      const sizeDropdown = screen.getByRole('combobox', {name: 'Größe'});
+      
+      await userEvent.selectOptions(modelDropdown, ['Unisex']);
+      expect(sizeDropdown.children[1]).toHaveTextContent('S');
+      expect(sizeDropdown.children[2]).toHaveTextContent('M');
+      expect(sizeDropdown.children[3]).toHaveTextContent('L');
+      expect(sizeDropdown.children[4]).toHaveTextContent('XL');
+      expect(sizeDropdown.children[5]).toHaveTextContent('XXL');
+      await userEvent.selectOptions(sizeDropdown, ['XXL']);
+      await userEvent.selectOptions(modelDropdown, ['Tailliert']);
+      expect(screen.queryByText('XXL')).not.toBeInTheDocument();
+     
+      expect(sizeDropdown.children[1]).toHaveTextContent('S');
+      expect(sizeDropdown.children[2]).toHaveTextContent('M');
+      expect(sizeDropdown.children[3]).toHaveTextContent('L');
+      expect(sizeDropdown.children[4]).toHaveTextContent('XL');
+
+      expect(sizeDropdown.children).toHaveLength(5);
+
+    });
+
+  
+
   });
 
   describe('submit button', () => {
@@ -135,7 +166,6 @@ describe('testing of the registration page', () => {
     });
 
     test('accepting terms and conditions enables submit button', async () => {
-      console.log(screen.queryByRole('combobox', { name: 'Von wo wirst du laufen? *' })?.textContent);
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled();
     });
