@@ -28,3 +28,4 @@ const JoinFormProvider: React.FC<any> = ({ children }) => {
 export const useJoinFormContext = () => useContext(JoinFormContext);
 
 export default JoinFormProvider;
+export { JoinFormContext };

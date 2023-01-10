@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Join from '.';
@@ -41,9 +41,10 @@ describe('testing of the registration page', () => {
       expect(screen.queryByText('E-Mail muss zulässige E-Mail-Adresse sein!')).not.toBeInTheDocument();
       expect(screen.getByText('E-Mail Adressen müssen übereinstimmen!'));
       await user.type(emailConfirmInput, 'email@example.com');
-      // empty timeout needed, otherwise test does not wait for error message to disappear
-      await new Promise(r => setTimeout(r, 0));
-      await expect(screen.queryByText('E-Mail Adressen müssen übereinstimmen!')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.queryByText('E-Mail Adressen müssen übereinstimmen!')).not.toBeInTheDocument();
+      });
     });
 
     test('dropdown menu should display obligatory options', () => {
@@ -73,8 +74,9 @@ describe('testing of the registration page', () => {
       expect(donationInput).toHaveValue(4);
       expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
       await user.type(donationInput, '0');
-      await new Promise(r => setTimeout(r, 0));
-      expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -114,23 +116,24 @@ describe('testing of the registration page', () => {
       expect(screen.queryByText('Größe')).toBeInTheDocument();
       expect(screen.queryByText('Lieferanschrift')).toBeInTheDocument();
 
-      await new Promise(r => setTimeout(r, 0));
-      expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+      await waitFor(() => {
+        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+      });
     });
 
     test('entering shipping information hides error message', async () => {
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      await new Promise(r => setTimeout(r, 0));
-      expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
-
+      await waitFor(() => {
+        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+      });
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
         'EU-Ausland (Versandkosten: 2€)'
       ]);
-      await new Promise(r => setTimeout(r, 0));
-      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
-
+      await waitFor(() => {
+        userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
+      });
       await user.type(screen.getByRole('textbox', { name: 'Vorname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Nachname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Straße *' }), 'Niklas');
@@ -138,16 +141,17 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
 
-      await new Promise(r => setTimeout(r, 0));
-      expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
+      });
     });
 
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
-      const modelDropdown = screen.getByRole('combobox', {name: 'Modell'});
-      const sizeDropdown = screen.getByRole('combobox', {name: 'Größe'});
-      
+      const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
+      const sizeDropdown = screen.getByRole('combobox', { name: 'Größe' });
+
       await userEvent.selectOptions(modelDropdown, ['Unisex']);
       expect(sizeDropdown.children[1]).toHaveTextContent('S');
       expect(sizeDropdown.children[2]).toHaveTextContent('M');
@@ -157,18 +161,14 @@ describe('testing of the registration page', () => {
       await userEvent.selectOptions(sizeDropdown, ['XXL']);
       await userEvent.selectOptions(modelDropdown, ['Tailliert']);
       expect(screen.queryByText('XXL')).not.toBeInTheDocument();
-     
+
       expect(sizeDropdown.children[1]).toHaveTextContent('S');
       expect(sizeDropdown.children[2]).toHaveTextContent('M');
       expect(sizeDropdown.children[3]).toHaveTextContent('L');
       expect(sizeDropdown.children[4]).toHaveTextContent('XL');
 
       expect(sizeDropdown.children).toHaveLength(5);
-
     });
-
-  
-
   });
 
   describe('submit button', () => {
