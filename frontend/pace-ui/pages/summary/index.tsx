@@ -107,7 +107,7 @@ const SummaryPage: NextPage = () => {
 
           {formData?.running_level === 'rarely' ? (
             <p>Laufniveau: Ich laufe selten.</p>
-          ) : formData?.running_level === 'often' ? (
+          ) : formData?.running_level === 'sometimes' ? (
             <p>Laufniveau: Ich laufe gelegentlich bis regelmäßig.</p>
           ) : (
             <p>Laufniveau: Ich laufe häufig und ambitioniert.</p>
@@ -128,8 +128,7 @@ const SummaryPage: NextPage = () => {
               {formData?.tshirt_model === 'unisex' ? <p>Modell: Unisex</p> : <p>Modell: Tailliert</p>}
 
               <p>
-                Größe:
-                <span style={{ textTransform: 'uppercase' }}> {formData?.tshirt_size}</span>
+                {`Größe: ${formData?.tshirt_size?.toUpperCase()}`}
               </p>
             </div>
             <div style={{ textAlign: 'left', padding: '20px' }}>
@@ -153,7 +152,7 @@ const SummaryPage: NextPage = () => {
           <p>Spendenbeitrag: {formData?.donation}€</p>
           {formData?.tshirt_toggle && (
             <div>
-              <p>T-Shirt-Kosten: 15 €</p>
+              <p>T-Shirt-Kosten: 15€</p>
               <p>
                 Versand:{' '}
                 {formData?.tshirt_cost === 15
@@ -182,7 +181,7 @@ const SummaryPage: NextPage = () => {
             styling={'brownbg'}
           />
           {'   '}
-          <Button name={'submitButton'} label={'Anmelden'} type={'submit'} onClick={handleSubmit} styling={'brownbg'} />
+          <Button name={'submitButton'} label={'Anmeldung bestätigen'} type={'submit'} onClick={handleSubmit} styling={'brownbg'} />
         </div>
       </div>
     </BaseLayout>
