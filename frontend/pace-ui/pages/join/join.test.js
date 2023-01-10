@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import Join from '.';
 import React from 'react';
 
-
 describe('testing of the registration page', () => {
   beforeEach(() => {
     render(<Join />);
@@ -20,7 +19,16 @@ describe('testing of the registration page', () => {
     });
 
     test('initially text fields should be empty', () => {
-      expect(screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' })).toHaveTextContent('');
+      const names = [
+        'Vorname (erscheint auf der Startnummer)',
+        'Nachname',
+        'Team Name (erscheint auf der Startnummer)',
+        'Email',
+        'Email wiederholen'
+      ];
+      for (const name of names) {
+        expect(screen.getByRole('textbox', { name: name })).toHaveTextContent('');
+      }
     });
 
     test('email input field should display correct error messages', async () => {
@@ -64,6 +72,9 @@ describe('testing of the registration page', () => {
       await user.type(donationInput, '4');
       expect(donationInput).toHaveValue(4);
       expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
+      await user.type(donationInput, '0');
+      await new Promise(r => setTimeout(r, 0));
+      expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument();
     });
   });
 
@@ -168,6 +179,10 @@ describe('testing of the registration page', () => {
     test('accepting terms and conditions enables submit button', async () => {
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled();
+    });
+
+    test('link to privacy notice', () => {
+      expect(screen.getByRole('link', { name: 'Datenschutzbestimmungen' })).toHaveAttribute('href', '/privacy_notice');
     });
   });
 });
