@@ -6,6 +6,7 @@ import SummaryPage from '.';
 import React, { createContext } from 'react';
 import { useJoinFormContext } from '../../context/JoinFormContext';
 import JoinFormProvider from '../../context/JoinFormContext';
+import { JoinFormContext } from '../../context/JoinFormContext';
 
 describe('testing the summary page', () => {
   const joinFormValues = {
@@ -23,13 +24,6 @@ describe('testing the summary page', () => {
 
   beforeEach(() => {
     render(
-      (() => {
-        const JoinFormContext = createContext({
-          joinFormData: joinFormValues,
-          setJoinFormData: () => {}
-        });
-
-        return (
           <JoinFormContext.Provider
             value={{
               joinFormData: joinFormValues,
@@ -38,8 +32,6 @@ describe('testing the summary page', () => {
           >
             <SummaryPage />
           </JoinFormContext.Provider>
-        );
-      })()
     );
   });
 
@@ -48,6 +40,6 @@ describe('testing the summary page', () => {
   });
 
   test('context loaded', () => {
-    // expect(screen.getByText('Fname'));
+    expect(screen.getByText('Fname', {exact: false}));
   });
 });
