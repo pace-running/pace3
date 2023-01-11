@@ -49,4 +49,5 @@ const RunnerContextProvider: React.FC<any> = ({ children }) => {
   );
 };
 
-export default { RunnerContext, RunnerContextProvider, useRunnerContext };
+export default { RunnerContextProvider, useRunnerContext };
+export {RunnerContext};
