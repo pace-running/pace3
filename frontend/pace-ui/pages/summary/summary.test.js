@@ -1,11 +1,8 @@
 import { describe, expect, test } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import SummaryPage from '.';
-import React, { createContext } from 'react';
-import { useJoinFormContext } from '../../context/JoinFormContext';
-import JoinFormProvider from '../../context/JoinFormContext';
+import React from 'react';
 import { JoinFormContext } from '../../context/JoinFormContext';
 
 describe('testing the summary page', () => {
@@ -120,6 +117,11 @@ describe('testing the summary page', () => {
       expect(screen.getByText('Versand: kostenlos (innerhalb Deutschland)'));
       expect(screen.getByText('Zu zahlen: 20€'));
     });
+
+    test('displays navigation buttons', () => {
+      expect(screen.getByRole('button', {name: 'Zurück zur Bearbeitung'}));
+      expect(screen.getByRole('button', {name: 'Anmeldung bestätigen'}));
+    })
   });
 
 });
