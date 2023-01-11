@@ -78,6 +78,27 @@ describe('test the status page without shipping info', () => {
         expect(api.fetchRunnerDetails).toHaveBeenCalledWith('runner_id', 'verification_code');
         expect(screen.getByText('Deine Anmeldung'));
     });
+
+    test('checking static components', () => {
+        expect(screen.getByText('Hier kannst du den aktuellen Stand der Bearbeitung einsehen.'));
+        expect(screen.getByText('Wir empfehlen dir diese Seite als Lesezeichen abzuspeichern,', {exact: false}));
+        expect(screen.getByRole('button', {name: 'Startnummer herunterladen'} ));
+        expect(screen.getByText('ZAHLUNG'));
+        expect(screen.getByText('FC St. Pauli Marathon', {exact: false}));
+        expect(screen.getByText('Hamburger Volksbank', {exact: false}));
+        expect(screen.getByText('IBAN: DE09 2019 0003 0019 4004 20', {exact: false}));
+        expect(screen.getByText('BLZ: GENODEF1HH2', {exact: false}));
+        expect(screen.getByText('STATUS'));
+    });
+
+    test('checking dynamic components', () => {
+        expect(screen.getByText('221'));
+        expect(screen.getByText('Betrag: 15€'));
+        expect(screen.getByText('Verwendungszweck: LGR-ASDFG', {exact: false}));
+        expect(screen.getByText('Ausstehend'));
+        expect(screen.queryByText('T-SHIRT')).not.toBeInTheDocument();
+    })
+
 });
 
 describe('test the status page with shipping info', () => {
