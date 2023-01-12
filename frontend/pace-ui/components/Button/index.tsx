@@ -19,6 +19,7 @@ const Button: React.FC<ButtonProps> = props => {
       onClick={props.onClick}
       disabled={props.disabled ?? false}
       className={props.styling}
+      aria-label={props.label}
     >
       {props.label}
     </button>
