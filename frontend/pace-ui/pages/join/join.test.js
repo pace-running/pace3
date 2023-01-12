@@ -77,6 +77,12 @@ describe('testing of the registration page', () => {
       await waitFor(() => {
         expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument();
       });
+
+      donationInput.value = '';
+      await user.type(donationInput, '6,5');
+      await waitFor(() => {
+        expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!'));
+      });
     });
   });
 
