@@ -39,6 +39,7 @@ task_build() {
 task_fmt() {
   log_running_command "formatting..."
   npx prettier --write "**/*.ts"
+  npx prettier --write "**/*.js"
   npx prettier --write "**/*.tsx"
 }
 

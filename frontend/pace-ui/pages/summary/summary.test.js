@@ -6,7 +6,6 @@ import React from 'react';
 import { JoinFormContext } from '../../context/JoinFormContext';
 
 describe('testing the summary page', () => {
-
   describe('should test without T-shirt', () => {
     const joinFormValues = {
       firstname: 'Fname',
@@ -26,7 +25,7 @@ describe('testing the summary page', () => {
         <JoinFormContext.Provider
           value={{
             joinFormData: joinFormValues,
-            setJoinFormData: () => { }
+            setJoinFormData: () => {}
           }}
         >
           <SummaryPage />
@@ -49,7 +48,6 @@ describe('testing the summary page', () => {
       expect(screen.queryByText('T-Shirt-Kosten', { exact: false })).not.toBeInTheDocument();
       expect(screen.queryByText('T-SHIRT ANGABEN', { exact: false })).not.toBeInTheDocument();
       expect(screen.queryByText('LIEFERADRESSE', { exact: false })).not.toBeInTheDocument();
-
     });
   });
   describe('should test with t-shirt', () => {
@@ -73,8 +71,7 @@ describe('testing the summary page', () => {
       house_number: '3',
       address_extra: 'fifth floor',
       postal_code: 'G12345',
-      city: 'Cologne',
-
+      city: 'Cologne'
     };
 
     beforeEach(() => {
@@ -82,7 +79,7 @@ describe('testing the summary page', () => {
         <JoinFormContext.Provider
           value={{
             joinFormData: joinFormValues,
-            setJoinFormData: () => { }
+            setJoinFormData: () => {}
           }}
         >
           <SummaryPage />
@@ -119,9 +116,8 @@ describe('testing the summary page', () => {
     });
 
     test('displays navigation buttons', () => {
-      expect(screen.getByRole('button', {name: 'Zurück zur Bearbeitung'}));
-      expect(screen.getByRole('button', {name: 'Anmeldung bestätigen'}));
-    })
+      expect(screen.getByRole('button', { name: 'Zurück zur Bearbeitung' }));
+      expect(screen.getByRole('button', { name: 'Anmeldung bestätigen' }));
+    });
   });
-
 });

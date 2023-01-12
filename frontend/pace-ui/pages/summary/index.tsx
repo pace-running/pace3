@@ -127,9 +127,7 @@ const SummaryPage: NextPage = () => {
               <h2>T-SHIRT ANGABEN</h2>
               {formData?.tshirt_model === 'unisex' ? <p>Modell: Unisex</p> : <p>Modell: Tailliert</p>}
 
-              <p>
-                {`Größe: ${formData?.tshirt_size?.toUpperCase()}`}
-              </p>
+              <p>{`Größe: ${formData?.tshirt_size?.toUpperCase()}`}</p>
             </div>
             <div style={{ textAlign: 'left', padding: '20px' }}>
               <h2>LIEFERADRESSE</h2>
@@ -181,7 +179,13 @@ const SummaryPage: NextPage = () => {
             styling={'brownbg'}
           />
           {'   '}
-          <Button name={'submitButton'} label={'Anmeldung bestätigen'} type={'submit'} onClick={handleSubmit} styling={'brownbg'} />
+          <Button
+            name={'submitButton'}
+            label={'Anmeldung bestätigen'}
+            type={'submit'}
+            onClick={handleSubmit}
+            styling={'brownbg'}
+          />
         </div>
       </div>
     </BaseLayout>
