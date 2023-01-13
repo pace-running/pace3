@@ -95,10 +95,6 @@ const SizeTable: React.FC = () => {
           </div>
         </Carousel.Item>
       </Carousel>
-
-      {/* 
-            
-             */}
     </div>
   );
 };
