@@ -33,7 +33,7 @@ describe('test dropdown menu', () => {
   test('dropdown is interactive', async () => {
     const dropdown = screen.getByRole('combobox');
     expect(dropdown.value).toBe('Bitte auswählen');
-    
+
     for (const option of dropdownoptions) {
       await userEvent.selectOptions(dropdown, option.value);
       expect(dropdown.value).toBe(option.value);

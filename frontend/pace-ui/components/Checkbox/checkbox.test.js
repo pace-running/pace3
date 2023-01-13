@@ -45,7 +45,13 @@ describe('test checkbox', () => {
       checkboxStatus = !checkboxStatus;
     };
     const { rerender } = render(
-      <Checkbox name='test-checkbox' role='switch' label='checkbox-label' check={checkboxStatus} onChange={changeCheckBoxStatus} />
+      <Checkbox
+        name='test-checkbox'
+        role='switch'
+        label='checkbox-label'
+        check={checkboxStatus}
+        onChange={changeCheckBoxStatus}
+      />
     );
     const toggle = screen.getByRole('switch');
     expect(toggle).not.toBeChecked();
@@ -53,7 +59,13 @@ describe('test checkbox', () => {
 
     await userEvent.click(toggle);
     rerender(
-      <Checkbox name='test-checkbox' role='switch' label='checkbox-label' check={checkboxStatus} onChange={changeCheckBoxStatus} />
+      <Checkbox
+        name='test-checkbox'
+        role='switch'
+        label='checkbox-label'
+        check={checkboxStatus}
+        onChange={changeCheckBoxStatus}
+      />
     );
 
     expect(checkboxStatus).toBe(true);
@@ -63,7 +75,13 @@ describe('test checkbox', () => {
 
     await userEvent.click(toggle);
     rerender(
-      <Checkbox name='test-checkbox' role='switch' label='checkbox-label' check={checkboxStatus} onChange={changeCheckBoxStatus} />
+      <Checkbox
+        name='test-checkbox'
+        role='switch'
+        label='checkbox-label'
+        check={checkboxStatus}
+        onChange={changeCheckBoxStatus}
+      />
     );
 
     await waitFor(() => {

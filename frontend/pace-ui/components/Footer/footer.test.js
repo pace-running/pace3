@@ -4,12 +4,12 @@ import React from 'react';
 import Footer from '.';
 
 describe('checking footer', () => {
-    beforeEach(() => {
-        render(<Footer />);
-    });
+  beforeEach(() => {
+    render(<Footer />);
+  });
 
-    test('checking links', () => {
-        expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy_notice');
-        expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint');
-    });
+  test('checking links', () => {
+    expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy_notice');
+    expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint');
+  });
 });
