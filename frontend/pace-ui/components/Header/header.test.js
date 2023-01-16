@@ -4,18 +4,21 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import router from 'next/router';
 import Header from '.';
+import { link } from 'fs';
 
 describe('test header component', () => {
   beforeEach(() => {
     render(<Header />);
   });
 
-  test('St.Pauli logo is visible', () => {
-    expect(screen.getByRole('img').alt).toBe('FC St. Pauli Logo');
+  test('St.Pauli logo is visible and clickable', async () => {
+    const logo = screen.getByRole('img');
+    expect(logo.alt).toBe('FC St. Pauli Logo');
+    expect(screen.getByRole('link', { name: 'FC St. Pauli Logo' })).toHaveAttribute('href', '/');
   });
 
   test('Link to home page is displayed', () => {
-    const link = screen.getByRole('link');
+    const link = screen.getByRole('link', { name: 'Lauf gegen Rechts' });
     expect(link).toHaveTextContent('Lauf gegen Rechts');
     expect(link).toHaveAttribute('href', '/');
   });
