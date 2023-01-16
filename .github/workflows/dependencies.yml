@@ -9,6 +9,7 @@ jobs:
       - uses: actions/checkout@v3
       #https://github.com/actions-rs/audit-check/issues/194
       - run: cd $GITHUB_WORKSPACE && mv backend/* .
+      - run: cd $GITHUB_WORKSPACE && mv frontend/pace-ui/* .
       - uses: actions-rs/audit-check@v1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
