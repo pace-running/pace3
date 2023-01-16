@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run frontend linting and testing
-        run: echo "here goes your tests steps"
+        run: cd frontend/pace-ui && ./run quality_check
   build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
