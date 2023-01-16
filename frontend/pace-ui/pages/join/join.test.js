@@ -83,7 +83,7 @@ describe('testing of the registration page', () => {
       await waitFor(() => {
         expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!'));
       });
-    });
+    }, 2000);
   });
 
   describe('Tshirt form displayed', () => {
