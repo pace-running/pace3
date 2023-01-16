@@ -72,7 +72,7 @@ describe('testing of the registration page', () => {
 
       await user.type(donationInput, '4');
       expect(donationInput).toHaveValue(4);
-      expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
+      await expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
       await user.type(donationInput, '0');
       await waitFor(() => {
         expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument();
@@ -80,9 +80,7 @@ describe('testing of the registration page', () => {
 
       donationInput.value = '';
       await user.type(donationInput, '6,5');
-      await waitFor(() => {
-        expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!'));
-      }, { timeout: 3000 });
+      await expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!', null, { timeout: 3000 }));
     });
   });
 
