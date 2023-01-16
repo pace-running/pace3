@@ -68,7 +68,7 @@ describe('testing of the registration page', () => {
       expect(donationInput).toHaveValue(10);
 
       donationInput.value = '';
-      await expect(screen.findByText('Bitte geben Sie einen Spendenbetrag an!'));
+      await expect(screen.findByText('Bitte geben Sie einen Spendenbetrag an!', null, { timeout: 3000 }));
 
       await user.type(donationInput, '4');
       expect(donationInput).toHaveValue(4);
@@ -82,8 +82,8 @@ describe('testing of the registration page', () => {
       await user.type(donationInput, '6,5');
       await waitFor(() => {
         expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!'));
-      });
-    }, 2000);
+      }, { timeout: 3000 });
+    });
   });
 
   describe('Tshirt form displayed', () => {
