@@ -57,12 +57,6 @@ const response_with_shipping = {
   }
 };
 
-// router.useRouter = jest.fn().mockReturnValue({
-//   query: {
-//     runner_id: 'runner_id',
-//     verification_code: 'verification_code'
-//   }
-// });
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn()

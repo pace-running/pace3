@@ -18,7 +18,7 @@ const Admin: NextPage = () => {
   useEffect(() => {
     const fetchRunners = async () => {
       if (!runnersLoaded) {
-        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt).catch(() => {});
+        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt)//.catch(() => {});
         if (response?.status === 200) {
           // set contents with response data
           setRunnerList(response.data.runner_list);
