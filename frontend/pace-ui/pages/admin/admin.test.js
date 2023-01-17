@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, test, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import Login from './login';
 import Admin from '.';

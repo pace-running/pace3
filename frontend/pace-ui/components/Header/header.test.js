@@ -1,10 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import router from 'next/router';
 import Header from '.';
-import { link } from 'fs';
 
 describe('test header component', () => {
   beforeEach(() => {

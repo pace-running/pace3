@@ -4,7 +4,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 
 import StatusPage from '.';
-import {fetchRunnerDetails} from '../../apis/api';
+import { fetchRunnerDetails } from '../../apis/api';
 import { useRouter } from 'next/router';
 
 const response = {
@@ -75,7 +75,7 @@ useRouter.mockReturnValue({
   }
 });
 
-jest.mock('../../apis/api', ()=>({
+jest.mock('../../apis/api', () => ({
   fetchRunnerDetails: jest.fn()
 }));
 fetchRunnerDetails.mockReturnValue(response);
