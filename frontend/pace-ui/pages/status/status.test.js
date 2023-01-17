@@ -1,12 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 
 import StatusPage from '.';
-import * as router from 'next/router';
-import * as api from '../../apis/api';
+import {fetchRunnerDetails} from '../../apis/api';
+import { useRouter } from 'next/router';
 
 const response = {
   status: 200,
@@ -58,22 +57,37 @@ const response_with_shipping = {
   }
 };
 
-router.useRouter = jest.fn().mockReturnValue({
+// router.useRouter = jest.fn().mockReturnValue({
+//   query: {
+//     runner_id: 'runner_id',
+//     verification_code: 'verification_code'
+//   }
+// });
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn()
+}));
+
+useRouter.mockReturnValue({
   query: {
     runner_id: 'runner_id',
     verification_code: 'verification_code'
   }
 });
 
+jest.mock('../../apis/api', ()=>({
+  fetchRunnerDetails: jest.fn()
+}));
+fetchRunnerDetails.mockReturnValue(response);
+
 describe('test the status page without shipping info', () => {
   beforeEach(async () => {
-    api.fetchRunnerDetails = jest.fn().mockReturnValue(response);
     await act(async () => render(<StatusPage />));
   });
 
   test('renders with proper mocking', () => {
-    expect(jest.isMockFunction(api.fetchRunnerDetails)).toBeTruthy();
-    expect(api.fetchRunnerDetails).toHaveBeenCalledWith('runner_id', 'verification_code');
+    expect(jest.isMockFunction(fetchRunnerDetails)).toBeTruthy();
+    expect(fetchRunnerDetails).toHaveBeenCalledWith('runner_id', 'verification_code');
     expect(screen.getByText('Deine Anmeldung'));
   });
 
@@ -100,7 +114,7 @@ describe('test the status page without shipping info', () => {
 
 describe('test the status page with shipping info', () => {
   beforeEach(async () => {
-    api.fetchRunnerDetails = jest.fn().mockReturnValue(response_with_shipping);
+    fetchRunnerDetails.mockReturnValue(response_with_shipping);
     await act(async () => render(<StatusPage />));
   });
   test('checking t-shirt fields', () => {
