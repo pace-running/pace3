@@ -7,7 +7,9 @@ const Header: React.FC = () => {
   return (
     <nav className='navbar p-3 full brownbg py-5' style={{ marginRight: '0' }}>
       <div className='text-left fixed-top' style={{ zIndex: '-1' }}>
-        <a href='/'><Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} /></a>
+        <a href='/'>
+          <Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} />
+        </a>
       </div>
       <div className='text-left' style={{ position: 'absolute', left: '110px' }}>
         <Link href='/'>
