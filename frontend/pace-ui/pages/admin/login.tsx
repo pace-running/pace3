@@ -8,17 +8,14 @@ import React from 'react';
 
 const submitForm = async (event: React.SyntheticEvent) => {
   event.preventDefault();
-  // console.log(event.target.elements.username.value);
-  // const target = event.target as typeof event.target & {
-  //   username: { value: string };
-  //   password: { value: string };
-  // };
-  // console.log(event.target.elements.password);
+
+  const formElements = (event.currentTarget as HTMLFormElement).elements as HTMLFormControlsCollection & {
+    username: { value: string };
+    password: { value: string };
+  };
   const loginData = {
-    // @ts-ignore
-    username: event.target.elements.username.value,
-    // @ts-ignore
-    password: event.target.elements.password.value
+    username: formElements.username.value,
+    password: formElements.password.value
   };
   await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, loginData).then(response => {
     console.log(response);
