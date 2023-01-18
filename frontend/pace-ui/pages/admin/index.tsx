@@ -49,9 +49,9 @@ const Admin: NextPage = () => {
       <div>
         <h4>Statistiken:</h4>
         <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
-        <p>Läufer gesamt: {stats[0]}</p>
-        <p>Läufer, die Hamburg starten: {stats[1]}</p>
-        <p>Spenden gesamt: {stats[2]}</p>
+        <p>Läufer gesamt: <p role='total-runners'>{stats[0]}</p></p>
+        <p className='starting-hamburg'>Läufer, die Hamburg starten: {stats[1]}</p>
+        <p className='total-donation'>Spenden gesamt: {stats[2]}</p>
 
         <h3>Suche:</h3>
         <div style={{ marginBottom: '20px' }}>

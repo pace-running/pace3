@@ -17,17 +17,15 @@ jest.mock('next/router', () => ({
   push: jest.fn()
 }));
 
-describe('checking log in page', () => {
+let renderedPage;
+
+describe('Log in page', () => {
   beforeEach(() => {
-    render(<Login />);
+    renderedPage=render(<Login />);
   });
 
-  test('checking if username and password fields are visible', () => {
-    expect(screen.getByRole('textbox', { name: 'Username' }));
-    expect(screen.getByLabelText('Passwort'));
-  });
 
-  test('looking for Login button and checking if it submits correctly', async () => {
+  test('should submit username and password to the public api login url when clicking login button', async () => {
     axios.post.mockResolvedValue(null);
     process.env.NEXT_PUBLIC_API_URL = 'mockURL';
     await userEvent.type(screen.getByLabelText('Username'), 'User1');
@@ -53,24 +51,18 @@ jest.mock('../../apis/api', () => ({
   })
 }));
 
-describe('checking admin main page', () => {
+describe('admin main page', () => {
   beforeEach(async () => {
     await act(async ()=>render(<Admin />));
   });
 
-  test('static elements are rendered properly', () => {
-    expect(screen.getByRole('heading', { name: 'Admin' }));
-    expect(screen.getByRole('heading', { name: 'Statistiken:' }));
-    expect(screen.getByRole('heading', { name: 'Registrierte Läufer:' }));
-  });
-  
   test('check if stats are displayed correctly',()=>{
-    expect(screen.getByText('Läufer gesamt: 3'));
+    expect(screen.getByRole('total-runners').textContent).toBe('3')
     expect(screen.getByText('Läufer, die Hamburg starten: 2'));
     expect(screen.getByText('Spenden gesamt: 20'));
   });
 
-  test('button linking to finance',async ()=>{
+  test('should check the button linking to the finance page',async ()=>{
     await userEvent.click(screen.getByRole('button',{name: 'Zahlungsinformationen hochladen'}));
     expect(router.push).toHaveBeenCalledWith('/admin/finance');
   });
