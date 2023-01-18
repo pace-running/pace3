@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, expect, test, jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
@@ -19,8 +19,6 @@ jest.mock('../../apis/api', () => ({
   fetchFilteredRunners: jest.fn()
 }));
 
-const runner_list = [];
-
 describe('admin main page', () => {
   const apiResponse = {
     status: 200,
@@ -28,7 +26,7 @@ describe('admin main page', () => {
       stats_number: 3,
       stats_hamburg: 2,
       stats_total_donation: 20,
-      runner_list
+      runner_list: []
     }
   };
 
@@ -56,12 +54,143 @@ describe('admin main page', () => {
   });
 
   test('unauthenticated users will be redirected to login', async () => {
-    console.log(fetchFilteredRunners);
     fetchFilteredRunners.mockResolvedValueOnce({
       status: 401,
       data: {}
     });
     await act(async () => render(<Admin />));
     expect(router.push).toHaveBeenCalledWith('/admin/login');
+  });
+
+  test('runners are displayed in table', async () => {
+    apiResponse.data.runner_list = [
+      {
+        donation: '5',
+        email: 'test@example.com',
+        firstname: 'Hans',
+        id: 1,
+        lastname: 'Meyer',
+        payment_confirmation_mail_sent: true,
+        payment_status: true,
+        reason_for_payment: 'LGR-YPKDM',
+        running_level: 'sometimes',
+        start_number: 6,
+        starting_point: 'other',
+        team: 'FC St. Pauli',
+        tshirt_cost: '15',
+        verification_code: 'ogVXRyN8GpMSXUNV3VSx1ZBoUYwK95Sa8u'
+      },
+      {
+        donation: '33',
+        email: 'test5@example.com',
+        firstname: 'Testy',
+        id: 5,
+        lastname: 'McTest',
+        payment_confirmation_mail_sent: false,
+        payment_status: false,
+        reason_for_payment: 'LGR-YPKDX',
+        running_level: 'sometimes',
+        start_number: 66,
+        starting_point: 'other',
+        team: 'FC St. Pauli II',
+        tshirt_cost: '33',
+        verification_code: 'ogVXRyN8GpMSXUNV3VSx1ZBoUYwK95Sa8x'
+      }
+    ];
+    fetchFilteredRunners.mockResolvedValueOnce(apiResponse);
+    await act(async () => render(<Admin />));
+
+    const table = screen.getByRole('table');
+    const headers = within(table).getAllByRole('columnheader');
+    const firstRow = within(table).getAllByRole('row')[1];
+    const firstRowCells = firstRow.children;
+    const secondRowCells = within(table).getAllByRole('row')[2].children;
+
+    // relies on getAllByRole to return elements in order of appearance
+    expect(headers[0]).toHaveTextContent('ID');
+    expect(firstRowCells[0]).toHaveTextContent('1');
+    expect(secondRowCells[0]).toHaveTextContent('5');
+
+    expect(headers[1]).toHaveTextContent('Startnummer');
+    expect(firstRowCells[1]).toHaveTextContent('6');
+    expect(secondRowCells[1]).toHaveTextContent('66');
+
+    expect(headers[2]).toHaveTextContent('Name');
+    expect(firstRowCells[2]).toHaveTextContent('Hans Meyer');
+    expect(secondRowCells[2]).toHaveTextContent('Testy McTest');
+
+    expect(headers[3]).toHaveTextContent('Team');
+    expect(firstRowCells[3]).toHaveTextContent('FC St. Pauli');
+    expect(secondRowCells[3]).toHaveTextContent('FC St. Pauli II');
+
+    expect(headers[4]).toHaveTextContent('E-mail');
+    expect(firstRowCells[4]).toHaveTextContent('test@example.com');
+    expect(secondRowCells[4]).toHaveTextContent('test5@example.com');
+
+    expect(headers[5]).toHaveTextContent('Spende');
+    expect(firstRowCells[5]).toHaveTextContent('5');
+    expect(secondRowCells[5]).toHaveTextContent('33');
+
+    expect(headers[6]).toHaveTextContent('Verwendungszweck');
+    expect(firstRowCells[6]).toHaveTextContent('LGR-YPKDM');
+    expect(secondRowCells[6]).toHaveTextContent('LGR-YPKDX');
+  });
+
+  test('table contains correct buttons', async () => {
+    apiResponse.data.runner_list = [
+      {
+        donation: '5',
+        email: 'test@example.com',
+        firstname: 'Hans',
+        id: 1,
+        lastname: 'Meyer',
+        payment_confirmation_mail_sent: true,
+        payment_status: true,
+        reason_for_payment: 'LGR-YPKDM',
+        running_level: 'sometimes',
+        start_number: 6,
+        starting_point: 'other',
+        team: 'FC St. Pauli',
+        tshirt_cost: '15',
+        verification_code: 'ogVXRyN8GpMSXUNV3VSx1ZBoUYwK95Sa8u'
+      },
+      {
+        donation: '33',
+        email: 'test5@example.com',
+        firstname: 'Testy',
+        id: 5,
+        lastname: 'McTest',
+        payment_confirmation_mail_sent: false,
+        payment_status: false,
+        reason_for_payment: 'LGR-YPKDX',
+        running_level: 'sometimes',
+        start_number: 66,
+        starting_point: 'other',
+        team: 'FC St. Pauli II',
+        tshirt_cost: '33',
+        verification_code: 'ogVXRyN8GpMSXUNV3VSx1ZBoUYwK95Sa8x'
+      }
+    ];
+    change_payment_status.mockResolvedValueOnce(null);
+    fetchFilteredRunners.mockResolvedValueOnce(apiResponse);
+    await act(async () => render(<Admin />));
+
+    const table = screen.getByRole('table');
+    const firstRowCells = within(table).getAllByRole('row')[1].children;
+    const secondRowCells = within(table).getAllByRole('row')[2].children;
+
+    expect(firstRowCells[7]).toHaveTextContent('Bezahlt');
+    expect(secondRowCells[7]).toHaveTextContent('Nicht bezahlt');
+
+    expect(firstRowCells[8]).toHaveTextContent('Bearbeiten');
+    expect(secondRowCells[8]).toHaveTextContent('Bearbeiten');
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Bearbeiten' })[0]);
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/admin/edit',
+      query: { id: '1' }
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Bezahlt' }));
+    expect(change_payment_status).toHaveBeenCalledWith('1', false);
   });
 });
