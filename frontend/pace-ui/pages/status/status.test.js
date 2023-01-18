@@ -57,7 +57,6 @@ const response_with_shipping = {
   }
 };
 
-
 jest.mock('next/router', () => ({
   useRouter: jest.fn()
 }));
