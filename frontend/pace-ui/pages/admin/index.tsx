@@ -3,6 +3,7 @@ import router from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { change_payment_status, fetchFilteredRunners } from '../../apis/api';
 import Button from '../../components/Button';
+import LoadingScreen from '../../components/LoadingScreen';
 
 const Admin: NextPage = () => {
   const [runnerList, setRunnerList] = useState<RunnerResponseData[]>();
@@ -18,7 +19,7 @@ const Admin: NextPage = () => {
   useEffect(() => {
     const fetchRunners = async () => {
       if (!runnersLoaded) {
-        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt); //.catch(() => {});
+        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt).catch(() => {});
         if (response?.status === 200) {
           // set contents with response data
           setRunnerList(response.data.runner_list);
@@ -248,11 +249,7 @@ const Admin: NextPage = () => {
       </div>
     );
   } else {
-    return (
-      <div>
-        <a href='/admin/login'>Login</a>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 };
 

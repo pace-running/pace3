@@ -54,12 +54,10 @@ describe('admin main page', () => {
   });
 
   test('unauthenticated users will be redirected to login', async () => {
-    fetchFilteredRunners.mockResolvedValueOnce({
-      status: 401,
-      data: {}
-    });
+    fetchFilteredRunners.mockRejectedValueOnce();
     await act(async () => render(<Admin />));
     expect(router.push).toHaveBeenCalledWith('/admin/login');
+    expect(screen.getByText('Seite lädt...'));
   });
 
   test('runners are displayed in table', async () => {
@@ -172,7 +170,7 @@ describe('admin main page', () => {
       }
     ];
     change_payment_status.mockResolvedValueOnce(null);
-    fetchFilteredRunners.mockResolvedValueOnce(apiResponse);
+    fetchFilteredRunners.mockResolvedValue(apiResponse);
     await act(async () => render(<Admin />));
 
     const table = screen.getByRole('table');
