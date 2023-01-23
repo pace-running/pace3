@@ -59,7 +59,7 @@ const Finance: NextPage = () => {
         <input onChange={handleFileChange} id='csvInput' name='file' type='File' />
       </div>
       <br />
-      <p>{error}</p>
+      <p style={{ color: 'red' }}>{error}</p>
       <div>
         <button type='button' onClick={handleParse}>
           Einlesen

@@ -232,8 +232,8 @@ describe('admin main page', () => {
       expect(fetchFilteredRunners).toHaveBeenCalledWith(10, 'name', '');
       expect(screen.getByText('10/14'));
 
-      await userEvent.click(screen.getByRole('button',{name: '⬅'}));
-      expect(fetchFilteredRunners).toHaveBeenCalledWith(9,'name','');
+      await userEvent.click(screen.getByRole('button', { name: '⬅' }));
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '');
     });
   });
 });
