@@ -5,6 +5,27 @@
 
 Pace is a registration and management application for running events and competitions.
 
+## Prerequisites
+To run the application locally, you need to have `colima` installed and running, with 
+```
+brew install colima
+colima start
+``` 
+
+Also you need Rust and `cargo`, which you can install via:
+```
+brew install rustup
+rustup-init
+```
+
+Even though the database runs from a container image, you still need an installation of `postgres` for the `diesel_cli` to work. It should not be running though!
+```
+brew install postgresql
+```
+
+Finally, the frontend uses `node.js`:
+
+https://nodejs.org/en/
 
 ## Running Pace
 first install dependencies in frontend applications in `/frontend/pace-ui` 
