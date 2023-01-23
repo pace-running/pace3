@@ -58,6 +58,7 @@ const Admin: NextPage = () => {
             <input
               type='text'
               name='search_prompt'
+              aria-label='Suchbegriff'
               value={searchPrompt}
               style={{ width: '50%' }}
               onChange={e => setSearchPrompt(e.target.value)}
@@ -117,7 +118,7 @@ const Admin: NextPage = () => {
               </label>
               <Button
                 name={'btn-start-search'}
-                label={'Start search'}
+                label={'Suche starten'}
                 type={'button'}
                 onClick={() => {
                   setCurrentPage(1);
@@ -163,6 +164,7 @@ const Admin: NextPage = () => {
               value={pageSelectorContent}
               style={{ width: '5%' }}
               placeholder={'Seitenzahl'}
+              aria-label={'Seitenzahl'}
               onChange={e => {
                 setPageSelectorContent(+e.target.value);
               }}

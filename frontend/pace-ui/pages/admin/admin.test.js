@@ -191,4 +191,49 @@ describe('admin main page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Bezahlt' }));
     expect(change_payment_status).toHaveBeenCalledWith('1', false);
   });
+
+  test('filters are applied correctly', async () => {
+    apiResponse.data.runner_list = [];
+    fetchFilteredRunners.mockResolvedValue(apiResponse);
+    await act(async () => render(<Admin />));
+
+    await userEvent.click(screen.getByRole('radio', { name: 'E-mail' }));
+    await userEvent.type(screen.getByRole('textbox', { name: 'Suchbegriff' }), 'example');
+    await userEvent.click(screen.getByRole('button', { name: 'Suche starten' }));
+
+    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'email', 'example');
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Startnummer' }));
+    await userEvent.clear(screen.getByRole('textbox', { name: 'Suchbegriff' }));
+    await userEvent.type(screen.getByRole('textbox', { name: 'Suchbegriff' }), '111');
+    await userEvent.click(screen.getByRole('button', { name: 'Suche starten' }));
+
+    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'start_number', '111');
+  });
+
+  describe('pagination works as intended', () => {
+    beforeEach(async () => {
+      apiResponse.data.stats_number = 200;
+      fetchFilteredRunners.mockResolvedValue(apiResponse);
+      await act(async () => render(<Admin />));
+    });
+
+    test('page forward button', async () => {
+      await userEvent.click(screen.getByRole('button', { name: '➡️' }));
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(2, 'name', '');
+    });
+
+    test('goto page function and page backward button', async () => {
+      const pageInputField = screen.getByRole('textbox', { name: 'Seitenzahl' });
+      await userEvent.clear(pageInputField);
+      await userEvent.type(pageInputField, '10');
+      await userEvent.click(screen.getByRole('button', { name: 'Gehe zu Seite' }));
+
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(10, 'name', '');
+      expect(screen.getByText('10/14'));
+
+      await userEvent.click(screen.getByRole('button',{name: '⬅'}));
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(9,'name','');
+    });
+  });
 });
