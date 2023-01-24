@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 
 import Finance from './finance';
 import router from 'next/router';
-import { upload_payment_csv } from '../../apis/api';
+import { uploadPaymentCSV } from '../../apis/api';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -14,7 +14,7 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../apis/api', () => ({
-  upload_payment_csv: jest.fn()
+  uploadPaymentCSV: jest.fn()
 }));
 
 describe('test the finance page', () => {
@@ -54,6 +54,52 @@ describe('test the finance page', () => {
     await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
     await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
 
-    expect(upload_payment_csv).toHaveBeenCalledWith(file);
+    expect(uploadPaymentCSV).toHaveBeenCalledWith(file);
+  });
+
+  test('faulty transactions are displayed in the table', async () => {
+    const response = {
+      status: 200,
+      data: [
+        {
+          runner_ids: ['21', '42'],
+          reason_for_payment: 'LGR-DFSKF, LGR-OBZSA',
+          amount: '25',
+          expected_amount: '37'
+        }
+      ]
+    };
+
+    uploadPaymentCSV.mockResolvedValue(response);
+
+    render(<Finance />);
+    const str = JSON.stringify('test');
+    const blob = new Blob([str]);
+    const file = new File([blob], 'values.csv', {
+      type: 'application/CSV'
+    });
+
+    await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
+    await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
+
+    screen.debug();
+
+    const table = document.getElementById('runnersTable');
+
+    // const table = screen.getByLabelText('Zu überprüfende Transaktionen');
+    const headers = within(table).getAllByRole('columnheader');
+    const firstRowCells = within(table).getAllByRole('row')[1].children;
+
+    expect(headers[0]).toHaveTextContent('Teilnehmenden ID');
+    expect(firstRowCells[0]).toHaveTextContent('21, 42');
+
+    expect(headers[1]).toHaveTextContent('Verwendungszweck');
+    expect(firstRowCells[1]).toHaveTextContent('LGR-DFSKF, LGR-OBZSA');
+
+    expect(headers[2]).toHaveTextContent('erhaltener Betrag');
+    expect(firstRowCells[2]).toHaveTextContent('25');
+
+    expect(headers[3]).toHaveTextContent('erwarteter Betrag');
+    expect(firstRowCells[3]).toHaveTextContent('37');
   });
 });

@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import router from 'next/router';
 import { useState } from 'react';
-import { upload_payment_csv } from '../../apis/api';
+import { uploadPaymentCSV } from '../../apis/api';
 import Button from '../../components/Button';
 
 const Finance: NextPage = () => {
@@ -29,7 +29,7 @@ const Finance: NextPage = () => {
   const handleParse = async () => {
     if (file) {
       console.log('Uploading csv file...');
-      const response = await upload_payment_csv(file);
+      const response = await uploadPaymentCSV(file);
       if (response?.status === 200) {
         setWrongPayments(response.data);
       }
@@ -67,11 +67,14 @@ const Finance: NextPage = () => {
       </div>
       <br />
       <br />
+      <h2>
+        <label htmlFor='runnersTable'>Zu überprüfende Transaktionen</label>
+      </h2>
       <div>
         <table id='runnersTable' style={{ overflow: 'scroll' }}>
           <thead>
             <tr key={'head'}>
-              <th>ID</th>
+              <th>Teilnehmenden ID</th>
               <th>Verwendungszweck</th>
               <th>erhaltener Betrag</th>
               <th>erwarteter Betrag</th>
@@ -82,7 +85,7 @@ const Finance: NextPage = () => {
               wrongPayments.map((obj, key) => {
                 return (
                   <tr key={key}>
-                    <td>{obj?.runner_ids ? obj?.runner_ids : 'Teilnehmer nicht gefunden'}</td>
+                    <td>{obj?.runner_ids ? obj?.runner_ids.join(', ') : 'Teilnehmer nicht gefunden'}</td>
                     <td>{obj?.reason_for_payment}</td>
                     <td>{obj?.amount}</td>
                     <td>{obj?.expected_amount}</td>
