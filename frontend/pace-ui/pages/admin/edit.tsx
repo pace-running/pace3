@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { change_payment_status, edit_runner, get_full_runner } from '../../apis/api';
+import { changePaymentStatus, editRunner, getFullRunner } from '../../apis/api';
 import Button from '../../components/Button';
 import Checkbox from '../../components/Checkbox';
 import Dropdown from '../../components/Dropdown';
@@ -21,7 +21,7 @@ const Edit: NextPage = () => {
     const fetchData = async () => {
       if (runner_id) {
         // Could use verification code for additional layer of security
-        const response = await get_full_runner(runner_id);
+        const response = await getFullRunner(runner_id);
         if (response.status === 200) {
           // set contents with response data
           setRunnerData(response.data);
@@ -67,7 +67,7 @@ const Edit: NextPage = () => {
 
   const submitForm = (values: EditRunnerValues) => {
     console.log('submitting...');
-    edit_runner(runner_id, mapEditRunnerDataToFullRunnerData(values)).then(() => router.push('/admin'));
+    editRunner(runner_id, mapEditRunnerDataToFullRunnerData(values)).then(() => router.push('/admin'));
   };
 
   const { handleChange, setFieldValue, values, handleSubmit, errors } = useFormik<EditRunnerValues>({
@@ -312,7 +312,7 @@ const Edit: NextPage = () => {
                 styling={values.payment_status ? 'paid-btn' : 'not-paid-btn'}
                 type={'button'}
                 onClick={() => {
-                  change_payment_status(runner_id.toString(), !values.payment_status).then(() => {
+                  changePaymentStatus(runner_id.toString(), !values.payment_status).then(() => {
                     values.payment_status = !values.payment_status;
                     setIsPageFound(false);
                   });

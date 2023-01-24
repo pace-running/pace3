@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
 import router from 'next/router';
-import { change_payment_status, fetchFilteredRunners } from '../../apis/api';
+import { changePaymentStatus, fetchFilteredRunners } from '../../apis/api';
 import Admin from '.';
 
 jest.mock('axios');
@@ -15,7 +15,7 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../apis/api', () => ({
-  change_payment_status: jest.fn(),
+  changePaymentStatus: jest.fn(),
   fetchFilteredRunners: jest.fn()
 }));
 
@@ -41,8 +41,8 @@ describe('admin main page', () => {
   test('check if stats are displayed correctly', async () => {
     fetchFilteredRunners.mockResolvedValueOnce(apiResponse);
     await act(async () => render(<Admin />));
-    expect(screen.getByTestId('total-runners-p').textContent).toBe('Läufer gesamt: 3');
-    expect(screen.getByText('Läufer, die Hamburg starten: 2'));
+    expect(screen.getByTestId('total-runners-p').textContent).toBe('Teilnehmende gesamt: 3');
+    expect(screen.getByText('Teilnehmende, die Hamburg starten: 2'));
     expect(screen.getByText('Spenden gesamt: 20'));
   });
 
@@ -121,7 +121,7 @@ describe('admin main page', () => {
     expect(firstRowCells[3]).toHaveTextContent('FC St. Pauli');
     expect(secondRowCells[3]).toHaveTextContent('FC St. Pauli II');
 
-    expect(headers[4]).toHaveTextContent('E-mail');
+    expect(headers[4]).toHaveTextContent('E-Mail');
     expect(firstRowCells[4]).toHaveTextContent('test@example.com');
     expect(secondRowCells[4]).toHaveTextContent('test5@example.com');
 
@@ -169,7 +169,7 @@ describe('admin main page', () => {
         verification_code: 'ogVXRyN8GpMSXUNV3VSx1ZBoUYwK95Sa8x'
       }
     ];
-    change_payment_status.mockResolvedValueOnce(null);
+    changePaymentStatus.mockResolvedValueOnce(null);
     fetchFilteredRunners.mockResolvedValue(apiResponse);
     await act(async () => render(<Admin />));
 
@@ -189,7 +189,7 @@ describe('admin main page', () => {
       query: { id: '1' }
     });
     await userEvent.click(screen.getByRole('button', { name: 'Bezahlt' }));
-    expect(change_payment_status).toHaveBeenCalledWith('1', false);
+    expect(changePaymentStatus).toHaveBeenCalledWith('1', false);
   });
 
   test('filters are applied correctly', async () => {
@@ -197,7 +197,7 @@ describe('admin main page', () => {
     fetchFilteredRunners.mockResolvedValue(apiResponse);
     await act(async () => render(<Admin />));
 
-    await userEvent.click(screen.getByRole('radio', { name: 'E-mail' }));
+    await userEvent.click(screen.getByRole('radio', { name: 'E-Mail' }));
     await userEvent.type(screen.getByRole('textbox', { name: 'Suchbegriff' }), 'example');
     await userEvent.click(screen.getByRole('button', { name: 'Suche starten' }));
 

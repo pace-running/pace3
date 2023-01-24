@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { change_payment_status, fetchFilteredRunners } from '../../apis/api';
+import { changePaymentStatus, fetchFilteredRunners } from '../../apis/api';
 import Button from '../../components/Button';
 import LoadingScreen from '../../components/LoadingScreen';
 
@@ -49,8 +49,8 @@ const Admin: NextPage = () => {
         <div>
           <h4>Statistiken:</h4>
           <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
-          <p data-testid='total-runners-p'>Läufer gesamt: {stats[0]}</p>
-          <p className='starting-hamburg'>Läufer, die Hamburg starten: {stats[1]}</p>
+          <p data-testid='total-runners-p'>Teilnehmende gesamt: {stats[0]}</p>
+          <p className='starting-hamburg'>Teilnehmende, die Hamburg starten: {stats[1]}</p>
           <p className='total-donation'>Spenden gesamt: {stats[2]}</p>
 
           <h3>Suche:</h3>
@@ -100,7 +100,7 @@ const Admin: NextPage = () => {
                   className='form-check-input'
                   onChange={radioChange}
                 />
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E-mail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E-Mail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
               </label>
 
               <label>
@@ -129,7 +129,7 @@ const Admin: NextPage = () => {
           </div>
         </div>
 
-        <h2>Registrierte Läufer:</h2>
+        <h2>Registrierte Teilnehmende:</h2>
 
         <div>
           <span>
@@ -195,7 +195,7 @@ const Admin: NextPage = () => {
               <th>Startnummer</th>
               <th>Name</th>
               <th>Team</th>
-              <th>E-mail</th>
+              <th>E-Mail</th>
               <th>Spende</th>
               <th>Verwendungszweck</th>
               <th>🤑✅</th>
@@ -223,7 +223,7 @@ const Admin: NextPage = () => {
                       type={'button'}
                       onClick={() => {
                         console.log(`Changed status of runner ${runner.id}`);
-                        change_payment_status(runner.id.toString(), !runner.payment_status).then(() =>
+                        changePaymentStatus(runner.id.toString(), !runner.payment_status).then(() =>
                           setRunnersLoaded(false)
                         );
                       }}
