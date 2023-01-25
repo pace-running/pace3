@@ -4,7 +4,7 @@ use crate::models::users::{LoginData, LoginResponse, User};
 use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_shipping, retrieve_donation_by_reason_for_payment,
-    retrieve_runner_by_id, retrieve_shipping_by_runner_id,
+    retrieve_runner_by_id, retrieve_shipping_by_runner_id, is_eu_country,
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
@@ -274,6 +274,20 @@ pub async fn edit_runner(
     // println!("info: {:?}", info);
 
     let runner_details = info.runner_details.unwrap();
+    // calculate new tshirt cost
+    let shipping_details = info.shipping_details.unwrap();
+    let new_tshirt_cost;
+    if info.is_tshirt_booked {
+        if shipping_details.country == "Deutschland" {
+            new_tshirt_cost = "15";
+        } else if is_eu_country(&shipping_details.country) {
+            new_tshirt_cost = "17";
+        } else {
+            new_tshirt_cost = "20";
+        }
+    } else {
+        new_tshirt_cost = "0";
+    }
 
     // change runner
     let updated_runner = diesel::update(runners.find(runner_ID))
@@ -289,6 +303,7 @@ pub async fn edit_runner(
             reason_for_payment.eq(runner_details.reason_for_payment),
             payment_status.eq(runner_details.payment_status),
             verification_code.eq(runner_details.verification_code),
+            tshirt_cost.eq(new_tshirt_cost),
         ))
         .get_result::<Runner>(connection)
         .unwrap();
@@ -296,8 +311,8 @@ pub async fn edit_runner(
     // delete old shipping, then insert new one
     if info.is_tshirt_booked {
         use crate::schema::shippings::dsl::*;
-        let shipping_details = info.shipping_details.unwrap();
         let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
+        
         insert_shipping(
             connection,
             NewShipping {
@@ -315,6 +330,9 @@ pub async fn edit_runner(
                 delivery_status: &shipping_details.delivery_status,
             },
         );
+    } else {
+        use crate::schema::shippings::dsl::*;
+        let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
     }
 
     Ok(HttpResponse::Ok()
