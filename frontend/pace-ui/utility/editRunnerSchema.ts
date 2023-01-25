@@ -9,23 +9,51 @@ export const EditRunnerSchema = Yup.object().shape({
     .max(50, 'Nachname darf maximal 50 Zeichen enthalten!'),
   team: Yup.string(),
   email: Yup.string().email(),
-  //   starting_point: Yup.string().required('Bitte wählen Sie eine Option aus!'),
-  //   running_level: Yup.string().required('Bitte wählen Sie eine Option aus!'),
-  //   donation: Yup.number()
-  //     .min(5, 'Die Spende muss mindestens 5€ betragen!')
-  //     .required('Bitte geben Sie einen Spendenbetrag an!'),
+  starting_point: Yup.string().required('Bitte wählen Sie eine Option aus!'),
+  running_level: Yup.string().required('Bitte wählen Sie eine Option aus!'),
+  donation: Yup.number()
+    .min(5, 'Die Spende muss mindestens 5€ betragen!')
+    .required('Bitte geben Sie einen Spendenbetrag an!')
+    .integer('Bitte geben Sie einen ganzzahligen Betrag an!'),
 
   is_tshirt_booked: Yup.boolean(),
-  tshirt_model: Yup.string(),
-  tshirt_size: Yup.string(),
-  country: Yup.string(),
-  address_firstname: Yup.string(),
-  address_lastname: Yup.string(),
-  street_name: Yup.string(),
-  house_number: Yup.string(),
+  tshirt_model: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  tshirt_size: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  country: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  address_firstname: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  address_lastname: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  street_name: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  house_number: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
   address_extra: Yup.string(),
-  postal_code: Yup.string(),
-  city: Yup.string(),
+  postal_code: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
+  city: Yup.string().when('is_tshirt_booked', {
+    is: true,
+    then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
+  }),
 
   start_number: Yup.string(),
   verification_code: Yup.string(),

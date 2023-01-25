@@ -18,7 +18,12 @@ const Edit: NextPage = () => {
   const [runnerData, setRunnerData] = useState<FullRunnerData>();
 
   useEffect(() => {
+    validateForm();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
+      console.log('useEffect');
       if (runner_id) {
         // Could use verification code for additional layer of security
         const response = await getFullRunner(runner_id);
@@ -26,11 +31,10 @@ const Edit: NextPage = () => {
           // set contents with response data
           setRunnerData(response.data);
           setIsPageFound(true);
-          values.is_tshirt_booked = runnerData ? runnerData?.is_tshirt_booked : false;
-          values.payment_status = runnerData ? runnerData?.payment_status : false;
-          values.donation = runnerData ? +runnerData?.donation : 5;
-          values.tshirt_model = runnerData ? runnerData.tshirt_model : 'unisex';
-          values.tshirt_size = runnerData ? runnerData.tshirt_size : 'm';
+          // set initial values manually
+          for (const [fieldName, fieldValue] of Object.entries(runnerData ?? {})) {
+            setFieldValue(fieldName, fieldValue);
+          }
         }
       }
     };
@@ -70,35 +74,14 @@ const Edit: NextPage = () => {
     editRunner(runner_id, mapEditRunnerDataToFullRunnerData(values)).then(() => router.push('/admin'));
   };
 
-  const { handleChange, setFieldValue, values, handleSubmit, errors } = useFormik<EditRunnerValues>({
-    initialValues: {
-      firstname: runnerData?.firstname,
-      lastname: runnerData?.lastname,
-      team: runnerData?.team,
-      email: runnerData?.email,
-      starting_point: runnerData?.starting_point,
-      running_level: runnerData?.running_level,
-      donation: runnerData ? +runnerData?.donation : 5,
-      is_tshirt_booked: runnerData?.is_tshirt_booked ?? false,
-      tshirt_model: runnerData?.tshirt_model,
-      tshirt_size: runnerData?.tshirt_size,
-      country: runnerData?.country,
-      address_firstname: runnerData?.address_firstname,
-      address_lastname: runnerData?.address_lastname,
-      street_name: runnerData?.street_name,
-      house_number: runnerData?.house_number,
-      address_extra: runnerData?.address_extra,
-      postal_code: runnerData?.postal_code,
-      city: runnerData?.city,
-      start_number: runnerData?.start_number,
-      verification_code: runnerData?.verification_code,
-      reason_for_payment: runnerData?.reason_for_payment,
-      payment_status: runnerData?.payment_status,
-      delivery_status: runnerData?.delivery_status
-    },
-    validationSchema: EditRunnerSchema,
-    onSubmit: submitForm
-  });
+  const { handleChange, setFieldValue, values, handleSubmit, errors, isValid, validateForm } =
+    useFormik<EditRunnerValues>({
+      initialValues: {
+        is_tshirt_booked: runnerData?.is_tshirt_booked ?? false
+      },
+      validationSchema: EditRunnerSchema,
+      onSubmit: submitForm
+    });
 
   return (
     <div>
@@ -181,8 +164,9 @@ const Edit: NextPage = () => {
             />
             <div
               style={{
-                pointerEvents: values.is_tshirt_booked ? 'auto' : 'none',
-                color: values.is_tshirt_booked ? 'black' : 'gray'
+                // pointerEvents: values.is_tshirt_booked ? 'auto' : 'none',
+                // color: values.is_tshirt_booked ? 'black' : 'gray'
+                display: values.is_tshirt_booked ? 'block' : 'none'
               }}
             >
               <Dropdown
@@ -208,6 +192,8 @@ const Edit: NextPage = () => {
                 type={'text'}
                 name={'country'}
                 label={'Land *'}
+                valid={!errors.country}
+                errorMessage={errors.country}
                 placeholder={runnerData?.country}
               />
               <TextInput
@@ -334,13 +320,18 @@ const Edit: NextPage = () => {
               placeholder={runnerData?.delivery_status}
             />
             <br />
-            <Button
-              name={'submitButton'}
-              label={'Änderungen bestätigen'}
-              type={'submit'}
-              onSubmit={handleSubmit}
-              styling={'brownbg'}
-            />
+            <span>
+              <Button name={'backButton'} label={'Zurück zur Adminseite'} type={'button'} onClick={() => {}} />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <Button
+                name={'submitButton'}
+                label={'Änderungen bestätigen'}
+                type={'submit'}
+                onSubmit={handleSubmit}
+                styling={'brownbg'}
+                disabled={!isValid}
+              />
+            </span>
           </div>
         </form>
       )}
