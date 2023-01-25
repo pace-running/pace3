@@ -18,6 +18,7 @@ jest.mock('../../apis/api', () => ({
   getFullRunner: jest.fn()
 }));
 
+
 describe('test edit page', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -62,7 +63,7 @@ describe('test edit page', () => {
   };
 
   test('runner information is displayed correctly', async () => {
-    router.useRouter.mockReturnValue({ query: { id: 5 } });
+    router.useRouter.mockReturnValue({ query: { id: 5 }});
     getFullRunner.mockReturnValue(response);
     await act(async () => {
       render(<Edit />);
@@ -75,8 +76,10 @@ describe('test edit page', () => {
   });
 
   test('changes are correctly sent to backend', async () => {
-    router.useRouter.mockReturnValue({ query: { id: 5 } });
+    const mockPush = jest.fn();
+    router.useRouter.mockReturnValue({ query: { id: 5 }, push: mockPush });
     getFullRunner.mockReturnValue(response);
+    editRunner.mockResolvedValue(null);
     await act(async () => {
       render(<Edit />);
     });
@@ -85,6 +88,7 @@ describe('test edit page', () => {
     await userEvent.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt' }));
     await userEvent.click(screen.getByRole('button', { name: 'Änderungen bestätigen' }));
 
+    expect(mockPush).toHaveBeenCalledWith('/admin');
     expect(editRunner).toHaveBeenCalledWith(5, {
       address_extra: '',
       address_firstname: 'Testy',
