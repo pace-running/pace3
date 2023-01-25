@@ -182,8 +182,11 @@ describe('testing of the registration page', () => {
 
     test('accepting terms and conditions enables submit button', async () => {
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
-      await user.selectOptions(screen.getByRole('combobox',{name: 'Von wo wirst du laufen? *'}),'hamburg');
-      await user.selectOptions(screen.getByRole('combobox', {name: 'Wie schätzt du dein Laufniveau ein? *'}),'often');
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' }), 'hamburg');
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' }),
+        'often'
+      );
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled();
     });
 

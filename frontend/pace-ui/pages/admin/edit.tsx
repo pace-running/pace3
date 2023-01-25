@@ -71,14 +71,13 @@ const Edit: NextPage = () => {
     editRunner(runner_id, mapEditRunnerDataToFullRunnerData(values)).then(() => router.push('/admin'));
   };
 
-  const { handleChange, setFieldValue, values, handleSubmit, errors, isValid } =
-    useFormik<EditRunnerValues>({
-      initialValues: {
-        is_tshirt_booked: runnerData?.is_tshirt_booked ?? false
-      },
-      validationSchema: EditRunnerSchema,
-      onSubmit: submitForm
-    });
+  const { handleChange, setFieldValue, values, handleSubmit, errors, isValid } = useFormik<EditRunnerValues>({
+    initialValues: {
+      is_tshirt_booked: runnerData?.is_tshirt_booked ?? false
+    },
+    validationSchema: EditRunnerSchema,
+    onSubmit: submitForm
+  });
 
   return (
     <div>

@@ -9,7 +9,7 @@ import router from 'next/router';
 import Edit from './edit';
 
 jest.mock('next/router', () => ({
-  useRouter: jest.fn(),
+  useRouter: jest.fn()
 }));
 
 jest.mock('../../apis/api', () => ({
@@ -17,7 +17,6 @@ jest.mock('../../apis/api', () => ({
   editRunner: jest.fn(),
   getFullRunner: jest.fn()
 }));
-
 
 describe('test edit page', () => {
   afterEach(() => {
@@ -63,7 +62,7 @@ describe('test edit page', () => {
   };
 
   test('runner information is displayed correctly', async () => {
-    router.useRouter.mockReturnValue({ query: { id: 5 }});
+    router.useRouter.mockReturnValue({ query: { id: 5 } });
     getFullRunner.mockReturnValue(response);
     await act(async () => {
       render(<Edit />);
@@ -118,49 +117,57 @@ describe('test edit page', () => {
     });
   });
 
-  test('payment status button',async ()=>{
+  test('payment status button', async () => {
     router.useRouter.mockReturnValue({ query: { id: 5 } });
     getFullRunner.mockReturnValue(response);
     changePaymentStatus.mockResolvedValue(null);
     await act(async () => {
       render(<Edit />);
     });
-    await userEvent.click(screen.getByRole('button',{name: 'Nicht bezahlt'}));
-    expect(changePaymentStatus).toHaveBeenCalledWith('5',true);
+    await userEvent.click(screen.getByRole('button', { name: 'Nicht bezahlt' }));
+    expect(changePaymentStatus).toHaveBeenCalledWith('5', true);
   });
 
-  test('button back to admin page opens confirmation modal',async ()=>{
+  test('button back to admin page opens confirmation modal', async () => {
     router.useRouter.mockReturnValue({ query: { id: 5 } });
     getFullRunner.mockReturnValue(response);
     await act(async () => {
       render(<Edit />);
     });
-    await userEvent.click(screen.getByRole('button',{name: 'Zurück zur Adminseite'}));
-    expect(screen.getByText('Sind Sie sicher, dass sie den Bearbeitungsvorgang abbrechen und alle bisherigen Änderungen verwerfen möchten?'));
-    expect(screen.getByRole('button', {name: 'Ja, zurück zur Adminseite'}));
-    expect(screen.getByRole('button', {name: 'Nein, Bearbeitung fortsetzen'}));
+    await userEvent.click(screen.getByRole('button', { name: 'Zurück zur Adminseite' }));
+    expect(
+      screen.getByText(
+        'Sind Sie sicher, dass sie den Bearbeitungsvorgang abbrechen und alle bisherigen Änderungen verwerfen möchten?'
+      )
+    );
+    expect(screen.getByRole('button', { name: 'Ja, zurück zur Adminseite' }));
+    expect(screen.getByRole('button', { name: 'Nein, Bearbeitung fortsetzen' }));
   });
 
-  test('continue button in confirmation modal closes modal', async ()=>{
+  test('continue button in confirmation modal closes modal', async () => {
     router.useRouter.mockReturnValue({ query: { id: 5 } });
     getFullRunner.mockReturnValue(response);
     await act(async () => {
       render(<Edit />);
     });
-    await userEvent.click(screen.getByRole('button',{name: 'Zurück zur Adminseite'}));
-    await userEvent.click(screen.getByRole('button', {name: 'Nein, Bearbeitung fortsetzen'}));
-    expect(screen.queryByText('Sind Sie sicher, dass sie den Bearbeitungsvorgang abbrechen und alle bisherigen Änderungen verwerfen möchten?')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Zurück zur Adminseite' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nein, Bearbeitung fortsetzen' }));
+    expect(
+      screen.queryByText(
+        'Sind Sie sicher, dass sie den Bearbeitungsvorgang abbrechen und alle bisherigen Änderungen verwerfen möchten?'
+      )
+    ).not.toBeInTheDocument();
   });
 
-  test('back button in confirmation modal routes back to admin page',async ()=>{
+  test('back button in confirmation modal routes back to admin page', async () => {
     const mockPush = jest.fn();
-    router.useRouter.mockReturnValue({ query: { id: 5 } , push: mockPush});
+    router.useRouter.mockReturnValue({ query: { id: 5 }, push: mockPush });
     getFullRunner.mockReturnValue(response);
     await act(async () => {
       render(<Edit />);
     });
-    await userEvent.click(screen.getByRole('button',{name: 'Zurück zur Adminseite'}));
-    await userEvent.click(screen.getByRole('button', {name: 'Ja, zurück zur Adminseite'}));
+    await userEvent.click(screen.getByRole('button', { name: 'Zurück zur Adminseite' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Ja, zurück zur Adminseite' }));
     expect(mockPush).toHaveBeenCalledWith('/admin');
   });
 });
