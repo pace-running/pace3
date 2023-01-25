@@ -2,7 +2,6 @@ import React from 'react';
 import { describe, expect, test, jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 import Finance from './finance';
 import router from 'next/router';
@@ -18,6 +17,14 @@ jest.mock('../../apis/api', () => ({
 }));
 
 describe('test the finance page', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   test('button back to admin page works', async () => {
     render(<Finance />);
     await userEvent.click(screen.getByRole('button', { name: 'Zurück zum Adminbereich' }));
@@ -82,11 +89,8 @@ describe('test the finance page', () => {
     await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
     await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
 
-    screen.debug();
-
     const table = document.getElementById('runnersTable');
 
-    // const table = screen.getByLabelText('Zu überprüfende Transaktionen');
     const headers = within(table).getAllByRole('columnheader');
     const firstRowCells = within(table).getAllByRole('row')[1].children;
 

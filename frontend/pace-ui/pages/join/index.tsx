@@ -34,7 +34,7 @@ const Join: NextPage = () => {
     router.push('/summary');
   };
 
-  const { handleChange, setFieldValue, values, handleSubmit, errors } = useFormik<JoinFormValues>({
+  const { handleChange, setFieldValue, values, handleSubmit, errors, isValid } = useFormik<JoinFormValues>({
     initialValues: {
       tshirt_cost: 0,
       tshirt_toggle: false,
@@ -383,7 +383,7 @@ const Join: NextPage = () => {
             label={'Weiter'}
             type={'submit'}
             onSubmit={handleSubmit}
-            disabled={!values.tos_confirmed}
+            disabled={!(values.tos_confirmed && isValid)}
             styling={'brownbg'}
           />
         </div>

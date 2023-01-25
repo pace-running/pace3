@@ -4,7 +4,7 @@ type ModalProps = {
   name: string;
   children: React.ReactNode;
   onClose: EventHandler<any>;
-  open: Boolean;
+  open: boolean;
 };
 
 const Modal: React.FC<ModalProps> = props => {
