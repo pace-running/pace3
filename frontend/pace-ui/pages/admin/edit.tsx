@@ -6,6 +6,7 @@ import { changePaymentStatus, editRunner, getFullRunner } from '../../apis/api';
 import Button from '../../components/Button';
 import Checkbox from '../../components/Checkbox';
 import Dropdown from '../../components/Dropdown';
+import Modal from '../../components/Modal';
 import TextInput from '../../components/TextInput';
 import { getSizeOptions, modelOptions, runningLevelOptions, startingOptions } from '../../utility/dropdownOptions';
 import { EditRunnerSchema, EditRunnerValues } from '../../utility/editRunnerSchema';
@@ -14,6 +15,7 @@ const Edit: NextPage = () => {
   const router = useRouter();
   const runner_id = router.query.id as string;
   const [isPageFound, setIsPageFound] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [runnerData, setRunnerData] = useState<FullRunnerData>();
 
@@ -23,7 +25,6 @@ const Edit: NextPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log('useEffect');
       if (runner_id) {
         // Could use verification code for additional layer of security
         const response = await getFullRunner(runner_id);
@@ -179,7 +180,7 @@ const Edit: NextPage = () => {
               <Dropdown
                 name={'tshirt_size'}
                 label={'Größe'}
-                options={getSizeOptions(values.tshirt_model)}
+                options={getSizeOptions(runnerData ? values.tshirt_model : 'unisex')}
                 default={runnerData?.tshirt_size}
                 onChange={handleChange}
               />
@@ -279,7 +280,7 @@ const Edit: NextPage = () => {
               value={values.verification_code}
               onChange={handleChange}
               name={'verification_code'}
-              label={'Verification Code (möglichst nicht ändern!)'}
+              label={'Verification Code (Bitte nicht ändern!)'}
               placeholder={runnerData?.verification_code}
             />
             <TextInput
@@ -320,9 +321,39 @@ const Edit: NextPage = () => {
               placeholder={runnerData?.delivery_status}
             />
             <br />
-            <span>
-              <Button name={'backButton'} label={'Zurück zur Adminseite'} type={'button'} onClick={() => {}} />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <Modal name={'confirmBackModal'} onClose={() => setShowModal(false)} open={showModal}>
+              <h3>
+                Sind Sie sicher, dass sie den Bearbeitungsvorgang abbrechen und alle bisherigen Änderungen verwerfen
+                möchten?
+              </h3>
+              <Button
+                name={'stayButton'}
+                label={'Nein, Bearbeitung fortsetzen'}
+                type={'button'}
+                onClick={() => {
+                  setShowModal(false);
+                }}
+              />
+              <Button
+                name={'stayButton'}
+                label={'Ja, zurück zur Adminseite'}
+                type={'button'}
+                onClick={() => {
+                  router.push('/admin');
+                }}
+              />
+            </Modal>
+            <div style={{display: 'flex'}}>
+              <Button
+                name={'backButton'}
+                label={'Zurück zur Adminseite'}
+                type={'button'}
+                styling={'brownbg'}
+                onClick={() => {
+                  setShowModal(true);
+                }}
+              />
+
               <Button
                 name={'submitButton'}
                 label={'Änderungen bestätigen'}
@@ -331,7 +362,7 @@ const Edit: NextPage = () => {
                 styling={'brownbg'}
                 disabled={!isValid}
               />
-            </span>
+            </div>
           </div>
         </form>
       )}
