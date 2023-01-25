@@ -20,10 +20,6 @@ const Edit: NextPage = () => {
   const [runnerData, setRunnerData] = useState<FullRunnerData>();
 
   useEffect(() => {
-    validateForm();
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
       if (runner_id) {
         // Could use verification code for additional layer of security
@@ -75,7 +71,7 @@ const Edit: NextPage = () => {
     editRunner(runner_id, mapEditRunnerDataToFullRunnerData(values)).then(() => router.push('/admin'));
   };
 
-  const { handleChange, setFieldValue, values, handleSubmit, errors, isValid, validateForm } =
+  const { handleChange, setFieldValue, values, handleSubmit, errors, isValid } =
     useFormik<EditRunnerValues>({
       initialValues: {
         is_tshirt_booked: runnerData?.is_tshirt_booked ?? false
@@ -180,7 +176,7 @@ const Edit: NextPage = () => {
               <Dropdown
                 name={'tshirt_size'}
                 label={'Größe'}
-                options={getSizeOptions(runnerData ? values.tshirt_model : 'unisex')}
+                options={getSizeOptions(values.tshirt_model ? values.tshirt_model : 'unisex')}
                 default={runnerData?.tshirt_size}
                 onChange={handleChange}
               />
@@ -322,46 +318,53 @@ const Edit: NextPage = () => {
             />
             <br />
             <Modal name={'confirmBackModal'} onClose={() => setShowModal(false)} open={showModal}>
-              <h3>
+              <h5>
                 Sind Sie sicher, dass sie den Bearbeitungsvorgang abbrechen und alle bisherigen Änderungen verwerfen
                 möchten?
-              </h3>
-              <Button
-                name={'stayButton'}
-                label={'Nein, Bearbeitung fortsetzen'}
-                type={'button'}
-                onClick={() => {
-                  setShowModal(false);
-                }}
-              />
-              <Button
-                name={'stayButton'}
-                label={'Ja, zurück zur Adminseite'}
-                type={'button'}
-                onClick={() => {
-                  router.push('/admin');
-                }}
-              />
+              </h5>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Button
+                  name={'stayButton'}
+                  label={'Nein, Bearbeitung fortsetzen'}
+                  type={'button'}
+                  styling={'admin-btn'}
+                  onClick={() => {
+                    setShowModal(false);
+                  }}
+                />
+                <Button
+                  name={'stayButton'}
+                  label={'Ja, zurück zur Adminseite'}
+                  type={'button'}
+                  styling={'admin-btn'}
+                  onClick={() => {
+                    router.push('/admin');
+                  }}
+                />
+              </div>
             </Modal>
-            <div style={{display: 'flex'}}>
-              <Button
-                name={'backButton'}
-                label={'Zurück zur Adminseite'}
-                type={'button'}
-                styling={'brownbg'}
-                onClick={() => {
-                  setShowModal(true);
-                }}
-              />
-
-              <Button
-                name={'submitButton'}
-                label={'Änderungen bestätigen'}
-                type={'submit'}
-                onSubmit={handleSubmit}
-                styling={'brownbg'}
-                disabled={!isValid}
-              />
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+              <div>
+                <Button
+                  name={'backButton'}
+                  label={'Zurück zur Adminseite'}
+                  type={'button'}
+                  styling={'brownbg admin-btn'}
+                  onClick={() => {
+                    setShowModal(true);
+                  }}
+                />
+              </div>
+              <div>
+                <Button
+                  name={'submitButton'}
+                  label={'Änderungen bestätigen'}
+                  type={'submit'}
+                  onSubmit={handleSubmit}
+                  styling={'brownbg admin-btn'}
+                  disabled={!isValid}
+                />
+              </div>
             </div>
           </div>
         </form>

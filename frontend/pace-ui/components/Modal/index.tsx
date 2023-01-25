@@ -1,9 +1,9 @@
-import React, { EventHandler } from 'react';
+import React, { EventHandler, SyntheticEvent } from 'react';
 
 type ModalProps = {
   name: string;
   children: React.ReactNode;
-  onClose: EventHandler<any>;
+  onClose: EventHandler<SyntheticEvent>;
   open: boolean;
 };
 

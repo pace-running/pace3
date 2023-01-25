@@ -4086,7 +4086,7 @@ select.stack:focus+select {
     width: 70%;
 
     background-color: white;
-    padding: 1rem;
+    padding: 2rem;
     border-radius: 5px;
     box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
     z-index: 10;
@@ -4112,6 +4112,7 @@ select.stack:focus+select {
     border: none;
     background: none;
     z-index: 12;
+    padding: 0;
 }
 
 .size-table {
@@ -4143,4 +4144,9 @@ select.stack:focus+select {
     font-size: 5vw;
     text-align: center;
     margin-top: 10rem;
+}
+
+.admin-btn {
+    margin: 1rem;
+
 }
