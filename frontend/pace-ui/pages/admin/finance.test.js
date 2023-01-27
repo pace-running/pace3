@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import Finance from './finance';
 import router from 'next/router';
-import { uploadPaymentCSV } from '../../apis/api';
+import { uploadPaymentCSV, getAllRejectedTransactions } from '../../apis/api';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -13,7 +13,8 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../apis/api', () => ({
-  uploadPaymentCSV: jest.fn()
+  uploadPaymentCSV: jest.fn(),
+  getAllRejectedTransactions: jest.fn()
 }));
 
 describe('test the finance page', () => {
@@ -64,17 +65,10 @@ describe('test the finance page', () => {
     expect(uploadPaymentCSV).toHaveBeenCalledWith(file);
   });
 
-  test('faulty transactions are displayed in the table', async () => {
+  test('number of accepted and rejected transactions from last upload is displayed in the table', async () => {
     const response = {
       status: 200,
-      data: [
-        {
-          runner_ids: ['21', '42'],
-          reason_for_payment: 'LGR-DFSKF, LGR-OBZSA',
-          amount: '25',
-          expected_amount: '37'
-        }
-      ]
+      data: [27,43]
     };
 
     uploadPaymentCSV.mockResolvedValue(response);
@@ -89,21 +83,28 @@ describe('test the finance page', () => {
     await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
     await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
 
-    const table = document.getElementById('runnersTable');
-
-    const headers = within(table).getAllByRole('columnheader');
-    const firstRowCells = within(table).getAllByRole('row')[1].children;
-
-    expect(headers[0]).toHaveTextContent('Teilnehmenden ID');
-    expect(firstRowCells[0]).toHaveTextContent('21, 42');
-
-    expect(headers[1]).toHaveTextContent('Verwendungszweck');
-    expect(firstRowCells[1]).toHaveTextContent('LGR-DFSKF, LGR-OBZSA');
-
-    expect(headers[2]).toHaveTextContent('erhaltener Betrag');
-    expect(firstRowCells[2]).toHaveTextContent('25');
-
-    expect(headers[3]).toHaveTextContent('erwarteter Betrag');
-    expect(firstRowCells[3]).toHaveTextContent('37');
+    expect(screen.getByText('Upload erfolgreich, 27 Transaktionen bestätigt und 43 abgelehnt!'));
   });
+
+  test('if upload of csv goes wrong, error message is displayed',async ()=>{
+    const response = {
+      status: 401,
+      data: [27,43]
+    };
+
+    uploadPaymentCSV.mockResolvedValue(response);
+
+    render(<Finance />);
+    const str = JSON.stringify('test');
+    const blob = new Blob([str]);
+    const file = new File([blob], 'values.csv', {
+      type: 'application/CSV'
+    });
+
+    await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
+    await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
+
+    screen.getByText('Beim Upload ist etwas schiefgelaufen!');
+  });
+
 });

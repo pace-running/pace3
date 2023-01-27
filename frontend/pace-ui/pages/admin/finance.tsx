@@ -7,7 +7,8 @@ import Button from '../../components/Button';
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File>();
-  const [wrongPayments, setWrongPayments] = useState<FaultyTransaction[]>();
+  const [rejectedPayments, setRejectedPayments] = useState<RejectedTransaction[]>();
+  const [uploadFeedback, setUploadFeedback] = useState<number[]>();
 
   const allowedExtensions = ['csv'];
 
@@ -29,9 +30,12 @@ const Finance: NextPage = () => {
   const handleParse = async () => {
     if (file) {
       console.log('Uploading csv file...');
-      const response = await uploadPaymentCSV(file);
-      if (response?.status === 200) {
-        setWrongPayments(response.data);
+      const uploadResponse = await uploadPaymentCSV(file);
+      if (uploadResponse?.status === 200) {
+        setUploadFeedback(uploadResponse.data);
+      } else {
+        setUploadFeedback([-1, -1]);
+        console.log('Error uploading the csv file!');
       }
     } else {
       setError('Bitte wähle zunächst eine Datei aus!');
@@ -66,35 +70,17 @@ const Finance: NextPage = () => {
         </button>
       </div>
       <br />
+      {uploadFeedback &&
+        (uploadFeedback[0] === -1 ? (
+          <div>Beim Upload ist etwas schiefgelaufen!</div>
+        ) : (
+          <div>
+            Upload erfolgreich, {uploadFeedback[0]} Transaktionen bestätigt und {uploadFeedback[1]} abgelehnt!
+          </div>
+        ))}
       <br />
-      <h2>
-        <label htmlFor='runnersTable'>Zu überprüfende Transaktionen</label>
-      </h2>
-      <div>
-        <table id='runnersTable' style={{ overflow: 'scroll' }}>
-          <thead>
-            <tr key={'head'}>
-              <th>Teilnehmenden ID</th>
-              <th>Verwendungszweck</th>
-              <th>erhaltener Betrag</th>
-              <th>erwarteter Betrag</th>
-            </tr>
-          </thead>
-          <tbody>
-            {wrongPayments &&
-              wrongPayments.map((obj, key) => {
-                return (
-                  <tr key={key}>
-                    <td>{obj?.runner_ids ? obj?.runner_ids.join(', ') : 'Teilnehmer nicht gefunden'}</td>
-                    <td>{obj?.reason_for_payment}</td>
-                    <td>{obj?.amount}</td>
-                    <td>{obj?.expected_amount}</td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
-      </div>
+      <h3>Zu überprüfende Transaktionen</h3>
+      <div>...</div>
     </div>
   );
 };

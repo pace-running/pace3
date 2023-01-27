@@ -50,3 +50,9 @@ export async function uploadPaymentCSV(file: File) {
     headers: { 'content-type': 'multipart/form-data' }
   });
 }
+
+export async function getAllRejectedTransactions() {
+  return await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/finance`, {
+    headers: { 'content-type': 'application/json' }
+  });
+}

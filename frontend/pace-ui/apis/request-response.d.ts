@@ -103,7 +103,7 @@ interface FullRunnerData {
   payment_confirmation_mail_sent: boolean;
 }
 
-interface FaultyTransaction {
+interface RejectedTransaction {
   runner_ids: string[] | undefined;
   reason_for_payment: string;
   amount: string;
