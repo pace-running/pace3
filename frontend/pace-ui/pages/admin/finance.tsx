@@ -15,7 +15,7 @@ const Finance: NextPage = () => {
   const allowedExtensions = ['csv'];
 
   useEffect(() => {
-    const fetchTransactions =async () => {
+    const fetchTransactions = async () => {
       if (!transactionsLoaded) {
         const response = await getAllRejectedTransactions();
         if (response?.status === 200) {
@@ -23,7 +23,7 @@ const Finance: NextPage = () => {
           setTransactionsLoaded(true);
         }
       }
-    }
+    };
     fetchTransactions();
   }, [transactionsLoaded]);
 
@@ -99,33 +99,34 @@ const Finance: NextPage = () => {
         <table id='rejectedPaymentsTable' style={{ overflow: 'scroll' }}>
           <thead>
             <tr key={'head'}>
-            <th>Datum</th>
-            <th>Teilnehmenden IDs</th>
-            <th>Verwendungsqweck</th> 
-            <th>Betrag</th> 
-            <th>Erwarteter Betrag</th>
-            <th>Währung</th>
-            <th>Name</th>
-            <th>IBAN</th>
+              <th>Datum</th>
+              <th>Teilnehmenden IDs</th>
+              <th>Verwendungsqweck</th>
+              <th>Betrag</th>
+              <th>Erwarteter Betrag</th>
+              <th>Währung</th>
+              <th>Name</th>
+              <th>IBAN</th>
             </tr>
           </thead>
           <tbody>
-            {rejectedPayments && rejectedPayments.map((transaction, key) => {
-              return (
-                <tr key={key}>
-                  <td>{transaction.date_of_payment}</td>
-                  <td>{transaction.runners_id}</td>
-                  <td>{transaction.reasons_for_payment}</td>
-                  <td>{transaction.payment_amount}</td>
-                  <td>{transaction.expected_amount}</td>
-                  <td>{transaction.currency}</td>
-                  <td>{transaction.payer_name}</td>
-                  <td>{transaction.iban}</td>
-                </tr>
-              );
-            })}
+            {rejectedPayments &&
+              rejectedPayments.map((transaction, key) => {
+                return (
+                  <tr key={key}>
+                    <td>{transaction.date_of_payment}</td>
+                    <td>{transaction.runners_id}</td>
+                    <td>{transaction.reasons_for_payment}</td>
+                    <td>{transaction.payment_amount}</td>
+                    <td>{transaction.expected_amount}</td>
+                    <td>{transaction.currency}</td>
+                    <td>{transaction.payer_name}</td>
+                    <td>{transaction.iban}</td>
+                  </tr>
+                );
+              })}
           </tbody>
-          </table>
+        </table>
       </div>
     </div>
   );

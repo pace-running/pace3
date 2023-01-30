@@ -69,7 +69,7 @@ describe('test the finance page', () => {
   test('number of accepted and rejected transactions from last upload is displayed in the table', async () => {
     const response = {
       status: 200,
-      data: [27,43]
+      data: [27, 43]
     };
 
     uploadPaymentCSV.mockResolvedValue(response);
@@ -87,31 +87,31 @@ describe('test the finance page', () => {
     expect(screen.getByText('Upload erfolgreich, 27 Transaktionen bestätigt und 43 abgelehnt!'));
   });
 
-  test('if upload of csv goes wrong, error message is displayed',async ()=>{
-     const response = {
-       status: 401,
-       data: [27,43]
-     };
- 
-     uploadPaymentCSV.mockResolvedValue(response);
- 
-     render(<Finance />);
-     const str = JSON.stringify('test');
-     const blob = new Blob([str]);
-     const file = new File([blob], 'values.csv', {
-       type: 'application/CSV'
-     });
- 
-     await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
-     await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
- 
-     screen.getByText('Beim Upload ist etwas schiefgelaufen!');
-   });
+  test('if upload of csv goes wrong, error message is displayed', async () => {
+    const response = {
+      status: 401,
+      data: [27, 43]
+    };
+
+    uploadPaymentCSV.mockResolvedValue(response);
+
+    render(<Finance />);
+    const str = JSON.stringify('test');
+    const blob = new Blob([str]);
+    const file = new File([blob], 'values.csv', {
+      type: 'application/CSV'
+    });
+
+    await userEvent.upload(screen.getByLabelText('Hier .csv-Datei einfügen:'), file);
+    await userEvent.click(screen.getByRole('button', { name: 'Einlesen' }));
+
+    screen.getByText('Beim Upload ist etwas schiefgelaufen!');
+  });
 
   //  test ('rejected transactions are displayed in the table correctly', async () => {
   //    const apiResponse = {
   //      status: 200,
-  //      data: 
+  //      data:
   //        {
   //          id: 55,
   //          runner_ids: '105',
@@ -123,13 +123,11 @@ describe('test the finance page', () => {
   //          payer_name: 'Test McTesty',
   //          iban: 'DE57500105175574174785'
   //        }
-      
-      
-      
+
   //   };
   //    getAllRejectedTransactions.mockResolvedValue(apiResponse);
   //    await act(async () => render(<Finance />));
- 
+
   //    const table = screen.getByRole('table');
   //    const headers = within(table).getAllByRole('columnheader');
   //    const firstRow = within(table).getAllByRole('row')[1];
@@ -139,25 +137,21 @@ describe('test the finance page', () => {
   //    screen.debug()
   //    expect(headers[1]).toHaveTextContent('Teilnehmenden IDs');
   //    expect(firstRowCells[1]).toHaveTextContent('105');
-      
+
   //    expect(headers[2]).toHaveTextContent('Verwendungszweck');
   //    expect(firstRowCells[2]).toHaveTextContent('LGR-YPKDM, LGR-YPKPP');
-      
+
   //    expect(headers[3]).toHaveTextContent('Betrag');
-  //    expect(firstRowCells[3]).toHaveTextContent('25');  
+  //    expect(firstRowCells[3]).toHaveTextContent('25');
   //    expect(headers[4]).toHaveTextContent('Erwarteter Betrag');
-  //    expect(firstRowCells[4]).toHaveTextContent('25, 25'); 
+  //    expect(firstRowCells[4]).toHaveTextContent('25, 25');
   //    expect(headers[5]).toHaveTextContent('Währung');
-  //    expect(firstRowCells[5]).toHaveTextContent('EUR');  
+  //    expect(firstRowCells[5]).toHaveTextContent('EUR');
   //    expect(headers[6]).toHaveTextContent('Name');
   //    expect(firstRowCells[6]).toHaveTextContent('Test McTesty');
- 
+
   //    expect(headers[7]).toHaveTextContent('IBAN');
   //    expect(firstRowCells[7]).toHaveTextContent('DE57500105175574174785');
- 
-
-   });
+});
 
 //});
-
-
