@@ -3,7 +3,6 @@ import router from 'next/router';
 import { useEffect, useState } from 'react';
 import { getAllRejectedTransactions, uploadPaymentCSV } from '../../apis/api';
 import Button from '../../components/Button';
-import { date } from 'yup';
 
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
@@ -115,7 +114,7 @@ const Finance: NextPage = () => {
                 return (
                   <tr key={key}>
                     <td>{transaction.date_of_payment}</td>
-                    <td>{transaction.runners_id}</td>
+                    <td>{transaction.runner_ids}</td>
                     <td>{transaction.reasons_for_payment}</td>
                     <td>{transaction.payment_amount}</td>
                     <td>{transaction.expected_amount}</td>
