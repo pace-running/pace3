@@ -3,8 +3,8 @@ use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
 use crate::services::email::send_payment_confirmation;
 use crate::{
-    establish_connection, insert_shipping, retrieve_donation_by_reason_for_payment,
-    retrieve_runner_by_id, retrieve_shipping_by_runner_id, is_eu_country,
+    establish_connection, insert_shipping, is_eu_country, retrieve_donation_by_reason_for_payment,
+    retrieve_runner_by_id, retrieve_shipping_by_runner_id,
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
@@ -312,7 +312,7 @@ pub async fn edit_runner(
     if info.is_tshirt_booked {
         use crate::schema::shippings::dsl::*;
         let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
-        
+
         insert_shipping(
             connection,
             NewShipping {

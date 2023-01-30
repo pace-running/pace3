@@ -1,16 +1,31 @@
 import { NextPage } from 'next';
 import router from 'next/router';
-import { useState } from 'react';
-import { uploadPaymentCSV } from '../../apis/api';
+import { useEffect, useState } from 'react';
+import { getAllRejectedTransactions, uploadPaymentCSV } from '../../apis/api';
 import Button from '../../components/Button';
+import { date } from 'yup';
 
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
   const [file, setFile] = useState<File>();
   const [rejectedPayments, setRejectedPayments] = useState<RejectedTransaction[]>();
   const [uploadFeedback, setUploadFeedback] = useState<number[]>();
+  const [transactionsLoaded, setTransactionsLoaded] = useState(false);
 
   const allowedExtensions = ['csv'];
+
+  useEffect(() => {
+    const fetchTransactions =async () => {
+      if (!transactionsLoaded) {
+        const response = await getAllRejectedTransactions();
+        if (response?.status === 200) {
+          setRejectedPayments(response.data);
+          setTransactionsLoaded(true);
+        }
+      }
+    }
+    fetchTransactions();
+  }, [transactionsLoaded]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError('');
@@ -80,7 +95,38 @@ const Finance: NextPage = () => {
         ))}
       <br />
       <h3>Zu überprüfende Transaktionen</h3>
-      <div>...</div>
+      <div>
+        <table id='rejectedPaymentsTable' style={{ overflow: 'scroll' }}>
+          <thead>
+            <tr key={'head'}>
+            <th>Datum</th>
+            <th>Teilnehmenden IDs</th>
+            <th>Verwendungsqweck</th> 
+            <th>Betrag</th> 
+            <th>Erwarteter Betrag</th>
+            <th>Währung</th>
+            <th>Name</th>
+            <th>IBAN</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rejectedPayments && rejectedPayments.map((transaction, key) => {
+              return (
+                <tr key={key}>
+                  <td>{transaction.date_of_payment}</td>
+                  <td>{transaction.runners_id}</td>
+                  <td>{transaction.reasons_for_payment}</td>
+                  <td>{transaction.payment_amount}</td>
+                  <td>{transaction.expected_amount}</td>
+                  <td>{transaction.currency}</td>
+                  <td>{transaction.payer_name}</td>
+                  <td>{transaction.iban}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          </table>
+      </div>
     </div>
   );
 };

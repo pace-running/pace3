@@ -1,3 +1,5 @@
+import { number } from "yup";
+
 interface InfoRequestData {
   // RunnerInfoRequestData
   firstname: string;
@@ -104,8 +106,13 @@ interface FullRunnerData {
 }
 
 interface RejectedTransaction {
-  runner_ids: string[] | undefined;
-  reason_for_payment: string;
-  amount: string;
-  expected_amount: string | undefined;
+  id: number;
+  runner_ids: string;
+  reasons_for_payment: string;
+  payment_amount: string;
+  expected_amount: string;
+  currency: string;
+  date_of_payment: string;
+  payer_name: string;
+  iban: string;
 }
