@@ -1,5 +1,3 @@
-import { number } from "yup";
-
 interface InfoRequestData {
   // RunnerInfoRequestData
   firstname: string;
