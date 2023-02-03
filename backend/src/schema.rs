@@ -9,6 +9,20 @@ diesel::table! {
 }
 
 diesel::table! {
+    rejected_transactions (id) {
+        id -> Int4,
+        runner_ids -> Varchar,
+        date_of_payment -> Varchar,
+        reasons_for_payment -> Varchar,
+        payment_amount -> Varchar,
+        expected_amount -> Nullable<Varchar>,
+        currency -> Varchar,
+        payer_name -> Varchar,
+        iban -> Varchar,
+    }
+}
+
+diesel::table! {
     runners (id) {
         id -> Int4,
         start_number -> Int8,
@@ -56,4 +70,10 @@ diesel::table! {
 
 diesel::joinable!(shippings -> runners (runner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(events, runners, shippings, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    events,
+    rejected_transactions,
+    runners,
+    shippings,
+    users,
+);
