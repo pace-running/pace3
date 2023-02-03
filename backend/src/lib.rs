@@ -44,7 +44,10 @@ pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
         .expect("Error saving runner")
 }
 
-pub fn insert_rejected_transaction(conn: &mut PgConnection, new_transaction: NewRejectedTransaction) -> RejectedTransaction {
+pub fn insert_rejected_transaction(
+    conn: &mut PgConnection,
+    new_transaction: NewRejectedTransaction,
+) -> RejectedTransaction {
     diesel::insert_into(schema::rejected_transactions::table)
         .values(&new_transaction)
         .get_result(conn)

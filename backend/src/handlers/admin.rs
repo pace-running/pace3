@@ -1,16 +1,17 @@
-use crate::models::rejected_transaction::RejectedTransaction;
+use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
 use crate::services::email::send_payment_confirmation;
 use crate::{
-    establish_connection, insert_shipping, is_eu_country, retrieve_donation_by_reason_for_payment,
-    retrieve_runner_by_id, retrieve_shipping_by_runner_id,
+    establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country,
+    retrieve_donation_by_reason_for_payment, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
 use actix_web::web::{self, Json};
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
+use chrono::NaiveDate;
 use diesel::prelude::*;
 use futures_util::stream::StreamExt as _;
 use serde::{Deserialize, Serialize};
@@ -365,45 +366,56 @@ pub async fn parse_payment_csv(
     // println!("String: {}",csv_string);
     let mut reader = csv::Reader::from_reader(csv_string.as_bytes());
 
-    let mut faulty_transaction_list: Vec<FaultyTransaction> = Vec::new();
+    let mut accepted = 0;
+    let mut rejected = 0;
     for record in reader.byte_records() {
         let record = record.unwrap_or_default();
-
-        let faulty_transaction = register_payment(&String::from_utf8_lossy(record.as_slice()));
-        if let Some(transaction) = faulty_transaction {
-            faulty_transaction_list.push(transaction);
+        let record_response = register_payment(&String::from_utf8_lossy(record.as_slice()));
+        if record_response == "accepted" {
+            accepted += 1;
+        } else if record_response == "rejected" {
+            rejected += 1;
         }
     }
-
     Ok(HttpResponse::Ok()
         .content_type("text/json")
-        .body(serde_json::to_string(&faulty_transaction_list).unwrap()))
+        .body(serde_json::to_string(&[accepted, rejected]).unwrap()))
 }
 
-fn register_payment(row: &str) -> Option<FaultyTransaction> {
+fn register_payment(row: &str) -> String {
     let entries = row.split(";").collect::<Vec<_>>();
 
     let connection = &mut establish_connection();
+
     let rfp_string = entries[9];
     let rfp_list = filter_rfp(rfp_string);
     // println!("{:?}", rfp_list);
     if rfp_list.len() == 0 {
-        return None;
+        return "empty".to_string();
     }
     let paid_amount = entries[12];
     let mut budget: i32 = paid_amount.trim().parse().unwrap_or(0);
 
     let mut successful_ids: Vec<String> = Vec::new();
+    let mut new_transaction = NewRejectedTransaction {
+        runner_ids: "",
+        date_of_payment: entries[0],
+        reasons_for_payment: &rfp_list.join(", "),
+        payment_amount: &paid_amount,
+        expected_amount: None,
+        currency: entries[11],
+        payer_name: entries[4],
+        iban: entries[6],
+    };
+
     for rfp in &rfp_list {
         let result = retrieve_donation_by_reason_for_payment(connection, &rfp);
         match result {
             Err(_) => {
-                return Some(FaultyTransaction {
-                    runner_ids: None,
-                    reason_for_payment: rfp_list.join(", "),
-                    amount: paid_amount.to_string(),
-                    expected_amount: None,
-                })
+                let runner_ids = &successful_ids.join(", ");
+                new_transaction.runner_ids = runner_ids;
+                insert_rejected_transaction(connection, new_transaction);
+                return "rejected".to_string();
             }
             Ok(returned_runner) => {
                 successful_ids.push(returned_runner.id.to_string());
@@ -417,14 +429,14 @@ fn register_payment(row: &str) -> Option<FaultyTransaction> {
         for id in successful_ids {
             change_payment_status(connection, id.trim().parse::<i32>().unwrap(), true);
         }
-        return None;
+        return "accepted".to_string();
     } else {
-        return Some(FaultyTransaction {
-            runner_ids: Some(successful_ids),
-            reason_for_payment: rfp_list.join(", "),
-            amount: paid_amount.to_string(),
-            expected_amount: Some((paid_amount.trim().parse().unwrap_or(0) - budget).to_string()),
-        });
+        let runner_ids = &successful_ids.join(", ");
+        new_transaction.runner_ids = runner_ids;
+        let expected = (paid_amount.trim().parse().unwrap_or(0) - budget).to_string();
+        new_transaction.expected_amount = Some(&expected);
+        insert_rejected_transaction(connection, new_transaction);
+        return "rejected".to_string();
     }
 }
 
@@ -501,17 +513,29 @@ fn send_payment_confirmation_email(runner: &Runner) -> bool {
 pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Error> {
     use crate::schema::rejected_transactions::dsl::*;
     let connection = &mut establish_connection();
-    let mut transaction_list = rejected_transactions.load::<RejectedTransaction>(connection).unwrap();
-    transaction_list.sort_by(|a,b| a.date_of_payment.partial_cmp(&b.date_of_payment).unwrap());
-    
+    let mut transaction_list = rejected_transactions
+        .load::<RejectedTransaction>(connection)
+        .unwrap();
+    transaction_list.sort_by(|a, b| {
+        NaiveDate::parse_from_str(&b.date_of_payment, "%d.%m.%Y")
+            .unwrap_or_default()
+            .partial_cmp(
+                &NaiveDate::parse_from_str(&a.date_of_payment, "%d.%m.%Y").unwrap_or_default(),
+            )
+            .unwrap()
+    });
+
     Ok(HttpResponse::Ok()
-    .content_type("text/json")
-    .body(serde_json::to_string(&transaction_list).unwrap()))
+        .content_type("text/json")
+        .body(serde_json::to_string(&transaction_list).unwrap()))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{models::rejected_transaction::NewRejectedTransaction, establish_connection, insert_rejected_transaction};
+    use crate::{
+        establish_connection, insert_rejected_transaction,
+        models::rejected_transaction::NewRejectedTransaction,
+    };
 
     use super::filter_rfp;
 
@@ -526,16 +550,16 @@ mod tests {
     fn integration_put_rej_trans_into_database() {
         let conn = &mut establish_connection();
         let new_transaction = NewRejectedTransaction {
-            runner_ids: "2,5",
-            date_of_payment: "3.2.23",
+            runner_ids: "2, 5",
+            date_of_payment: "03.02.2023",
             reasons_for_payment: "LGR-POIUY, LGR-QWERT",
             payment_amount: "44",
             expected_amount: Some("45"),
             currency: "EUR",
             payer_name: "Testy McTest",
-            iban: "DE87876876876"
+            iban: "DE87876876876",
         };
         let inserted_transaction = insert_rejected_transaction(conn, new_transaction);
-        assert_eq!(inserted_transaction.iban,"DE87876876876");
+        assert_eq!(inserted_transaction.iban, "DE87876876876");
     }
 }

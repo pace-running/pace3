@@ -51,13 +51,14 @@ const Finance: NextPage = () => {
         setUploadFeedback([-1, -1]);
         console.log('Error uploading the csv file!');
       }
+      setTransactionsLoaded(false);
     } else {
       setError('Bitte wähle zunächst eine Datei aus!');
     }
   };
 
   return (
-    <div style={{ margin: '50px' }}>
+    <div style={{ margin: '3rem', paddingBottom: '5rem'}}>
       <h1>Finanzen</h1>
       <Button
         name={'back-btn-admin'}
