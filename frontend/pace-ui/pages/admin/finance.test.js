@@ -111,17 +111,19 @@ describe('test the finance page', () => {
   test('rejected transactions are displayed in the table correctly', async () => {
     const apiResponse = {
       status: 200,
-      data: [{
-        id: 55,
-        runner_ids: '105',
-        reasons_for_payment: 'LGR-YPKDM, LGR-YPKPP',
-        payment_amount: '25',
-        expected_amount: '25, 25',
-        currency: 'EUR',
-        date_of_payment: '26.01.2023',
-        payer_name: 'Test McTesty',
-        iban: 'DE57500105175574174785'
-      }]
+      data: [
+        {
+          id: 55,
+          runner_ids: '105',
+          reasons_for_payment: 'LGR-YPKDM, LGR-YPKPP',
+          payment_amount: '25',
+          expected_amount: '25, 25',
+          currency: 'EUR',
+          date_of_payment: '26.01.2023',
+          payer_name: 'Test McTesty',
+          iban: 'DE57500105175574174785'
+        }
+      ]
     };
     getAllRejectedTransactions.mockResolvedValue(apiResponse);
     await act(async () => render(<Finance />));

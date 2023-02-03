@@ -58,7 +58,7 @@ const Finance: NextPage = () => {
   };
 
   return (
-    <div style={{ margin: '3rem', paddingBottom: '5rem'}}>
+    <div style={{ margin: '3rem', paddingBottom: '5rem' }}>
       <h1>Finanzen</h1>
       <Button
         name={'back-btn-admin'}
