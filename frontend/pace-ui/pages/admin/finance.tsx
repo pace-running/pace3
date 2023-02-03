@@ -100,7 +100,7 @@ const Finance: NextPage = () => {
             <tr key={'head'}>
               <th>Datum</th>
               <th>Teilnehmenden IDs</th>
-              <th>Verwendungsqweck</th>
+              <th>Verwendungszweck</th>
               <th>Betrag</th>
               <th>Erwarteter Betrag</th>
               <th>Währung</th>
