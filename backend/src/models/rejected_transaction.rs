@@ -18,6 +18,7 @@ pub struct NewRejectedTransaction<'a> {
 
 #[derive(Queryable, Serialize, Deserialize, Clone)]
 pub struct RejectedTransaction {
+    pub id: i32,
     pub runner_ids: String,
     pub date_of_payment: String,
     pub reasons_for_payment: String,

@@ -4,6 +4,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 use dotenvy::dotenv;
+use models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 
 use self::models::runner::{NewRunner, Runner};
 use self::models::shipping::{NewShipping, Shipping};
@@ -41,6 +42,13 @@ pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
         .values(&new_runner)
         .get_result(conn)
         .expect("Error saving runner")
+}
+
+pub fn insert_rejected_transaction(conn: &mut PgConnection, new_transaction: NewRejectedTransaction) -> RejectedTransaction {
+    diesel::insert_into(schema::rejected_transactions::table)
+        .values(&new_transaction)
+        .get_result(conn)
+        .expect("Error saving transaction")
 }
 
 pub fn retrieve_runner_by_id(conn: &mut PgConnection, id: i32) -> Runner {

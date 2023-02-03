@@ -1,3 +1,4 @@
+use crate::models::rejected_transaction::RejectedTransaction;
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, User};
@@ -79,12 +80,19 @@ pub struct FullRunnerInfo {
     shipping_details: Option<ShippingDetails>,
 }
 
+// TODO: delete  after changing implementation of csv parsing
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct FaultyTransaction {
     runner_ids: Option<Vec<String>>,
     reason_for_payment: String,
     amount: String,
     expected_amount: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct RejectedTransactionsResponse {
+    transaction_list: Vec<RejectedTransaction>,
+    inner_response: Response,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -490,8 +498,21 @@ fn send_payment_confirmation_email(runner: &Runner) -> bool {
     )
 }
 
+pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Error> {
+    use crate::schema::rejected_transactions::dsl::*;
+    let connection = &mut establish_connection();
+    let mut transaction_list = rejected_transactions.load::<RejectedTransaction>(connection).unwrap();
+    transaction_list.sort_by(|a,b| a.date_of_payment.partial_cmp(&b.date_of_payment).unwrap());
+    
+    Ok(HttpResponse::Ok()
+    .content_type("text/json")
+    .body(serde_json::to_string(&transaction_list).unwrap()))
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::{models::rejected_transaction::NewRejectedTransaction, establish_connection, insert_rejected_transaction};
+
     use super::filter_rfp;
 
     #[test]
@@ -499,5 +520,22 @@ mod tests {
         let rfp = "Vwz: �berweisung LGR-TTZLK und LGR-we0gS";
         let result = filter_rfp(rfp);
         assert_eq!(result, ["LGR-TTZLK", "LGR-WEOGS"]);
+    }
+
+    #[test]
+    fn integration_put_rej_trans_into_database() {
+        let conn = &mut establish_connection();
+        let new_transaction = NewRejectedTransaction {
+            runner_ids: "2,5",
+            date_of_payment: "3.2.23",
+            reasons_for_payment: "LGR-POIUY, LGR-QWERT",
+            payment_amount: "44",
+            expected_amount: Some("45"),
+            currency: "EUR",
+            payer_name: "Testy McTest",
+            iban: "DE87876876876"
+        };
+        let inserted_transaction = insert_rejected_transaction(conn, new_transaction);
+        assert_eq!(inserted_transaction.iban,"DE87876876876");
     }
 }
