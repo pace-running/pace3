@@ -13,7 +13,8 @@ export const JoinFormSchema = Yup.object().shape({
     .matches(/^[A-Za-z ]*$/, 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!'),
   lastname: Yup.string()
     .min(2, 'Nachname muss mindestens zwei Zeichen enthalten!')
-    .max(50, 'Nachname darf maximal 50 Zeichen enthalten!'),
+    .max(50, 'Nachname darf maximal 50 Zeichen enthalten!')
+    .matches(/^[A-Za-z ]*$/, 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!'),
   team: Yup.string(),
   email: Yup.string().email('E-Mail muss zulässige E-Mail-Adresse sein!'),
   repeated_email: Yup.string().test({

@@ -104,6 +104,28 @@ describe('testing of the registration page', () => {
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
       });
     });
+
+    test('should display error if last name contains numbers', async () => {
+      const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
+      const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
+
+      await user.type(lastNameInput, '123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(lastNameInput);
+      await user.type(lastNameInput, '!@?');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(lastNameInput);
+      await user.type(lastNameInput, 'Name123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(lastNameInput);
+      await user.type(lastNameInput, 'Name');
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('Tshirt form displayed', () => {
