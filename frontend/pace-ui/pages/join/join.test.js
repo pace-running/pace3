@@ -82,6 +82,28 @@ describe('testing of the registration page', () => {
       await user.type(donationInput, '6,5');
       await expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!', null, { timeout: 3000 }));
     });
+
+    test('should display error if first name contains numbers', async () => {
+      const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
+      const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
+
+      await user.type(firstNameInput, '123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, '!@?');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, 'Name123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, 'Name');
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('Tshirt form displayed', () => {
