@@ -194,6 +194,60 @@ describe('testing of the registration page', () => {
       });
     });
 
+    test('adding numbers or special characters to shipping address first name field displays error', async () => {
+      await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      await waitFor(() => {
+        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+      });
+
+      const firstNameInput = screen.getByRole('textbox', { name: 'Vorname *' });
+      const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
+
+      await user.type(firstNameInput, '123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, '!@?');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, 'Name123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, 'Name');
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
+    });
+
+    test('adding numbers or special characters to shipping address last name field displays error', async () => {
+      await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      await waitFor(() => {
+        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+      });
+
+      const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
+      const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
+
+      await user.type(lastNameInput, '123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(lastNameInput);
+      await user.type(lastNameInput, '!@?');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(lastNameInput);
+      await user.type(lastNameInput, 'Name123');
+      expect(screen.getByText(errorMessage));
+
+      await user.clear(lastNameInput);
+      await user.type(lastNameInput, 'Name');
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
+    });
+
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
