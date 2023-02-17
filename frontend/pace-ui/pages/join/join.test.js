@@ -84,6 +84,8 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if first name contains numbers', async () => {
+      await screen.findByText('Vorname (erscheint auf der Startnummer)');
+
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
 
@@ -112,6 +114,8 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if last name contains numbers', async () => {
+      await screen.findByText('Nachname');
+
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
 
@@ -201,6 +205,7 @@ describe('testing of the registration page', () => {
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
+      await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
@@ -234,6 +239,7 @@ describe('testing of the registration page', () => {
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
+      await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
