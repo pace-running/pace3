@@ -99,7 +99,13 @@ describe('testing of the registration page', () => {
       expect(screen.getByText(errorMessage));
 
       await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Name');
+      await user.type(firstNameInput, 'Sönke-Maël');
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, 'Büşra Maria');
       await waitFor(() => {
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
       });
@@ -121,7 +127,7 @@ describe('testing of the registration page', () => {
       expect(screen.getByText(errorMessage));
 
       await user.clear(lastNameInput);
-      await user.type(lastNameInput, 'Name');
+      await user.type(lastNameInput, 'Müller-Çelik Čížková Jr.');
       await waitFor(() => {
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
       });
@@ -215,7 +221,13 @@ describe('testing of the registration page', () => {
       expect(screen.getByText(errorMessage));
 
       await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Name');
+      await user.type(firstNameInput, 'Sönke-Maël');
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
+
+      await user.clear(firstNameInput);
+      await user.type(firstNameInput, 'Büşra Maria');
       await waitFor(() => {
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
       });
@@ -242,7 +254,7 @@ describe('testing of the registration page', () => {
       expect(screen.getByText(errorMessage));
 
       await user.clear(lastNameInput);
-      await user.type(lastNameInput, 'Name');
+      await user.type(lastNameInput, 'Müller-Çelik Čížková Jr.');
       await waitFor(() => {
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
       });
