@@ -7,7 +7,7 @@ describe('registration form', () => {
     it('fills in basic information of runner', function () {
 
 
-        cy.visit("https://pace3.lauf-gegen-rechts.de/")
+        cy.visit("/")
         cy.get('#header-button-registration').click()
 
         cy.get(':nth-child(3) > .input-group > .form-control')
