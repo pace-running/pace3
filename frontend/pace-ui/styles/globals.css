@@ -3347,7 +3347,8 @@ nav {
     top: 0;
     left: 0;
     right: 0;
-    height: 3em;
+    height: 9em;
+    width: 100%;
     padding: 0 0.6em;
     background: #fff;
     box-shadow: 0 0 0.2em rgba(170, 170, 170, 0.2);
@@ -3435,7 +3436,7 @@ nav .burger {
     nav .show~.menu {
         width: 70%;
         max-width: 300px;
-        transform-origin: center right;
+        transform-origin: center;
         transition: all 0.25s ease;
         transform: scaleX(0);
     }
@@ -4149,4 +4150,26 @@ select.stack:focus+select {
 .admin-btn {
     margin: 1rem;
 
+}
+
+.navigation-bar{
+    box-shadow: 1px 2px 9px #aaaaaa;
+    padding: 1em;
+    flex-direction: row;
+}
+
+.logo{
+    display: flex;
+    align-items: center;
+}
+
+.navigation-button{
+    font-weight: bold;
+    background-color: crimson;
+    color: white;
+    font-size: 20px;
+    padding: 10px 60px;
+    border-radius: 5px;
+    margin: 10px 0px;
+    cursor: pointer;
 }

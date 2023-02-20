@@ -3,7 +3,7 @@ import React from 'react';
 
 const Footer: React.FC = () => {
   return (
-    <footer id='footer' className='full footer brownbg p-3 fixed-bottom'>
+    <footer id='footer' className='full footer brownbg fixed-bottom'>
       <div className='row'>
         <Link href='/imprint'>
           <a className='brownbg nav-link col-1' style={{ paddingLeft: '12px' }}>

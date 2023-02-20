@@ -1,36 +1,32 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import router from 'next/router';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 import React from 'react';
 
 const Header: React.FC = () => {
   return (
-    <nav className='navbar p-3 full brownbg py-5' style={{ marginRight: '0' }}>
-      <div className='text-left fixed-top' style={{ zIndex: '-1' }}>
-        <a href='/'>
-          <Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} />
-        </a>
-      </div>
-      <div className='text-left' style={{ position: 'absolute', left: '110px' }}>
-        <Link href='/'>
-          <a className='brownbg plain greyhover' style={{ textDecoration: 'none', fontSize: 'min(26px,4vw)' }}>
-            Lauf gegen Rechts
-          </a>
-        </Link>
-      </div>
-      <div style={{ position: 'absolute', right: '5%', border: '1px solid white' }}>
-        <button
-          id='header-button-registration'
-          className='brownbg'
-          onClick={e => {
-            e.preventDefault();
-            router.push('/join');
-          }}
-        >
-          Anmelden
-        </button>
-      </div>
-    </nav>
+    <Navbar className='navigation-bar' expand='lg'>
+        <Container >
+            <Navbar.Brand href = '/'>
+                <span className='logo'>
+                    <Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} />
+                    <span style={{fontWeight: 'bold', fontSize: 24}}> Lauf gegen Rechts</span>
+                </span>
+            </Navbar.Brand>
+            <Navbar.Toggle aria-controls='basic-navbar-nav' />
+                <Nav className='me-auto' style={{ position: 'absolute', right: '5%'}}>
+                    <Nav.Link href='/join'  id='header-button-registration'
+                              onClick={e => {
+                                  e.preventDefault();
+                                  router.push('/join');
+                              }}
+                    ><div className='navigation-button'>Hier Anmelden</div></Nav.Link>
+                </Nav>
+    </Container>
+    </Navbar>
   );
 };
 
