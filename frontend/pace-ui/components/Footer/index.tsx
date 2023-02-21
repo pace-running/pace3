@@ -1,22 +1,26 @@
 import Link from 'next/link';
 import React from 'react';
+import { MDBFooter} from 'mdb-react-ui-kit';
 
 const Footer: React.FC = () => {
   return (
-    <footer id='footer' className='full footer brownbg fixed-bottom'>
-      <div className='row'>
-        <Link href='/imprint'>
-          <a className='brownbg nav-link col-1' style={{ paddingLeft: '12px' }}>
-            Impressum
-          </a>
-        </Link>
-        <Link href='/privacy_notice'>
-          <a className='brownbg nav-link col-1' style={{ position: 'absolute', left: '110px' }}>
-            Datenschutz
-          </a>
-        </Link>
-      </div>
-    </footer>
+    <MDBFooter className='text-center text-lg-start text-muted fixed-bottom brownbg' >
+    <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
+      <Link className='text-reset fw-bold' href='/imprint'>
+        <a style={{ color: 'white'}}> 
+          Impressum
+        </a>
+      </Link>
+    </div>
+    
+    <div className='text-center p-4'> 
+      <Link className='text-reset fw-bold' href='/privacy_notice'>
+       <a style={{ color: 'white'}}>
+          Datenschutz
+       </a>
+      </Link>
+    </div>
+</MDBFooter>
   );
 };
 
