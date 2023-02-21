@@ -4173,3 +4173,10 @@ select.stack:focus+select {
     margin: 10px 0px;
     cursor: pointer;
 }
+
+.styled-link{
+    color: #ffffff;
+    font-size: 19px;
+    text-decoration-color: white;
+    text-decoration: none;
+}
