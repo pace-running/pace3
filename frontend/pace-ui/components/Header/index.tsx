@@ -8,7 +8,7 @@ import React from 'react';
 
 const Header: React.FC = () => {
   return (
-    <Navbar className='navigation-bar' expand='lg'>
+    <Navbar className='navigation-bar fixed-top' expand='lg'>
         <Container >
             <Navbar.Brand href = '/'>
                 <span className='logo'>

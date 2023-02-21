@@ -4180,3 +4180,31 @@ select.stack:focus+select {
     text-decoration-color: white;
     text-decoration: none;
 }
+
+.head-text {
+    position: relative;
+    text-align: center;
+}
+.text-on-image {
+    position: absolute;
+    right: 80%;
+    left: 30%;
+    bottom: 25%;
+    display:inline-block;
+}
+.vertical {
+    border-left: 12px solid darkred;
+    height: 250px;
+    position:absolute;
+    left: 25%;
+    bottom: 25%;
+    display:inline-block;
+}
+
+.horizontal {
+    border-bottom: 6px solid #3a2b20;
+    position:absolute;
+    width:19%;
+    margin-left:0;
+    margin-top: 0;
+}
