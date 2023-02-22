@@ -4,7 +4,7 @@ const {lighthouse, prepareAudit} = require("@cypress-audit/lighthouse");
 
 module.exports = {
     e2e: {
-        baseUrl: "http://localhost:8089/", // this is your app
+        baseUrl: "https://pace3.lauf-gegen-rechts.de/", // this is your app
         setupNodeEvents(on, config) {
             on("before:browser:launch", (browser = {}, launchOptions) => {
                 prepareAudit(launchOptions);
