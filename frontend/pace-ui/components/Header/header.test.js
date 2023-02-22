@@ -13,19 +13,19 @@ describe('test header component', () => {
   test('St.Pauli logo is visible and clickable', async () => {
     const logo = screen.getByRole('img');
     expect(logo.alt).toBe('FC St. Pauli Logo');
-    expect(screen.getByRole('link', { name: 'FC St. Pauli Logo' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'FC St. Pauli Logo Lauf gegen Rechts' })).toHaveAttribute('href', '/');
   });
 
   test('Link to home page is displayed', () => {
-    const link = screen.getByRole('link', { name: 'Lauf gegen Rechts' });
+    const link = screen.getByRole('link', { name: 'FC St. Pauli Logo Lauf gegen Rechts' });
     expect(link).toHaveTextContent('Lauf gegen Rechts');
     expect(link).toHaveAttribute('href', '/');
   });
 
   test('Button linking to join page is displayed', async () => {
     router.push = jest.fn();
-    const button = screen.getByRole('button');
-    expect(button).toHaveTextContent('Anmelden');
+    const button = screen.getByRole('link', { name: 'Hier Anmelden' });
+    expect(button).toHaveTextContent('Hier Anmelden');
 
     await userEvent.click(button);
     expect(router.push).toHaveBeenCalledWith('/join');
