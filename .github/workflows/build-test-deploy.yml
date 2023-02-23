@@ -75,6 +75,7 @@ jobs:
         run: kubectl -n pace3 rollout status deployment pace3-deployment --timeout=2200s
   cypress-run:
     runs-on: ubuntu-20.04
+    needs: deploy
     steps:
       - uses: actions/checkout@v3
       - uses: cypress-io/github-action@v4

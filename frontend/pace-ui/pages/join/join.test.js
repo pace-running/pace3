@@ -229,11 +229,15 @@ describe('testing of the registration page', () => {
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Sönke-Maël');
-      expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Büşra Maria');
-      expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+      });
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
