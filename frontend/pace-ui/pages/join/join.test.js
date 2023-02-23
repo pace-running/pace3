@@ -213,7 +213,7 @@ describe('testing of the registration page', () => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
       });
 
-      const firstNameInput = screen.getByRole('textbox', { name: 'Vorname *' });
+      const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
 
       await user.type(firstNameInput, '123');
@@ -247,7 +247,7 @@ describe('testing of the registration page', () => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
       });
 
-      const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
+      const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
 
       await user.type(lastNameInput, '123');
