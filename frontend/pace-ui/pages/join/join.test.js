@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
+import { findByText, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Join from '.';
@@ -213,7 +213,7 @@ describe('testing of the registration page', () => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
       });
 
-      const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
+      const firstNameInput = screen.getByRole('textbox', { name: 'Vorname *' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
 
       await user.type(firstNameInput, '123');
@@ -229,15 +229,11 @@ describe('testing of the registration page', () => {
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Sönke-Maël');
-      await waitFor(() => {
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-      });
+      expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Büşra Maria');
-      await waitFor(() => {
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-      });
+      expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
@@ -247,7 +243,7 @@ describe('testing of the registration page', () => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
       });
 
-      const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
+      const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
 
       await user.type(lastNameInput, '123');
