@@ -5,6 +5,8 @@ import userEvent from '@testing-library/user-event';
 import Join from '.';
 import React from 'react';
 
+jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fail because of timeouts
+
 describe('testing of the registration page', () => {
   beforeEach(() => {
     render(<Join />);

@@ -134,7 +134,6 @@ describe('test the finance page', () => {
     const firstRowCells = firstRow.children;
     expect(headers[0]).toHaveTextContent('Datum');
     expect(firstRowCells[0]).toHaveTextContent('26.01.2023');
-    screen.debug();
     expect(headers[1]).toHaveTextContent('Teilnehmenden IDs');
     expect(firstRowCells[1]).toHaveTextContent('105');
 
