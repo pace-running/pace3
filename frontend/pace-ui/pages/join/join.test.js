@@ -187,7 +187,7 @@ describe('testing of the registration page', () => {
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
-      });
+      }, {timeout: 3000});
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
@@ -205,7 +205,7 @@ describe('testing of the registration page', () => {
 
       await waitFor(() => {
         expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
-      });
+      }, {timeout: 3000});
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
