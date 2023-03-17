@@ -186,7 +186,7 @@ describe('testing of the registration page', () => {
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
-        expect(screen.getByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
       });
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
@@ -204,6 +204,7 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
 
       await waitFor(() => {
+        console.log('Waiting for error to disappear...');
         expect(screen.queryAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
       }, {timeout: 3000});
     });
