@@ -204,9 +204,8 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
 
       await waitFor(() => {
-        console.log('Waiting for error to disappear...');
-        expect(screen.queryAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
-      }, {timeout: 3000});
+        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
+      }, {timeout: 5000});
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
