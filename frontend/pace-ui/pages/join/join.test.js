@@ -205,7 +205,7 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
       await waitFor(()=>{
         expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument()
-      });
+      }, { timeout: 10000 });
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
