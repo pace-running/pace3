@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { findByText, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { findByText, render, screen, waitFor, waitForElementToBeRemoved, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Join from '.';
@@ -8,8 +8,9 @@ import React from 'react';
 jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fail because of timeouts
 
 describe('testing of the registration page', () => {
-  beforeEach(() => {
-    render(<Join />);
+  beforeEach(async () => {
+    await act(async () => render(<Join />));
+   
   });
   const user = userEvent.setup();
 
