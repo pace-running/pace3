@@ -9,9 +9,9 @@ jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fai
 
 describe('testing of the registration page', () => {
   beforeEach(async () => {
-    await act(async () => render(<Join />));
-   
+    render(<Join />);
   });
+
   const user = userEvent.setup();
 
   describe('basic registration form displayed', () => {
@@ -204,7 +204,7 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
       await waitFor(()=>{
-        expect(screen.queryAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).toHaveLength(0);
+        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument()
       });
     });
 
