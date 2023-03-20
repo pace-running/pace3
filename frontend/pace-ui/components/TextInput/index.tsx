@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler } from 'react';
+import React, {ChangeEvent, ChangeEventHandler, useEffect, useState} from 'react';
 
 type InputProps = {
   type: 'email' | 'text' | 'number' | 'password';
@@ -13,6 +13,18 @@ type InputProps = {
   errorMessage?: string;
 };
 const TextInput: React.FC<InputProps> = props => {
+  const [value, setValue] = useState(props.value || '')
+  const onChange: ChangeEventHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value)
+    if (props.onChange !== undefined) {
+        props.onChange(event)
+    }
+  }
+
+  useEffect(() => {
+    setValue(props.value || '');
+  }, [props])
+
   return (
     <div className='mb-3'>
       {props.helperLabel && <p style={{ marginBottom: '1px' }}>{props.helperLabel}</p>}
@@ -22,8 +34,8 @@ const TextInput: React.FC<InputProps> = props => {
       <div className='input-group'>
         <input
           id={props.name + '_input'}
-          value={props.value}
-          onChange={props.onChange}
+          value={value}
+          onChange={onChange}
           type={props.type}
           className='form-control'
           name={props.name}
