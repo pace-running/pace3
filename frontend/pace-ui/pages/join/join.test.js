@@ -8,18 +8,16 @@ import React from 'react';
 jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fail because of timeouts
 
 describe('testing of the registration page', () => {
-  beforeEach(async () => {
-    render(<Join />);
-  });
-
   describe('basic registration form displayed', () => {
     test('loads and displays join page', () => {
+      render(<Join />);
       expect(screen.getByText('Lauf gegen Rechts'));
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });
 
     test('initially text fields should be empty', () => {
+      render(<Join />);
       const names = [
         'Vorname (erscheint auf der Startnummer)',
         'Nachname',
@@ -33,6 +31,7 @@ describe('testing of the registration page', () => {
     });
 
     test('email input field should display correct error messages', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       const emailInput = screen.getByRole('textbox', { name: 'Email' });
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
@@ -50,6 +49,7 @@ describe('testing of the registration page', () => {
     });
 
     test('dropdown menu should display obligatory options', () => {
+      render(<Join />);
       const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
       const runningLevelDropdown = screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' });
 
@@ -65,6 +65,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should check edge cases for donation field', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
 
@@ -87,6 +88,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if first name contains numbers', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await screen.findByText('Vorname (erscheint auf der Startnummer)');
 
@@ -118,6 +120,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if last name contains numbers', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await screen.findByText('Nachname');
 
@@ -145,6 +148,7 @@ describe('testing of the registration page', () => {
 
   describe('Tshirt form displayed', () => {
     test('should display preview modal window after clicking corresponding button', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await user.click(screen.getByRole('button', { name: 'Vorschau' }));
       expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument();
@@ -155,6 +159,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should display modal window with size tables', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       // Can't really test the carousel behavior because jest sees all carousel pages all the time
       await user.click(screen.getByRole('button', { name: 'Größentabelle' }));
@@ -171,6 +176,7 @@ describe('testing of the registration page', () => {
     });
 
     test('Toggling the Tshirt option shows / hides the shipping information fields', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       expect(screen.queryByText('Modell')).not.toBeInTheDocument();
@@ -189,6 +195,7 @@ describe('testing of the registration page', () => {
     });
 
     test('entering shipping information hides error message', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       console.log('begin');
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
@@ -232,6 +239,7 @@ describe('testing of the registration page', () => {
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
@@ -267,6 +275,7 @@ describe('testing of the registration page', () => {
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
@@ -296,6 +305,7 @@ describe('testing of the registration page', () => {
     });
 
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
@@ -323,10 +333,12 @@ describe('testing of the registration page', () => {
 
   describe('submit button', () => {
     test('submit button is initially disabled', () => {
+      render(<Join />);
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled();
     });
 
     test('accepting terms and conditions enables submit button', async () => {
+      render(<Join />);
       const user = userEvent.setup()
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' }), 'hamburg');
@@ -338,6 +350,7 @@ describe('testing of the registration page', () => {
     });
 
     test('link to privacy notice', () => {
+      render(<Join />);
       expect(screen.getByRole('link', { name: 'Datenschutzbestimmungen' })).toHaveAttribute('href', '/privacy_notice');
     });
   });
