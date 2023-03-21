@@ -209,12 +209,12 @@ describe('testing of the registration page', () => {
       });
       console.log('after waitFor');
       console.log('before selectOptions');
-      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
-      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
-      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
         'EU-Ausland (Versandkosten: 2€)'
       ]);
-      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
       console.log('after selectOptions');
       console.log('before typing');
       await user.type(screen.getByRole('textbox', { name: 'Vorname *' }), 'Niklas');
@@ -312,14 +312,14 @@ describe('testing of the registration page', () => {
       const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
       const sizeDropdown = screen.getByRole('combobox', { name: 'Größe' });
 
-      await userEvent.selectOptions(modelDropdown, ['Unisex']);
+      await user.selectOptions(modelDropdown, ['Unisex']);
       expect(sizeDropdown.children[1]).toHaveTextContent('S');
       expect(sizeDropdown.children[2]).toHaveTextContent('M');
       expect(sizeDropdown.children[3]).toHaveTextContent('L');
       expect(sizeDropdown.children[4]).toHaveTextContent('XL');
       expect(sizeDropdown.children[5]).toHaveTextContent('XXL');
-      await userEvent.selectOptions(sizeDropdown, ['XXL']);
-      await userEvent.selectOptions(modelDropdown, ['Tailliert']);
+      await user.selectOptions(sizeDropdown, ['XXL']);
+      await user.selectOptions(modelDropdown, ['Tailliert']);
       expect(screen.queryByText('XXL')).not.toBeInTheDocument();
 
       expect(sizeDropdown.children[1]).toHaveTextContent('S');
