@@ -12,8 +12,6 @@ describe('testing of the registration page', () => {
     render(<Join />);
   });
 
-  const user = userEvent.setup();
-
   describe('basic registration form displayed', () => {
     test('loads and displays join page', () => {
       expect(screen.getByText('Lauf gegen Rechts'));
@@ -35,6 +33,7 @@ describe('testing of the registration page', () => {
     });
 
     test('email input field should display correct error messages', async () => {
+      const user = userEvent.setup()
       const emailInput = screen.getByRole('textbox', { name: 'Email' });
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
 
@@ -66,6 +65,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should check edge cases for donation field', async () => {
+      const user = userEvent.setup()
       const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
 
       expect(donationInput).toHaveValue(10);
@@ -87,6 +87,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if first name contains numbers', async () => {
+      const user = userEvent.setup()
       await screen.findByText('Vorname (erscheint auf der Startnummer)');
 
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
@@ -117,6 +118,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if last name contains numbers', async () => {
+      const user = userEvent.setup()
       await screen.findByText('Nachname');
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
@@ -143,6 +145,7 @@ describe('testing of the registration page', () => {
 
   describe('Tshirt form displayed', () => {
     test('should display preview modal window after clicking corresponding button', async () => {
+      const user = userEvent.setup()
       await user.click(screen.getByRole('button', { name: 'Vorschau' }));
       expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument();
       expect(screen.getByRole('img', { name: 'T-shirt Preview' })).toBeInTheDocument();
@@ -152,6 +155,7 @@ describe('testing of the registration page', () => {
     });
 
     test('should display modal window with size tables', async () => {
+      const user = userEvent.setup()
       // Can't really test the carousel behavior because jest sees all carousel pages all the time
       await user.click(screen.getByRole('button', { name: 'Größentabelle' }));
       expect(screen.getByText('T-Shirt Größentabelle')).toBeInTheDocument();
@@ -167,6 +171,7 @@ describe('testing of the registration page', () => {
     });
 
     test('Toggling the Tshirt option shows / hides the shipping information fields', async () => {
+      const user = userEvent.setup()
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       expect(screen.queryByText('Modell')).not.toBeInTheDocument();
       expect(screen.queryByText('Größe')).not.toBeInTheDocument();
@@ -184,6 +189,7 @@ describe('testing of the registration page', () => {
     });
 
     test('entering shipping information hides error message', async () => {
+      const user = userEvent.setup()
       console.log('begin');
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
@@ -226,6 +232,7 @@ describe('testing of the registration page', () => {
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
+      const user = userEvent.setup()
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
@@ -260,6 +267,7 @@ describe('testing of the registration page', () => {
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
+      const user = userEvent.setup()
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
@@ -288,6 +296,7 @@ describe('testing of the registration page', () => {
     });
 
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
+      const user = userEvent.setup()
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
       const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
@@ -318,6 +327,7 @@ describe('testing of the registration page', () => {
     });
 
     test('accepting terms and conditions enables submit button', async () => {
+      const user = userEvent.setup()
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' }), 'hamburg');
       await user.selectOptions(
