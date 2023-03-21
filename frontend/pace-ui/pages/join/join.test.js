@@ -142,7 +142,7 @@ describe('testing of the registration page', () => {
   });
 
   describe('Tshirt form displayed', () => {
-    xtest('should display preview modal window after clicking corresponding button', async () => {
+    test('should display preview modal window after clicking corresponding button', async () => {
       await user.click(screen.getByRole('button', { name: 'Vorschau' }));
       expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument();
       expect(screen.getByRole('img', { name: 'T-shirt Preview' })).toBeInTheDocument();
@@ -151,7 +151,7 @@ describe('testing of the registration page', () => {
       expect(screen.queryByRole('img', { name: 'T-shirt Preview' })).not.toBeInTheDocument();
     });
 
-    xtest('should display modal window with size tables', async () => {
+    test('should display modal window with size tables', async () => {
       // Can't really test the carousel behavior because jest sees all carousel pages all the time
       await user.click(screen.getByRole('button', { name: 'Größentabelle' }));
       expect(screen.getByText('T-Shirt Größentabelle')).toBeInTheDocument();
@@ -166,7 +166,7 @@ describe('testing of the registration page', () => {
       expect(screen.queryByText('T-Shirt Größentabelle')).not.toBeInTheDocument();
     });
 
-    xtest('Toggling the Tshirt option shows / hides the shipping information fields', async () => {
+    test('Toggling the Tshirt option shows / hides the shipping information fields', async () => {
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       expect(screen.queryByText('Modell')).not.toBeInTheDocument();
       expect(screen.queryByText('Größe')).not.toBeInTheDocument();
@@ -296,11 +296,11 @@ describe('testing of the registration page', () => {
   });
 
   describe('submit button', () => {
-    xtest('submit button is initially disabled', () => {
+    test('submit button is initially disabled', () => {
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled();
     });
 
-    xtest('accepting terms and conditions enables submit button', async () => {
+    test('accepting terms and conditions enables submit button', async () => {
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' }), 'hamburg');
       await user.selectOptions(
@@ -310,7 +310,7 @@ describe('testing of the registration page', () => {
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled();
     });
 
-    xtest('link to privacy notice', () => {
+    test('link to privacy notice', () => {
       expect(screen.getByRole('link', { name: 'Datenschutzbestimmungen' })).toHaveAttribute('href', '/privacy_notice');
     });
   });
