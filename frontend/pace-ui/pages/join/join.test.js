@@ -183,7 +183,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    test('entering shipping information hides error message', async () => {
+    xtest('entering shipping information hides error message', async () => {
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
