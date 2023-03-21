@@ -208,7 +208,7 @@ describe('testing of the registration page', () => {
       }, { timeout: 10000 });
     });
 
-    xtest('adding numbers or special characters to shipping address first name field displays error', async () => {
+    test('adding numbers or special characters to shipping address first name field displays error', async () => {
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
@@ -242,7 +242,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    xtest('adding numbers or special characters to shipping address last name field displays error', async () => {
+    test('adding numbers or special characters to shipping address last name field displays error', async () => {
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
@@ -270,7 +270,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    xtest('t-shirt sizes dropdown should have correct options depending on the model', async () => {
+    test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
       const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
