@@ -34,7 +34,7 @@ describe('testing of the registration page', () => {
       }
     });
 
-    xtest('email input field should display correct error messages', async () => {
+    test('email input field should display correct error messages', async () => {
       const emailInput = screen.getByRole('textbox', { name: 'Email' });
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
 
