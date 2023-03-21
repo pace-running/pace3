@@ -194,9 +194,7 @@ describe('testing of the registration page', () => {
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
         'EU-Ausland (Versandkosten: 2€)'
       ]);
-      await waitFor(() => {
-        userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
-      });
+      await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
       await user.type(screen.getByRole('textbox', { name: 'Vorname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Nachname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Straße *' }), 'Niklas');
