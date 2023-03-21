@@ -15,13 +15,13 @@ describe('testing of the registration page', () => {
   const user = userEvent.setup();
 
   describe('basic registration form displayed', () => {
-    xtest('loads and displays join page', () => {
+    test('loads and displays join page', () => {
       expect(screen.getByText('Lauf gegen Rechts'));
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });
 
-    xtest('initially text fields should be empty', () => {
+    test('initially text fields should be empty', () => {
       const names = [
         'Vorname (erscheint auf der Startnummer)',
         'Nachname',
