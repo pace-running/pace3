@@ -187,7 +187,8 @@ describe('testing of the registration page', () => {
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
       await waitFor(() => {
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+        const all = screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')
+        expect(all.length).toBeGreaterThan(0)
       });
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
