@@ -50,7 +50,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    xtest('dropdown menu should display obligatory options', () => {
+    test('dropdown menu should display obligatory options', () => {
       const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
       const runningLevelDropdown = screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' });
 
@@ -65,7 +65,7 @@ describe('testing of the registration page', () => {
       expect(runningLevelDropdown.children[3]).toHaveTextContent('Ich laufe häufig und ambitioniert');
     });
 
-    xtest('should check edge cases for donation field', async () => {
+    test('should check edge cases for donation field', async () => {
       const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
 
       expect(donationInput).toHaveValue(10);
@@ -86,7 +86,7 @@ describe('testing of the registration page', () => {
       await expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!', null, { timeout: 3000 }));
     });
 
-    xtest('should display error if first name contains numbers', async () => {
+    test('should display error if first name contains numbers', async () => {
       await screen.findByText('Vorname (erscheint auf der Startnummer)');
 
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
@@ -116,7 +116,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    xtest('should display error if last name contains numbers', async () => {
+    test('should display error if last name contains numbers', async () => {
       await screen.findByText('Nachname');
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
