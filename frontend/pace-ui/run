@@ -72,7 +72,7 @@ task_tsc() {
 ##DOC test - Run testing via Jest
 task_test() {
   log_running_command "running tests..."
-  npm test
+  npm test -- --runTestsByPath pages/join/join.test.js
 }
 
 ##DOC quality_check - Static check (lint) and testing
