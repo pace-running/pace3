@@ -184,27 +184,45 @@ describe('testing of the registration page', () => {
     });
 
     test('entering shipping information hides error message', async () => {
+      console.log('begin');
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      console.log('before waitFor');
       await waitFor(() => {
+        console.log('before getAllByText');
         const all = screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')
         expect(all.length).toBeGreaterThan(0)
+        console.log('after getAllByText');
       });
+      console.log('after waitFor');
+      console.log('before selectOptions');
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
         'EU-Ausland (Versandkosten: 2€)'
       ]);
       await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
+      console.log('after selectOptions');
+      console.log('before typing');
       await user.type(screen.getByRole('textbox', { name: 'Vorname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Nachname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Straße *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Hausnummer *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
+      console.log('after typing');
+      screen.debug();
+      console.log('before last waitFor');
       await waitFor(()=>{
-        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument()
+        console.log('inside last waitFor begin');
+        screen.debug();
+        let el = screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')
+        console.log('found element: ', el)
+        expect(el).not.toBeInTheDocument()
+        console.log('inside last waitFor end');
       }, { timeout: 10000 });
+      console.log('after last waitFor');
+      screen.debug();
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
