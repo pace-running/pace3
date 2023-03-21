@@ -263,15 +263,23 @@ describe('testing of the registration page', () => {
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Sönke-Maël');
+      console.log('test 1 before waitFor 1')
       await waitFor(() => {
+        console.log('test 1 waitFor 1 begin')
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+        console.log('test 1 waitFor 1 end')
       });
+      console.log('test 1 end waitFor 1')
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Büşra Maria');
+      console.log('test 1 begin waitFor 1')
       await waitFor(() => {
+        console.log('test 1 waitFor 2 begin')
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+        console.log('test 1 waitFor 2 end')
       });
+      console.log('test 1 end waitFor 1')
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
@@ -279,9 +287,13 @@ describe('testing of the registration page', () => {
       render(<Join />);
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      console.log('test 2 begin waitFor 1')
       await waitFor(() => {
+        console.log('test 2 waitFor 1 begin')
         expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
+        console.log('test 2 waitFor 1 end')
       });
+      console.log('test 2 end waitFor 1')
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
@@ -299,9 +311,13 @@ describe('testing of the registration page', () => {
 
       await user.clear(lastNameInput);
       await user.type(lastNameInput, 'Müller-Çelik Čížková Jr.');
+      console.log('test 2 begin waitFor 1')
       await waitFor(() => {
+        console.log('test 2 waitFor 2 begin')
         expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+        console.log('test 2 waitFor 2 end')
       });
+      console.log('test 2 end waitFor 1')
     });
 
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
