@@ -46,6 +46,7 @@ const Admin: NextPage = () => {
             router.push('/admin/finance');
           }}
         />
+        &nbsp;&nbsp;&nbsp;
         <Button
           name={'btn-change_password'}
           label={'Passwort ändern'}
