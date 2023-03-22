@@ -1,4 +1,4 @@
-import React, {ChangeEvent, ChangeEventHandler, useEffect, useState} from 'react';
+import React, { ChangeEvent, ChangeEventHandler, useEffect, useState } from 'react';
 
 type InputProps = {
   type: 'email' | 'text' | 'number' | 'password';
@@ -13,17 +13,17 @@ type InputProps = {
   errorMessage?: string;
 };
 const TextInput: React.FC<InputProps> = props => {
-  const [value, setValue] = useState(props.value || '')
+  const [value, setValue] = useState(props.value || '');
   const onChange: ChangeEventHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value)
+    setValue(event.target.value);
     if (props.onChange !== undefined) {
-        props.onChange(event)
+      props.onChange(event);
     }
-  }
+  };
 
   useEffect(() => {
     setValue(props.value || '');
-  }, [props])
+  }, [props]);
 
   return (
     <div className='mb-3'>

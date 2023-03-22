@@ -216,9 +216,7 @@ describe('testing of the registration page', () => {
       });
       await user.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
-      await user.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
-        'EU-Ausland (Versandkosten: 2€)'
-      ]);
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), ['EU-Ausland (Versandkosten: 2€)']);
       await waitFor(() => {
         user.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
       });
@@ -228,9 +226,12 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'Hausnummer *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
-      await waitFor(()=>{
-        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument()
-      }, { timeout: 10000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument();
+        },
+        { timeout: 10000 }
+      );
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
