@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 
 import { changePaymentStatus, editRunner, getFullRunner } from '../../apis/api';
 import router from 'next/router';
-import Edit from './edit';
+import Edit from '../../pages/admin/edit';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn()

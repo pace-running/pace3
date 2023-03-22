@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
-import SummaryPage from '.';
+import SummaryPage from '../../pages/summary';
 import React from 'react';
 import { JoinFormContext } from '../../context/JoinFormContext';
 

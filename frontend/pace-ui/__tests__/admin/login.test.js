@@ -3,7 +3,7 @@ import { describe, expect, test, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import Login from './login';
+import Login from '../../pages/admin/login';
 
 import * as axios from 'axios';
 
