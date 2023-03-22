@@ -2,7 +2,6 @@ import React from 'react';
 import { describe, expect, test, jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 import ChangePassword from '.';
 import router from 'next/router';
 
@@ -39,5 +38,45 @@ describe('change password page', () => {
     render(<ChangePassword />);
     await userEvent.click(screen.getByRole('button', { name: 'Zurück zum Adminbereich' }));
     expect(router.push).toHaveBeenCalledWith('/admin');
+  });
+  describe('form validation', () => {
+    test('save button is enabled when all fields are filled', async () => {
+      render(<ChangePassword />);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).toBeDisabled();
+      });
+      await userEvent.type(screen.getByLabelText('Altes Passwort'), 'oldpassword');
+      await userEvent.type(screen.getByLabelText('Neues Passwort'), 'newpassword');
+      await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'newpassword');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).not.toBeDisabled();
+      });
+    });
+    test('save button is disabled when new password do not match', async () => {
+      render(<ChangePassword />);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).toBeDisabled();
+      });
+      await userEvent.type(screen.getByLabelText('Altes Passwort'), 'oldpassword');
+      await userEvent.type(screen.getByLabelText('Neues Passwort'), 'newpassword');
+      await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'newpassworddoesnotmatch');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).toBeDisabled();
+      });
+      expect(screen.getByText('Passwörter stimmen nicht überein')).toBeInTheDocument();
+    });
+    test('save button is disabled when new password matches the old one', async () => {
+      render(<ChangePassword />);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).toBeDisabled();
+      });
+      await userEvent.type(screen.getByLabelText('Altes Passwort'), 'oldpassword');
+      await userEvent.type(screen.getByLabelText('Neues Passwort'), 'oldpassword');
+      await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'oldpassword');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).toBeDisabled();
+      });
+      expect(screen.getByText('Passwort darf nicht identisch mit dem alten Passwort sein')).toBeInTheDocument();
+    });
   });
 });

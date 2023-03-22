@@ -137,9 +137,7 @@ const Admin: NextPage = () => {
             </span>
           </div>
         </div>
-
         <h2>Registrierte Teilnehmende:</h2>
-
         <div>
           <span>
             <Button
@@ -196,7 +194,6 @@ const Admin: NextPage = () => {
           </span>
         </div>
         <br />
-
         <table id='runnersTable' style={{ overflow: 'scroll' }}>
           <thead>
             <tr key={'head'}>
