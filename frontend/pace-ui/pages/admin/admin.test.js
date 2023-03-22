@@ -215,7 +215,6 @@ describe('admin main page', () => {
     await act(async () => render(<Admin />));
     router.push = jest.fn();
     const button = screen.getByRole('button', { name: 'Passwort ändern' });
-  
 
     await userEvent.click(button);
     expect(router.push).toHaveBeenCalledWith('/change_password');
@@ -246,7 +245,4 @@ describe('admin main page', () => {
       expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '');
     });
   });
-
 });
-
-
