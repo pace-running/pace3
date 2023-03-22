@@ -211,6 +211,16 @@ describe('admin main page', () => {
     expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'start_number', '111');
   });
 
+  test('clicking Change Password Button changes the page', async () => {
+    await act(async () => render(<Admin />));
+    router.push = jest.fn();
+    const button = screen.getByRole('button', { name: 'Passwort ändern' });
+  
+
+    await userEvent.click(button);
+    expect(router.push).toHaveBeenCalledWith('/change_password');
+  });
+
   describe('pagination works as intended', () => {
     beforeEach(async () => {
       apiResponse.data.stats_number = 200;
@@ -236,4 +246,7 @@ describe('admin main page', () => {
       expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '');
     });
   });
+
 });
+
+

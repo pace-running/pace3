@@ -45,6 +45,14 @@ const Admin: NextPage = () => {
           onClick={() => {
             router.push('/admin/finance');
           }}
+/>
+        <Button
+          name={'btn-change_password'}
+          label={'Passwort ändern'}
+          type={'button'}
+          onClick={() => {
+            router.push('/change_password');
+          }}
         />
         <div>
           <h4>Statistiken:</h4>
