@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ChangePassword from '.';
 import router from 'next/router';
-import {savePassword} from '../../apis/api';
+import { savePassword } from '../../apis/api';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('../../apis/api', () => ({
-  savePassword: jest.fn(),
+  savePassword: jest.fn()
 }));
 
 describe('change password page', () => {
@@ -87,13 +87,24 @@ describe('change password page', () => {
   });
   describe('submitting password', () => {
     test('sending password to api', async () => {
-    render(<ChangePassword />);
-    await userEvent.type(screen.getByLabelText('Altes Passwort'), '123');
-    await userEvent.type(screen.getByLabelText('Neues Passwort'), 'abc');
-    await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'abc');
-    await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
-    
-    expect(savePassword).toHaveBeenCalledWith('123', 'abc');
+      const response = {
+        status: 200,
+        data: {}, 
+      };
+  
+      savePassword.mockResolvedValue(response);
+
+      render(<ChangePassword />);
+
+      await userEvent.type(screen.getByLabelText('Altes Passwort'), '123');
+      await userEvent.type(screen.getByLabelText('Neues Passwort'), 'abc');
+      await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'abc');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).not.toBeDisabled();
+      });
+      await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
+      expect(savePassword).toHaveBeenCalledWith({'newPassword': 'abc', 'oldPassword': '123'});
+      expect(router.push).toHaveBeenCalledWith('/admin');
+    });
   });
-});
 });
