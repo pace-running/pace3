@@ -4,11 +4,17 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ChangePassword from '.';
 import router from 'next/router';
+import {savePassword} from '../../apis/api';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
   push: jest.fn()
 }));
+
+jest.mock('../../apis/api', () => ({
+  savePassword: jest.fn(),
+}));
+
 describe('change password page', () => {
   test('old password field is present', async () => {
     render(<ChangePassword />);
@@ -79,4 +85,15 @@ describe('change password page', () => {
       expect(screen.getByText('Passwort darf nicht identisch mit dem alten Passwort sein')).toBeInTheDocument();
     });
   });
+  describe('submitting password', () => {
+    test('sending password to api', async () => {
+    render(<ChangePassword />);
+    await userEvent.type(screen.getByLabelText('Altes Passwort'), '123');
+    await userEvent.type(screen.getByLabelText('Neues Passwort'), 'abc');
+    await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'abc');
+    await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
+    
+    expect(savePassword).toHaveBeenCalledWith('123', 'abc');
+  });
+});
 });
