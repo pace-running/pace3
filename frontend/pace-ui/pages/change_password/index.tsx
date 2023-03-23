@@ -31,57 +31,65 @@ const ChangePassword: NextPage = () => {
     );
   };
   const { handleChange, values, handleSubmit, errors, isValid } = useFormik<ChangePasswordValues>({
-    initialValues: {},
+    initialValues: {
+        oldPassword: '',
+        newPassword: '',
+        newPasswordRepeat: '',
+    },
     validationSchema: ChangePasswordSchema,
-    onSubmit: submitForm
+    onSubmit: submitForm,
   });
   return (
     <div style={{ margin: '50px' }}>
       <h1>Admin</h1>
       <Button
-        name={'back-btn-admin'}
-        label={'Zurück zum Adminbereich'}
-        type={'button'}
-        onClick={() => {
-          router.push('/admin');
-        }}
+          name={'back-btn-admin'}
+          label={'Zurück zum Adminbereich'}
+          type={'button'}
+          onClick={() => {
+            router.push('/admin');
+          }}
       />
       <br />
-      <h2>Passwort ändern</h2>
-      <TextInput
-        type='password'
-        name='oldPassword'
-        label='Altes Passwort'
-        value={values.oldPassword}
-        valid={!errors.oldPassword}
-        errorMessage={errors.oldPassword}
-        onChange={handleChange}
-      />
-      <TextInput
-        type='password'
-        name='newPassword'
-        label='Neues Passwort'
-        value={values.newPassword}
-        valid={!errors.newPassword}
-        errorMessage={errors.newPassword}
-        onChange={handleChange}
-      />
-      <TextInput
-        type='password'
-        name='newPasswordRepeat'
-        label='Neues Passwort wiederholen'
-        value={values.newPasswordRepeat}
-        valid={!errors.newPasswordRepeat}
-        errorMessage={errors.newPasswordRepeat}
-        onChange={handleChange}
-      />
-      <Button
-        name={'btn-savePassword'}
-        label={'Passwort speichern'}
-        type={'button'}
-        onSubmit={handleSubmit}
-        disabled={!(values.oldPassword && isValid)}
-      />
+        <form onSubmit={handleSubmit}>
+          <div style={{ maxWidth: '300px' }}>
+            <h2>Passwort ändern</h2>
+            <TextInput
+              type='password'
+              name='oldPassword'
+              label='Altes Passwort'
+              value={values.oldPassword}
+              valid={!errors.oldPassword}
+              errorMessage={errors.oldPassword}
+              onChange={handleChange}
+            />
+            <TextInput
+              type='password'
+              name='newPassword'
+              label='Neues Passwort'
+              value={values.newPassword}
+              valid={!errors.newPassword}
+              errorMessage={errors.newPassword}
+              onChange={handleChange}
+            />
+            <TextInput
+              type='password'
+              name='newPasswordRepeat'
+              label='Neues Passwort wiederholen'
+              value={values.newPasswordRepeat}
+              valid={!errors.newPasswordRepeat}
+              errorMessage={errors.newPasswordRepeat}
+              onChange={handleChange}
+            />
+            <Button
+              name='btn-savePassword'
+              label='Passwort speichern'
+              type='submit'
+              onSubmit={handleSubmit}
+              disabled={!(values.oldPassword && isValid)}
+            />
+          </div>
+        </form>
     </div>
   );
 };
