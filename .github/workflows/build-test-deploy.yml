@@ -76,6 +76,8 @@ jobs:
   cypress-run:
     runs-on: ubuntu-20.04
     needs: deploy
+    env:
+      CYPRESS_BASE_URL: "https://pace3.lauf-gegen-rechts.de/"
     steps:
       - uses: actions/checkout@v3
       - uses: cypress-io/github-action@v4
