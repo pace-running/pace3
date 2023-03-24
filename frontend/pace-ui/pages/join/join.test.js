@@ -134,7 +134,7 @@ describe('testing of the registration page', () => {
   });
 
   describe('Tshirt form displayed', () => {
-    xtest('should display preview modal window after clicking corresponding button', async () => {
+    test('should display preview modal window after clicking corresponding button', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -146,7 +146,7 @@ describe('testing of the registration page', () => {
       expect(screen.queryByRole('img', { name: 'T-shirt Preview' })).not.toBeInTheDocument();
     });
 
-    xtest('should display modal window with size tables', async () => {
+    test('should display modal window with size tables', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
