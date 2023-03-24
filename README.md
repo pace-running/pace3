@@ -39,7 +39,11 @@ and then start both front and backend applications in corresponding folders (`/f
 to restart the backend application after code change, exit with `ctrl + c` and start again with 
 `cargo run` so existing docker can be reused
 
+### Accessing the database
 
+```
+docker exec -ti db psql pace3 -U pace3_user
+```
 
 ### Access the different endpoints using a browser or curl:
 the frontend application runs on localhost:3000 but /admin doesn't work so now we use a proxy that routes to 

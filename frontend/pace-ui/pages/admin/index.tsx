@@ -46,6 +46,15 @@ const Admin: NextPage = () => {
             router.push('/admin/finance');
           }}
         />
+        &nbsp;&nbsp;&nbsp;
+        <Button
+          name={'btn-change_password'}
+          label={'Passwort ändern'}
+          type={'button'}
+          onClick={() => {
+            router.push('/change_password');
+          }}
+        />
         <div>
           <h4>Statistiken:</h4>
           <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
@@ -128,9 +137,7 @@ const Admin: NextPage = () => {
             </span>
           </div>
         </div>
-
         <h2>Registrierte Teilnehmende:</h2>
-
         <div>
           <span>
             <Button
@@ -187,7 +194,6 @@ const Admin: NextPage = () => {
           </span>
         </div>
         <br />
-
         <table id='runnersTable' style={{ overflow: 'scroll' }}>
           <thead>
             <tr key={'head'}>

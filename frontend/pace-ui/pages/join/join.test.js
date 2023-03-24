@@ -210,6 +210,7 @@ describe('testing of the registration page', () => {
 
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+
       await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
