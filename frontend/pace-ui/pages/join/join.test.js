@@ -111,7 +111,7 @@ describe('testing of the registration page', () => {
       await waitFor(() => expect(screen.getByText('Bitte geben Sie einen ganzzahligen Betrag an!')).toBeInTheDocument());
     });
 
-    xtest('should display error if first name contains numbers', async () => {
+    test('should display error if first name contains numbers', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -121,7 +121,7 @@ describe('testing of the registration page', () => {
       await testNameFieldValidation(user, firstNameInput, errorMessage);
     });
 
-    xtest('should display error if last name contains numbers', async () => {
+    test('should display error if last name contains numbers', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
