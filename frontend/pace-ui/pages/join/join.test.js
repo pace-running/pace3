@@ -11,6 +11,7 @@ describe('testing of the registration page', () => {
   describe('basic registration form displayed', () => {
     test('loads and displays join page', () => {
       render(<Join />);
+
       expect(screen.getByText('Lauf gegen Rechts'));
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
@@ -18,6 +19,7 @@ describe('testing of the registration page', () => {
 
     test('initially text fields should be empty', () => {
       render(<Join />);
+
       const names = [
         'Vorname (erscheint auf der Startnummer)',
         'Nachname',
@@ -31,8 +33,9 @@ describe('testing of the registration page', () => {
     });
 
     test('email input field should display correct error messages', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       const emailInput = screen.getByRole('textbox', { name: 'Email' });
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
 
@@ -50,6 +53,7 @@ describe('testing of the registration page', () => {
 
     test('dropdown menu should display obligatory options', () => {
       render(<Join />);
+
       const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
       const runningLevelDropdown = screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' });
 
@@ -65,8 +69,9 @@ describe('testing of the registration page', () => {
     });
 
     test('should check edge cases for donation field', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
 
       expect(donationInput).toHaveValue(10);
@@ -88,8 +93,9 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if first name contains numbers', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await screen.findByText('Vorname (erscheint auf der Startnummer)');
 
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
@@ -120,8 +126,9 @@ describe('testing of the registration page', () => {
     });
 
     test('should display error if last name contains numbers', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await screen.findByText('Nachname');
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
@@ -148,8 +155,9 @@ describe('testing of the registration page', () => {
 
   describe('Tshirt form displayed', () => {
     test('should display preview modal window after clicking corresponding button', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await user.click(screen.getByRole('button', { name: 'Vorschau' }));
       expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument();
       expect(screen.getByRole('img', { name: 'T-shirt Preview' })).toBeInTheDocument();
@@ -159,8 +167,9 @@ describe('testing of the registration page', () => {
     });
 
     test('should display modal window with size tables', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       // Can't really test the carousel behavior because jest sees all carousel pages all the time
       await user.click(screen.getByRole('button', { name: 'Größentabelle' }));
       expect(screen.getByText('T-Shirt Größentabelle')).toBeInTheDocument();
@@ -176,8 +185,9 @@ describe('testing of the registration page', () => {
     });
 
     test('Toggling the Tshirt option shows / hides the shipping information fields', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       expect(screen.queryByText('Modell')).not.toBeInTheDocument();
       expect(screen.queryByText('Größe')).not.toBeInTheDocument();
@@ -195,134 +205,95 @@ describe('testing of the registration page', () => {
     });
 
     test('entering shipping information hides error message', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
-      console.log('begin');
+
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      console.log('before waitFor');
-      await waitFor(() => {
-        console.log('before getAllByText');
-        const all = screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')
-        expect(all.length).toBeGreaterThan(0)
-        console.log('after getAllByText');
-      });
-      console.log('after waitFor');
-      console.log('before selectOptions');
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), [
         'EU-Ausland (Versandkosten: 2€)'
       ]);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Land *' }), ['Estland']);
-      console.log('after selectOptions');
-      console.log('before typing');
       await user.type(screen.getByRole('textbox', { name: 'Vorname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Nachname *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Straße *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Hausnummer *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
-      console.log('after typing');
-      screen.debug();
-      console.log('before last waitFor');
-      await waitFor(()=>{
-        console.log('inside last waitFor begin');
-        screen.debug();
-        let el = screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')
-        console.log('found element: ', el)
-        expect(el).not.toBeInTheDocument()
-        console.log('inside last waitFor end');
-      }, { timeout: 10000 });
-      console.log('after last waitFor');
-      screen.debug();
+      await waitFor(() => expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument());
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      await waitFor(() => {
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
-      });
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
 
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname *' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
 
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+
       await user.type(firstNameInput, '123');
-      expect(screen.getByText(errorMessage));
+      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
 
       await user.clear(firstNameInput);
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
       await user.type(firstNameInput, '!@?');
-      expect(screen.getByText(errorMessage));
 
       await user.clear(firstNameInput);
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
       await user.type(firstNameInput, 'Name123');
-      expect(screen.getByText(errorMessage));
+      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Sönke-Maël');
-      console.log('test 1 before waitFor 1')
-      await waitFor(() => {
-        console.log('test 1 waitFor 1 begin')
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-        console.log('test 1 waitFor 1 end')
-      });
-      console.log('test 1 end waitFor 1')
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
 
       await user.clear(firstNameInput);
       await user.type(firstNameInput, 'Büşra Maria');
-      console.log('test 1 begin waitFor 1')
-      await waitFor(() => {
-        console.log('test 1 waitFor 2 begin')
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-        console.log('test 1 waitFor 2 end')
-      });
-      console.log('test 1 end waitFor 1')
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      console.log('test 2 begin waitFor 1')
-      await waitFor(() => {
-        console.log('test 2 waitFor 1 begin')
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
-        console.log('test 2 waitFor 1 end')
-      });
-      console.log('test 2 end waitFor 1')
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
 
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
       await user.type(lastNameInput, '123');
-      expect(screen.getByText(errorMessage));
+      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
 
       await user.clear(lastNameInput);
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
       await user.type(lastNameInput, '!@?');
-      expect(screen.getByText(errorMessage));
+      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
 
       await user.clear(lastNameInput);
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
       await user.type(lastNameInput, 'Name123');
-      expect(screen.getByText(errorMessage));
+      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
 
       await user.clear(lastNameInput);
       await user.type(lastNameInput, 'Müller-Çelik Čížková Jr.');
-      console.log('test 2 begin waitFor 1')
-      await waitFor(() => {
-        console.log('test 2 waitFor 2 begin')
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-        console.log('test 2 waitFor 2 end')
-      });
-      console.log('test 2 end waitFor 1')
+      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
     });
 
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
       const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
@@ -354,8 +325,9 @@ describe('testing of the registration page', () => {
     });
 
     test('accepting terms and conditions enables submit button', async () => {
-      const user = userEvent.setup()
+      const user = userEvent.setup();
       render(<Join />);
+
       await user.click(screen.getByText('Mir ist bewusst,', { exact: false }));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' }), 'hamburg');
       await user.selectOptions(
