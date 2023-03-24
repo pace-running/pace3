@@ -33,7 +33,7 @@ describe('testing of the registration page', () => {
   }
 
   describe('basic registration form displayed', () => {
-    xtest('loads and displays join page', () => {
+    test('loads and displays join page', () => {
       render(<Join />);
 
       expect(screen.getByText('Lauf gegen Rechts'));
@@ -41,7 +41,7 @@ describe('testing of the registration page', () => {
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });
 
-    xtest('initially text fields should be empty', () => {
+    test('initially text fields should be empty', () => {
       render(<Join />);
 
       const names = [
