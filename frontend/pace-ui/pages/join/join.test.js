@@ -95,21 +95,20 @@ describe('testing of the registration page', () => {
       render(<Join />);
 
       const donationInput = screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' });
-
       expect(donationInput).toHaveValue(10);
 
-      donationInput.value = '';
-      await expect(screen.findByText('Bitte geben Sie einen Spendenbetrag an!', null, { timeout: 3000 }));
+      await user.clear(donationInput);
+      await waitFor(() => expect(screen.getByText('Bitte geben Sie einen Spendenbetrag an!')));
 
       await user.type(donationInput, '4');
-      await waitFor(() => expect(donationInput).toHaveValue(4));
-      await expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
+      await waitFor(() => expect(screen.getByText('Die Spende muss mindestens 5€ betragen!')).toBeInTheDocument());
       await user.type(donationInput, '0');
       await waitFor(() => expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument());
 
-      donationInput.value = '';
-      await user.type(donationInput, '6,5');
-      await expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!', null, { timeout: 3000 }));
+      await user.clear(donationInput);
+      await user.type(donationInput, '6.5');
+      expect(donationInput).toHaveValue(6.5);
+      await waitFor(() => expect(screen.getByText('Bitte geben Sie einen ganzzahligen Betrag an!')).toBeInTheDocument());
     });
 
     xtest('should display error if first name contains numbers', async () => {
