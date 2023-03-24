@@ -195,13 +195,11 @@ describe('testing of the registration page', () => {
 
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
 
-      expect(screen.queryByText('Modell')).toBeInTheDocument();
+      await waitFor(() => expect(screen.queryByText('Modell')).toBeInTheDocument());
       expect(screen.queryByText('Größe')).toBeInTheDocument();
       expect(screen.queryByText('Lieferanschrift')).toBeInTheDocument();
 
-      await waitFor(() => {
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!'));
-      });
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
     });
 
     test('entering shipping information hides error message', async () => {
