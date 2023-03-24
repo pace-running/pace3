@@ -56,7 +56,7 @@ describe('testing of the registration page', () => {
       }
     });
 
-    xtest('email input field should display correct error messages', async () => {
+    test('email input field should display correct error messages', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -64,7 +64,7 @@ describe('testing of the registration page', () => {
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
 
       await user.type(emailInput, 'email');
-      await waitFor(() => expect(screen.getByText('E-Mail muss zulässige E-Mail-Adresse sein!')));
+      await waitFor(() => expect(screen.getByText('E-Mail muss zulässige E-Mail-Adresse sein!')).toBeInTheDocument());
       await user.type(emailInput, '@example.com');
       await waitFor(() => expect(screen.queryByText('E-Mail muss zulässige E-Mail-Adresse sein!')).not.toBeInTheDocument());
       expect(screen.getByText('E-Mail Adressen müssen übereinstimmen!'));
@@ -74,7 +74,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    xtest('dropdown menu should display obligatory options', () => {
+    test('dropdown menu should display obligatory options', () => {
       render(<Join />);
 
       const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
@@ -90,7 +90,7 @@ describe('testing of the registration page', () => {
       expect(runningLevelDropdown.children[3]).toHaveTextContent('Ich laufe häufig und ambitioniert');
     });
 
-    xtest('should check edge cases for donation field', async () => {
+    test('should check edge cases for donation field', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
