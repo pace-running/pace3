@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 
-import StatusPage from '.';
+import StatusPage from '../../pages/status';
 import { fetchRunnerDetails } from '../../apis/api';
 import { useRouter } from 'next/router';
 

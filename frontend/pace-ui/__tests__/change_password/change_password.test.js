@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, expect, test, jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ChangePassword from '.';
+import ChangePassword from '../../pages/change_password';
 import router from 'next/router';
 import { savePassword } from '../../apis/api';
 

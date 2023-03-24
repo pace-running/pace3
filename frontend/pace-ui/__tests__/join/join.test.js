@@ -2,7 +2,7 @@ import { describe, expect, test, xtest } from '@jest/globals';
 import { findByText, render, screen, waitFor, waitForElementToBeRemoved, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import Join from '.';
+import Join from '../../pages/join';
 import React from 'react';
 
 jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fail because of timeouts

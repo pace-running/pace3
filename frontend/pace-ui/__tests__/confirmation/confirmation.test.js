@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
 import React from 'react';
-import ConfirmationPage from '.';
+import ConfirmationPage from '../../pages/confirmation';
 import { RunnerContext } from '../../context/RunnerContext';
 
 describe('should test confirmation page', () => {

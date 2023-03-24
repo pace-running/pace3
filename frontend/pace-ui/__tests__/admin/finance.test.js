@@ -3,7 +3,7 @@ import { describe, expect, test, jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import Finance from './finance';
+import Finance from '../../pages/admin/finance';
 import router from 'next/router';
 import { uploadPaymentCSV, getAllRejectedTransactions } from '../../apis/api';
 import { act } from 'react-dom/test-utils';

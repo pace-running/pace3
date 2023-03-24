@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 
 import router from 'next/router';
 import { changePaymentStatus, fetchFilteredRunners } from '../../apis/api';
-import Admin from '.';
+import Admin from '../../pages/admin';
 
 jest.mock('axios');
 jest.mock('next/router', () => ({
