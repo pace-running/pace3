@@ -254,12 +254,12 @@ describe('testing of the registration page', () => {
   });
 
   describe('submit button', () => {
-    xtest('submit button is initially disabled', () => {
+    test('submit button is initially disabled', () => {
       render(<Join />);
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled();
     });
 
-    xtest('accepting terms and conditions enables submit button', async () => {
+    test('accepting terms and conditions enables submit button', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -272,7 +272,7 @@ describe('testing of the registration page', () => {
       await waitFor(() => expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled());
     });
 
-    xtest('link to privacy notice', () => {
+    test('link to privacy notice', () => {
       render(<Join />);
       expect(screen.getByRole('link', { name: 'Datenschutzbestimmungen' })).toHaveAttribute('href', '/privacy_notice');
     });
