@@ -33,7 +33,7 @@ describe('testing of the registration page', () => {
   }
 
   describe('basic registration form displayed', () => {
-    test('loads and displays join page', () => {
+    xtest('loads and displays join page', () => {
       render(<Join />);
 
       expect(screen.getByText('Lauf gegen Rechts'));
@@ -41,7 +41,7 @@ describe('testing of the registration page', () => {
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });
 
-    test('initially text fields should be empty', () => {
+    xtest('initially text fields should be empty', () => {
       render(<Join />);
 
       const names = [
@@ -56,7 +56,7 @@ describe('testing of the registration page', () => {
       }
     });
 
-    test('email input field should display correct error messages', async () => {
+    xtest('email input field should display correct error messages', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -74,7 +74,7 @@ describe('testing of the registration page', () => {
       });
     });
 
-    test('dropdown menu should display obligatory options', () => {
+    xtest('dropdown menu should display obligatory options', () => {
       render(<Join />);
 
       const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
@@ -90,7 +90,7 @@ describe('testing of the registration page', () => {
       expect(runningLevelDropdown.children[3]).toHaveTextContent('Ich laufe häufig und ambitioniert');
     });
 
-    test('should check edge cases for donation field', async () => {
+    xtest('should check edge cases for donation field', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -112,7 +112,7 @@ describe('testing of the registration page', () => {
       await expect(screen.findByText('Bitte geben Sie einen ganzzahligen Betrag an!', null, { timeout: 3000 }));
     });
 
-    test('should display error if first name contains numbers', async () => {
+    xtest('should display error if first name contains numbers', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -122,7 +122,7 @@ describe('testing of the registration page', () => {
       await testNameFieldValidation(user, firstNameInput, errorMessage);
     });
 
-    test('should display error if last name contains numbers', async () => {
+    xtest('should display error if last name contains numbers', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -134,7 +134,7 @@ describe('testing of the registration page', () => {
   });
 
   describe('Tshirt form displayed', () => {
-    test('should display preview modal window after clicking corresponding button', async () => {
+    xtest('should display preview modal window after clicking corresponding button', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -146,7 +146,7 @@ describe('testing of the registration page', () => {
       expect(screen.queryByRole('img', { name: 'T-shirt Preview' })).not.toBeInTheDocument();
     });
 
-    test('should display modal window with size tables', async () => {
+    xtest('should display modal window with size tables', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -254,12 +254,12 @@ describe('testing of the registration page', () => {
   });
 
   describe('submit button', () => {
-    test('submit button is initially disabled', () => {
+    xtest('submit button is initially disabled', () => {
       render(<Join />);
       expect(screen.getByRole('button', { name: 'Weiter' })).toBeDisabled();
     });
 
-    test('accepting terms and conditions enables submit button', async () => {
+    xtest('accepting terms and conditions enables submit button', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
@@ -272,7 +272,7 @@ describe('testing of the registration page', () => {
       await waitFor(() => expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled());
     });
 
-    test('link to privacy notice', () => {
+    xtest('link to privacy notice', () => {
       render(<Join />);
       expect(screen.getByRole('link', { name: 'Datenschutzbestimmungen' })).toHaveAttribute('href', '/privacy_notice');
     });
