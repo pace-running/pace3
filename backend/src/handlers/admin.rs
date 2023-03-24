@@ -532,10 +532,10 @@ pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Erro
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        establish_connection, insert_rejected_transaction,
-        models::rejected_transaction::NewRejectedTransaction,
-    };
+    use diesel::result::Error;
+    use diesel::{Connection, RunQueryDsl};
+    use crate::{establish_connection, insert_rejected_transaction, models::rejected_transaction::NewRejectedTransaction, schema};
+    use crate::schema::users::{role, username};
 
     use super::filter_rfp;
 
@@ -561,5 +561,18 @@ mod tests {
         };
         let inserted_transaction = insert_rejected_transaction(conn, new_transaction);
         assert_eq!(inserted_transaction.iban, "DE87876876876");
+    }
+
+    #[test]
+    fn unit_test_test_connection() {
+        let conn = &mut establish_connection();
+        conn.test_transaction::<_, Error, _>(|| {
+            diesel::insert_into(schema::users::table)
+                .values(username.eq("testuser"), role.eq("nonadmin"))
+                .execute(conn)?;
+            let all_names = schema::users.select(username, role).load::<String>(&conn)?;
+            assert_eq!(vec!["Sean", "Tess", "Ruby"], all_names);
+            Ok(())
+        });
     }
 }
