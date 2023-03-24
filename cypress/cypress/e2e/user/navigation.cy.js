@@ -1,7 +1,7 @@
 describe('should check if it is possible to navigate every page', () => {
     it("checks anmelden button", function () {
         cy.visit("/")
-        cy.get('[style="padding-bottom:100px"] > :nth-child(2)')
+        cy.get('#header-button-registration')
             .should(($el) => {
                 expect($el).to.have.contain('Anmelden')
             })
