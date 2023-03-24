@@ -5,24 +5,21 @@ describe('registration form', () => {
 
 
     it('fills in basic information of runner', function () {
-
-
         cy.visit("/")
         cy.get('#header-button-registration').click()
-
-        cy.get(':nth-child(3) > .input-group > .form-control')
+        cy.get('#firstname_input')
             .type('Vorname')
             .should('have.value', 'Vorname')
-        cy.get(':nth-child(4) > .input-group > .form-control')
+        cy.get('#lastname_input')
             .type('Nachname')
             .should('have.value', 'Nachname')
-        cy.get(':nth-child(5) > .input-group > .form-control')
+        cy.get('#team_input')
             .type('Team Name')
             .should('have.value', 'Team Name')
-        cy.get(':nth-child(6) > .input-group > .form-control')
+        cy.get('#email_input')
             .type('teamname@teamname.com')
             .should('have.value', 'teamname@teamname.com')
-        cy.get(':nth-child(7) > .input-group > .form-control')
+        cy.get('#repeated_email_input')
             .type('teamname@teamname.com')
             .should('have.value', 'teamname@teamname.com')
     })
