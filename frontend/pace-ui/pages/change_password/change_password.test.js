@@ -89,9 +89,9 @@ describe('change password page', () => {
     test('sending password to api', async () => {
       const response = {
         status: 200,
-        data: {}, 
+        data: {}
       };
-  
+
       savePassword.mockResolvedValue(response);
 
       render(<ChangePassword />);
@@ -103,7 +103,7 @@ describe('change password page', () => {
         expect(screen.getByRole('button', { name: 'Passwort speichern' })).not.toBeDisabled();
       });
       await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
-      expect(savePassword).toHaveBeenCalledWith({'newPassword': 'abc', 'oldPassword': '123'});
+      expect(savePassword).toHaveBeenCalledWith({ newPassword: 'abc', oldPassword: '123' });
       expect(router.push).toHaveBeenCalledWith('/admin');
     });
   });

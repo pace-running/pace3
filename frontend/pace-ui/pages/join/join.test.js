@@ -66,7 +66,9 @@ describe('testing of the registration page', () => {
       await user.type(emailInput, 'email');
       expect(await screen.findByText('E-Mail muss zulässige E-Mail-Adresse sein!')).toBeInTheDocument();
       await user.type(emailInput, '@example.com');
-      await waitFor(() => expect(screen.queryByText('E-Mail muss zulässige E-Mail-Adresse sein!')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('E-Mail muss zulässige E-Mail-Adresse sein!')).not.toBeInTheDocument()
+      );
       expect(screen.getByText('E-Mail Adressen müssen übereinstimmen!'));
       await user.type(emailConfirmInput, 'email@example.com');
       await waitFor(() => {
@@ -103,7 +105,9 @@ describe('testing of the registration page', () => {
       await user.type(donationInput, '4');
       expect(await screen.findByText('Die Spende muss mindestens 5€ betragen!')).toBeInTheDocument();
       await user.type(donationInput, '0');
-      await waitFor(() => expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument()
+      );
 
       await user.clear(donationInput);
       await user.type(donationInput, '6.5');
@@ -176,7 +180,9 @@ describe('testing of the registration page', () => {
       expect(screen.queryByText('Größe')).toBeInTheDocument();
       expect(screen.queryByText('Lieferanschrift')).toBeInTheDocument();
 
-      expect((await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length).toBeGreaterThan(0);
+      expect(
+        (await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length
+      ).toBeGreaterThan(0);
     });
 
     test('entering shipping information hides error message', async () => {
@@ -185,7 +191,9 @@ describe('testing of the registration page', () => {
 
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      expect((await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length).toBeGreaterThan(0);
+      expect(
+        (await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length
+      ).toBeGreaterThan(0);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), ['EU-Ausland (Versandkosten: 2€)']);
@@ -196,7 +204,9 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'Hausnummer *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
-      await waitFor(() => expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument()
+      );
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
@@ -204,7 +214,9 @@ describe('testing of the registration page', () => {
       render(<Join />);
 
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      expect((await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length).toBeGreaterThan(0);
+      expect(
+        (await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length
+      ).toBeGreaterThan(0);
 
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname *' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
@@ -216,7 +228,9 @@ describe('testing of the registration page', () => {
       render(<Join />);
 
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      expect((await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length).toBeGreaterThan(0);
+      expect(
+        (await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length
+      ).toBeGreaterThan(0);
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
@@ -228,7 +242,9 @@ describe('testing of the registration page', () => {
       render(<Join />);
 
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      expect((await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length).toBeGreaterThan(0);
+      expect(
+        (await screen.findAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).length
+      ).toBeGreaterThan(0);
 
       const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
       const sizeDropdown = screen.getByRole('combobox', { name: 'Größe' });

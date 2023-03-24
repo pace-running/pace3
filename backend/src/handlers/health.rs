@@ -4,13 +4,12 @@ pub async fn health() -> Result<HttpResponse, Error> {
     Ok(HttpResponse::Ok().body("healthy"))
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use actix_web::{
         body::to_bytes,
-        http::{self}
+        http::{self},
     };
 
     #[actix_web::test]
