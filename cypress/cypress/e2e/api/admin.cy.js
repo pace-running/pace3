@@ -1,5 +1,5 @@
 describe('admin api', () => {
-  let base_url = "https://pace3.lauf-gegen-rechts.de/api"
+  let base_url = Cypress.config('baseUrl') + '/api'
   it('rejects logins with wrong credentials', () => {
     let body = {
       username: "foo",

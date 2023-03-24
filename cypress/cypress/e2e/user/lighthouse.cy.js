@@ -1,6 +1,6 @@
 context("Accessibility testing", () => {
   before(() => {
-    cy.visit("https://pace3.lauf-gegen-rechts.de");
+    cy.visit("/")
   });
 
   it("should verify the score of the main page", () => {
@@ -14,7 +14,6 @@ context("Accessibility testing", () => {
 
   });
   it("should verify the score of the join page", () => {
-    cy.visit("https://pace3.lauf-gegen-rechts.de/join");
     cy.lighthouse({
       accessibility: 100,
       "best-practices": 100,
@@ -24,7 +23,6 @@ context("Accessibility testing", () => {
     });
   });
   it("should verify the score of the imprint page", () => {
-    cy.visit("https://pace3.lauf-gegen-rechts.de/imprint");
     cy.lighthouse({
       accessibility: 100,
       "best-practices": 100,
@@ -34,7 +32,6 @@ context("Accessibility testing", () => {
     });
   });
   it("should verify the score of the admin login page", () => {
-    cy.visit("https://pace3.lauf-gegen-rechts.de/admin/login");
     cy.lighthouse({
       accessibility: 100,
       "best-practices": 100,
