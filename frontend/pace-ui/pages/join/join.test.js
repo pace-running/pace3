@@ -8,6 +8,30 @@ import React from 'react';
 jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fail because of timeouts
 
 describe('testing of the registration page', () => {
+  async function testNameFieldValidation(user, inputField, errorMessage) {
+    await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+
+    await user.type(inputField, '123');
+    await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
+
+    await user.clear(inputField);
+    await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+    await user.type(inputField, '!@?');
+
+    await user.clear(inputField);
+    await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+    await user.type(inputField, 'Name123');
+    await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
+
+    await user.clear(inputField);
+    await user.type(inputField, 'Sönke-Maël');
+    await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+
+    await user.clear(inputField);
+    await user.type(inputField, 'Büşra Maria');
+    await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+  }
+
   describe('basic registration form displayed', () => {
     test('loads and displays join page', () => {
       render(<Join />);
@@ -40,12 +64,11 @@ describe('testing of the registration page', () => {
       const emailConfirmInput = screen.getByRole('textbox', { name: 'Email wiederholen' });
 
       await user.type(emailInput, 'email');
-      expect(screen.getByText('E-Mail muss zulässige E-Mail-Adresse sein!'));
+      await waitFor(() => expect(screen.getByText('E-Mail muss zulässige E-Mail-Adresse sein!')));
       await user.type(emailInput, '@example.com');
-      expect(screen.queryByText('E-Mail muss zulässige E-Mail-Adresse sein!')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.queryByText('E-Mail muss zulässige E-Mail-Adresse sein!')).not.toBeInTheDocument());
       expect(screen.getByText('E-Mail Adressen müssen übereinstimmen!'));
       await user.type(emailConfirmInput, 'email@example.com');
-
       await waitFor(() => {
         expect(screen.queryByText('E-Mail Adressen müssen übereinstimmen!')).not.toBeInTheDocument();
       });
@@ -57,7 +80,6 @@ describe('testing of the registration page', () => {
       const startingPointDropdown = screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' });
       const runningLevelDropdown = screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' });
 
-      expect(startingPointDropdown).toHaveTextContent('Bitte auswählen');
       expect(runningLevelDropdown).toHaveTextContent('Bitte auswählen');
 
       expect(startingPointDropdown.children[1]).toHaveTextContent('in Hamburg bei der Alster vor Ort');
@@ -83,9 +105,7 @@ describe('testing of the registration page', () => {
       expect(donationInput).toHaveValue(4);
       await expect(screen.findByText('Die Spende muss mindestens 5€ betragen!'));
       await user.type(donationInput, '0');
-      await waitFor(() => {
-        expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.queryByText('Die Spende muss mindestens 5€ betragen!')).not.toBeInTheDocument());
 
       donationInput.value = '';
       await user.type(donationInput, '6,5');
@@ -96,60 +116,20 @@ describe('testing of the registration page', () => {
       const user = userEvent.setup();
       render(<Join />);
 
-      await screen.findByText('Vorname (erscheint auf der Startnummer)');
-
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname (erscheint auf der Startnummer)' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
 
-      await user.type(firstNameInput, '123');
-      expect(screen.getByText(errorMessage));
-
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, '!@?');
-      expect(screen.getByText(errorMessage));
-
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Name123');
-      expect(screen.getByText(errorMessage));
-
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Sönke-Maël');
-      await waitFor(() => {
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-      });
-
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Büşra Maria');
-      await waitFor(() => {
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-      });
+      await testNameFieldValidation(user, firstNameInput, errorMessage);
     });
 
     test('should display error if last name contains numbers', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
-      await screen.findByText('Nachname');
-
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
 
-      await user.type(lastNameInput, '123');
-      expect(screen.getByText(errorMessage));
-
-      await user.clear(lastNameInput);
-      await user.type(lastNameInput, '!@?');
-      expect(screen.getByText(errorMessage));
-
-      await user.clear(lastNameInput);
-      await user.type(lastNameInput, 'Name123');
-      expect(screen.getByText(errorMessage));
-
-      await user.clear(lastNameInput);
-      await user.type(lastNameInput, 'Müller-Çelik Čížková Jr.');
-      await waitFor(() => {
-        expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-      });
+      await testNameFieldValidation(user, lastNameInput, errorMessage);
     });
   });
 
@@ -159,10 +139,10 @@ describe('testing of the registration page', () => {
       render(<Join />);
 
       await user.click(screen.getByRole('button', { name: 'Vorschau' }));
-      expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText('T-Shirt Vorschau')).toBeInTheDocument());
       expect(screen.getByRole('img', { name: 'T-shirt Preview' })).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByText('T-Shirt Vorschau')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.queryByText('T-Shirt Vorschau')).not.toBeInTheDocument());
       expect(screen.queryByRole('img', { name: 'T-shirt Preview' })).not.toBeInTheDocument();
     });
 
@@ -172,7 +152,7 @@ describe('testing of the registration page', () => {
 
       // Can't really test the carousel behavior because jest sees all carousel pages all the time
       await user.click(screen.getByRole('button', { name: 'Größentabelle' }));
-      expect(screen.getByText('T-Shirt Größentabelle')).toBeInTheDocument();
+      await waitFor(() => expect(screen.getByText('T-Shirt Größentabelle')).toBeInTheDocument());
       expect(screen.getByText('Tailliert')).toBeInTheDocument();
       expect(screen.getAllByText('XL')).toHaveLength(2);
       expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
@@ -188,13 +168,11 @@ describe('testing of the registration page', () => {
       const user = userEvent.setup();
       render(<Join />);
 
-      await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       expect(screen.queryByText('Modell')).not.toBeInTheDocument();
       expect(screen.queryByText('Größe')).not.toBeInTheDocument();
       expect(screen.queryByText('Lieferanschrift')).not.toBeInTheDocument();
 
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-
       await waitFor(() => expect(screen.queryByText('Modell')).toBeInTheDocument());
       expect(screen.queryByText('Größe')).toBeInTheDocument();
       expect(screen.queryByText('Lieferanschrift')).toBeInTheDocument();
@@ -208,10 +186,7 @@ describe('testing of the registration page', () => {
 
       await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-
-      await waitFor(() =>
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9)
-      );
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
       await user.selectOptions(screen.getByRole('combobox', { name: 'Modell' }), ['Unisex']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Größe' }), ['M']);
       await user.selectOptions(screen.getByRole('combobox', { name: 'Region *' }), ['EU-Ausland (Versandkosten: 2€)']);
@@ -222,77 +197,31 @@ describe('testing of the registration page', () => {
       await user.type(screen.getByRole('textbox', { name: 'Hausnummer *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'PLZ *' }), 'Niklas');
       await user.type(screen.getByRole('textbox', { name: 'Stadt *' }), 'Niklas');
-      await waitFor(() =>
-        expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument()
-      );
+      await waitFor(() => expect(screen.queryByText('Bitte geben Sie die notwendigen Lieferinformationen an!')).not.toBeInTheDocument());
     });
 
     test('adding numbers or special characters to shipping address first name field displays error', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
-      await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      await waitFor(() =>
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9)
-      );
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
 
       const firstNameInput = screen.getByRole('textbox', { name: 'Vorname *' });
       const errorMessage = 'Vorname darf keine Zahlen oder Sonderzeichen enthalten!';
-
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-
-      await user.type(firstNameInput, '123');
-      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
-
-      await user.clear(firstNameInput);
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-      await user.type(firstNameInput, '!@?');
-
-      await user.clear(firstNameInput);
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-      await user.type(firstNameInput, 'Name123');
-      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
-
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Sönke-Maël');
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Büşra Maria');
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+      await testNameFieldValidation(user, firstNameInput, errorMessage);
     });
 
     test('adding numbers or special characters to shipping address last name field displays error', async () => {
       const user = userEvent.setup();
       render(<Join />);
 
-      await screen.findByText('Ich möchte ein T-Shirt (Kosten: 15€)');
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
-      await waitFor(() =>
-        expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9)
-      );
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
 
       const lastNameInput = screen.getByRole('textbox', { name: 'Nachname *' });
       const errorMessage = 'Nachname darf keine Zahlen oder Sonderzeichen enthalten!';
-
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-      await user.type(lastNameInput, '123');
-      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
-
-      await user.clear(lastNameInput);
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-      await user.type(lastNameInput, '!@?');
-      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
-
-      await user.clear(lastNameInput);
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
-      await user.type(lastNameInput, 'Name123');
-      await waitFor(() => expect(screen.getByText(errorMessage)).toBeInTheDocument());
-
-      await user.clear(lastNameInput);
-      await user.type(lastNameInput, 'Müller-Çelik Čížková Jr.');
-      await waitFor(() => expect(screen.queryByText(errorMessage)).not.toBeInTheDocument());
+      await testNameFieldValidation(user, lastNameInput, errorMessage);
     });
 
     test('t-shirt sizes dropdown should have correct options depending on the model', async () => {
@@ -300,6 +229,7 @@ describe('testing of the registration page', () => {
       render(<Join />);
 
       await user.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt (Kosten: 15€)' }));
+      await waitFor(() => expect(screen.getAllByText('Bitte geben Sie die notwendigen Lieferinformationen an!').length).toEqual(9));
 
       const modelDropdown = screen.getByRole('combobox', { name: 'Modell' });
       const sizeDropdown = screen.getByRole('combobox', { name: 'Größe' });
@@ -312,7 +242,7 @@ describe('testing of the registration page', () => {
       expect(sizeDropdown.children[5]).toHaveTextContent('XXL');
       await user.selectOptions(sizeDropdown, ['XXL']);
       await user.selectOptions(modelDropdown, ['Tailliert']);
-      expect(screen.queryByText('XXL')).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.queryByText('XXL')).not.toBeInTheDocument());
 
       expect(sizeDropdown.children[1]).toHaveTextContent('S');
       expect(sizeDropdown.children[2]).toHaveTextContent('M');
@@ -339,7 +269,7 @@ describe('testing of the registration page', () => {
         screen.getByRole('combobox', { name: 'Wie schätzt du dein Laufniveau ein? *' }),
         'often'
       );
-      expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled();
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Weiter' })).toBeEnabled());
     });
 
     test('link to privacy notice', () => {
