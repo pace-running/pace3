@@ -534,20 +534,13 @@ pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Erro
 mod tests {
     use crate::handlers::admin::check_password;
     use crate::models::users::LoginData;
-    use crate::schema::users::{password_hash, role, username};
     use crate::{
         establish_connection, insert_rejected_transaction,
-        models::rejected_transaction::NewRejectedTransaction, schema,
+        models::rejected_transaction::NewRejectedTransaction,
     };
     use actix_web::{http, test, web};
-    use diesel::{Connection, ExpressionMethods, RunQueryDsl};
 
     use super::filter_rfp;
-
-    fn hash_password(password: String) -> String {
-        let config = argon2::Config::default();
-        argon2::hash_encoded(password.as_bytes(), b"cmFuZG9tc2FsdA", &config).unwrap()
-    }
 
     #[test]
     async fn unit_reason_for_payment_is_extracted_from_string() {
@@ -595,8 +588,9 @@ mod tests {
         assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
     }
 
-    // #[test]
+    /*
     // FIXME: disabled as the test is incomplete
+    #[test]
     async fn unit_test_new_user_password() {
         let conn = &mut establish_connection();
         conn.begin_test_transaction()
@@ -622,4 +616,10 @@ mod tests {
         let result = check_password(req, login_data).await.unwrap();
         assert_eq!(result.status(), http::StatusCode::OK);
     }
+
+    fn hash_password(password: String) -> String {
+        let config = argon2::Config::default();
+        argon2::hash_encoded(password.as_bytes(), b"cmFuZG9tc2FsdA", &config).unwrap()
+    }
+    */
 }
