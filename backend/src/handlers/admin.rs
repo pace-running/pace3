@@ -532,22 +532,29 @@ pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Erro
 
 #[cfg(test)]
 mod tests {
-    use diesel::result::Error;
-    use diesel::{Connection, RunQueryDsl};
+    use actix_web::{http, test, web};
+    use diesel::{RunQueryDsl, ExpressionMethods, Connection};
     use crate::{establish_connection, insert_rejected_transaction, models::rejected_transaction::NewRejectedTransaction, schema};
-    use crate::schema::users::{role, username};
+    use crate::handlers::admin::check_password;
+    use crate::models::users::LoginData;
+    use crate::schema::users::{password_hash, role, username};
 
     use super::filter_rfp;
 
+    fn hash_password(password: String) -> String {
+        let config = argon2::Config::default();
+        argon2::hash_encoded(password.as_bytes(), b"cmFuZG9tc2FsdA", &config).unwrap()
+    }
+
     #[test]
-    fn unit_reason_for_payment_is_extracted_from_string() {
+    async fn unit_reason_for_payment_is_extracted_from_string() {
         let rfp = "Vwz: �berweisung LGR-TTZLK und LGR-we0gS";
         let result = filter_rfp(rfp);
         assert_eq!(result, ["LGR-TTZLK", "LGR-WEOGS"]);
     }
 
     #[test]
-    fn integration_put_rej_trans_into_database() {
+    async fn integration_put_rej_trans_into_database() {
         let conn = &mut establish_connection();
         let new_transaction = NewRejectedTransaction {
             runner_ids: "2, 5",
@@ -564,15 +571,38 @@ mod tests {
     }
 
     #[test]
-    fn unit_test_test_connection() {
+    async fn unit_test_wrong_empty_user() {
+        let login_data = web::Json(LoginData{username: "".to_string(), password: "".to_string()});
+        let req = test::TestRequest::default().to_http_request();
+        let result = check_password(req, login_data).await.unwrap();
+        assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
+    }
+
+    #[test]
+    async fn unit_test_wrong_password() {
+        let login_data = web::Json(LoginData{username: "admin".to_string(), password: "wrongpassword".to_string()});
+        let req = test::TestRequest::default().to_http_request();
+        let result = check_password(req, login_data).await.unwrap();
+        assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
+    }
+
+    // #[test]
+    // FIXME: disabled as the test is incomplete
+    async fn unit_test_new_user_password() {
         let conn = &mut establish_connection();
-        conn.test_transaction::<_, Error, _>(|| {
-            diesel::insert_into(schema::users::table)
-                .values(username.eq("testuser"), role.eq("nonadmin"))
-                .execute(conn)?;
-            let all_names = schema::users.select(username, role).load::<String>(&conn)?;
-            assert_eq!(vec!["Sean", "Tess", "Ruby"], all_names);
-            Ok(())
-        });
+        conn.begin_test_transaction().expect("Failed to start test transaction");
+        let hashed_password = hash_password(String::from("testpassword"));
+        let new_user = (username.eq("testuser"), role.eq("nonadmin"), password_hash.eq(hashed_password));
+        let rows_inserted = diesel::insert_into(schema::users::table)
+            .values(&new_user)
+            .execute(conn);
+        assert_eq!(rows_inserted, Ok(1));
+
+        let login_data = web::Json(LoginData{username: "testuser".to_string(), password: "testpassword".to_string()});
+        let req = test::TestRequest::default().to_http_request();
+        // FIXME: need injection of connection to check_password to be in the same transaction
+        // TODO: also need to mock Identity/login
+        let result = check_password(req, login_data).await.unwrap();
+        assert_eq!(result.status(), http::StatusCode::OK);
     }
 }
