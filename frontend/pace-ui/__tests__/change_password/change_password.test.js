@@ -106,5 +106,30 @@ describe('change password page', () => {
       expect(savePassword).toHaveBeenCalledWith({ newPassword: 'abc', oldPassword: '123' });
       expect(router.push).toHaveBeenCalledWith('/admin');
     });
+
+    test('rejecting password', async () => {
+     
+      const response = {
+        status: 403,
+        data: {errorMessage: 'Das alte Passwort ist nicht korrekt'}
+      };
+      savePassword.mockRejectedValue(response);
+     
+     
+      render(<ChangePassword />);
+
+      await userEvent.type(screen.getByLabelText('Altes Passwort'), '456');
+      await userEvent.type(screen.getByLabelText('Neues Passwort'), 'abc');
+      await userEvent.type(screen.getByLabelText('Neues Passwort wiederholen'), 'abc');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Passwort speichern' })).not.toBeDisabled();
+      });
+      await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
+    
+      // throws 'Async error message'
+      expect(await screen.findByText('Das alte Passwort ist nicht korrekt')).toBeInTheDocument();
+  
+      expect(router.push).not.toHaveBeenCalledWith('/admin/change_password');
+    });
   });
 });

@@ -26,9 +26,15 @@ const ChangePassword: NextPage = () => {
   const submitForm = (values: ChangePasswordValues) => {
     console.log('submitting change password form...');
     // FIXME: this is not working / not called
-    savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword }).then(() =>
+    const promise = savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword });
+    promise.then(() => {
+      // success case
       router.push('/admin')
-    );
+    });
+    promise.catch((response) => {
+      // error case
+      console.error(response.data.errorMessage);
+    })
   };
   const { handleChange, values, handleSubmit, errors, isValid } = useFormik<ChangePasswordValues>({
     initialValues: {
