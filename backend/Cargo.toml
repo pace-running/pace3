@@ -16,7 +16,7 @@ actix-session = { version = "0.7", features = ["cookie-session"]}
 serde = { version = "1.0.140", features = ["derive"] }
 serde_json = "1.0.85"
 tera = { version = "1", default-features = false }
-diesel = { version = "2.0.0-rc.0", features = ["postgres"] }
+diesel = { version = "2.0.0-rc.0", features = ["postgres", "r2d2"] }
 dotenvy = "0.15"
 rust-argon2 = "1.0"
 rand = "0.8.5"
@@ -26,3 +26,4 @@ strum_macros = "0.24.1"
 futures-util = "0.3.25"
 csv = "1.1.6"
 chrono = "0.4.23"
+r2d2 = "0.8.10"

@@ -1,13 +1,25 @@
+use std::env;
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, http, App, HttpServer};
+use actix_web::{cookie::Key, http, App, HttpServer, web};
 use actix_web_prom::PrometheusMetricsBuilder;
+use diesel::PgConnection;
+use diesel::r2d2::ConnectionManager;
+use dotenvy::dotenv;
 use pace::app_config::routes;
 use pace::{has_https, session_key};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let connection_manager = ConnectionManager::<PgConnection>::new(database_url);
+    let pool = r2d2::Pool::builder()
+        .build(connection_manager)
+        .expect("Could not build connection pool");
+
     let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
@@ -38,6 +50,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(prometheus.clone())
             .wrap(cors)
             .configure(routes)
+            .app_data(web::Data::new(pool.clone()))
     })
     .bind(("0.0.0.0", 8080))?
     .run()
