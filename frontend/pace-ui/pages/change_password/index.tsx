@@ -5,6 +5,7 @@ import Button from '../../components/Button';
 import router from 'next/router';
 import * as Yup from 'yup';
 import { savePassword } from '../../apis/api';
+import { useState } from 'react';
 
 type ChangePasswordValues = {
   oldPassword?: string;
@@ -23,17 +24,21 @@ const ChangePasswordSchema = Yup.object().shape({
 });
 
 const ChangePassword: NextPage = () => {
+  const [serverError, setServerError] = useState('');
   const submitForm = (values: ChangePasswordValues) => {
     console.log('submitting change password form...');
-    // FIXME: this is not working / not called
+    setServerError('');
+    
     const promise = savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword });
     promise.then(() => {
       // success case
       router.push('/admin')
     });
     promise.catch((response) => {
+      console.log('### Look HERE')
       // error case
       console.error(response.data.errorMessage);
+      setServerError(response.data.errorMessage);
     })
   };
   const { handleChange, values, handleSubmit, errors, isValid } = useFormik<ChangePasswordValues>({
@@ -87,6 +92,11 @@ const ChangePassword: NextPage = () => {
             errorMessage={errors.newPasswordRepeat}
             onChange={handleChange}
           />
+
+          <div>
+            {serverError}
+          </div>
+
           <Button
             name='btn-savePassword'
             label='Passwort speichern'

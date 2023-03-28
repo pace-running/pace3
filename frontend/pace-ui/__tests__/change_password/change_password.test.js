@@ -124,9 +124,13 @@ describe('change password page', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Passwort speichern' })).not.toBeDisabled();
       });
+      console.log('### BEFORE THE CLICK')
       await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
-    
+      console.log('### after THE CLICK')
+
+      
       // throws 'Async error message'
+      screen.debug();
       expect(await screen.findByText('Das alte Passwort ist nicht korrekt')).toBeInTheDocument();
   
       expect(router.push).not.toHaveBeenCalledWith('/admin/change_password');
