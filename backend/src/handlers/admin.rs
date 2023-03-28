@@ -1,7 +1,8 @@
+use crate::dao::users::*;
 use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
-use crate::models::users::{LoginData, LoginResponse, User};
+use crate::models::users::{LoginData, LoginResponse};
 use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country,
@@ -108,15 +109,8 @@ pub async fn check_password(
     request: HttpRequest,
     login_data: Json<LoginData>,
 ) -> Result<HttpResponse, Error> {
-    use crate::schema::users::dsl::*;
     let connection = &mut establish_connection();
-    let database_result = users
-        .filter(username.like(&login_data.username))
-        .first::<User>(connection);
-    let user = match database_result {
-        Ok(user) => user,
-        Err(_) => User::default(),
-    };
+    let user = fetch_user(connection, login_data.username.to_string());
     if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
