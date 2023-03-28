@@ -108,14 +108,12 @@ describe('change password page', () => {
     });
 
     test('rejecting password', async () => {
-     
       const response = {
         status: 403,
-        data: {errorMessage: 'Das alte Passwort ist nicht korrekt'}
+        data: { errorMessage: 'Das alte Passwort ist nicht korrekt' }
       };
       savePassword.mockRejectedValue(response);
-     
-     
+
       render(<ChangePassword />);
 
       await userEvent.type(screen.getByLabelText('Altes Passwort'), '456');
@@ -124,15 +122,11 @@ describe('change password page', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Passwort speichern' })).not.toBeDisabled();
       });
-      console.log('### BEFORE THE CLICK')
       await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
-      console.log('### after THE CLICK')
 
-      
       // throws 'Async error message'
-      screen.debug();
       expect(await screen.findByText('Das alte Passwort ist nicht korrekt')).toBeInTheDocument();
-  
+
       expect(router.push).not.toHaveBeenCalledWith('/admin/change_password');
     });
   });
