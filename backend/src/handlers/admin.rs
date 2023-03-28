@@ -4,16 +4,14 @@ use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse};
 use crate::services::email::send_payment_confirmation;
-use crate::{
-    establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country,
-    retrieve_donation_by_reason_for_payment, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
-};
+use crate::{DbPool, establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country, retrieve_donation_by_reason_for_payment, retrieve_runner_by_id, retrieve_shipping_by_runner_id};
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
-use actix_web::web::{self, Json};
+use actix_web::web::{self, Data, Json};
 use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
 use chrono::NaiveDate;
 use diesel::prelude::*;
+use diesel::row::NamedRow;
 use futures_util::stream::StreamExt as _;
 use serde::{Deserialize, Serialize};
 
@@ -108,8 +106,9 @@ pub struct RunnerListResponse {
 pub async fn check_password(
     request: HttpRequest,
     login_data: Json<LoginData>,
+    pool: Data<DbPool>
 ) -> Result<HttpResponse, Error> {
-    let connection = &mut establish_connection();
+    let connection = &mut pool.get().expect("couldn't get db connection from pool");
     let user = fetch_user(connection, login_data.username.to_string());
     if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);

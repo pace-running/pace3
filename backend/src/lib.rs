@@ -18,9 +18,13 @@ pub mod models;
 pub mod schema;
 pub mod services;
 
+use diesel::r2d2::ConnectionManager;
+type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
 
+    // FIXME: use the connection pool from the application instead
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url).unwrap()
 }
