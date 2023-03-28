@@ -6,6 +6,7 @@ import router from 'next/router';
 import * as Yup from 'yup';
 import { savePassword } from '../../apis/api';
 import { useState } from 'react';
+import { AxiosResponse } from 'axios';
 
 type ChangePasswordValues = {
   oldPassword?: string;
@@ -25,21 +26,20 @@ const ChangePasswordSchema = Yup.object().shape({
 
 const ChangePassword: NextPage = () => {
   const [serverError, setServerError] = useState('');
-  const submitForm = (values: ChangePasswordValues) => {
+  const submitForm = async (values: ChangePasswordValues) => {
     console.log('submitting change password form...');
     setServerError('');
-    
-    const promise = savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword });
-    promise.then(() => {
-      // success case
-      router.push('/admin')
-    });
-    promise.catch((response) => {
-      console.log('### Look HERE')
-      // error case
-      console.error(response.data.errorMessage);
-      setServerError(response.data.errorMessage);
-    })
+
+    try {
+      await savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword });
+      await router.push('/admin');
+    } catch (response: any) {
+      if (response as AxiosResponse) {
+        setServerError((response as AxiosResponse).data.errorMessage);
+      } else {
+        console.error('Unknown error: ', response);
+      }
+    }
   };
   const { handleChange, values, handleSubmit, errors, isValid } = useFormik<ChangePasswordValues>({
     initialValues: {
@@ -93,9 +93,7 @@ const ChangePassword: NextPage = () => {
             onChange={handleChange}
           />
 
-          <div>
-            {serverError}
-          </div>
+          <div>{serverError}</div>
 
           <Button
             name='btn-savePassword'

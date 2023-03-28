@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosPromise } from 'axios';
 
 export async function submitJoinInfo(data: InfoRequestData) {
   return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/runners`, data, {
@@ -57,9 +57,9 @@ export async function getAllRejectedTransactions() {
   });
 }
 
-export async function savePassword(data: { oldPassword?: string; newPassword?: string }) {
+export async function savePassword(data: { oldPassword?: string; newPassword?: string }): AxiosPromise {
   console.log(`PUT request with new password`);
-  return await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/change_password`, data, {
+  return axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/change_password`, data, {
     headers: { 'content-type': 'application/json' }
   });
 }
