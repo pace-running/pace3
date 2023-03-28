@@ -57,7 +57,7 @@ export async function getAllRejectedTransactions() {
   });
 }
 
-export async function savePassword(data: { oldPassword?: string; newPassword?: string }): AxiosPromise {
+export async function savePassword(data: { oldPassword?: string; newPassword?: string }): Promise<AxiosPromise> {
   console.log(`PUT request with new password`);
   return axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/change_password`, data, {
     headers: { 'content-type': 'application/json' }
