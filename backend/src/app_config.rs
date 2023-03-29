@@ -12,6 +12,10 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/api/admin/login").route(web::post().to(admin::check_password)))
             .service(web::resource("/api/admin/logout").route(web::post().to(admin::logout)))
             .service(
+                web::resource("/api/admin/change_password")
+                    .route(web::put().to(admin::change_password)),
+            )
+            .service(
                 web::resource("/api/admin/payment/{runner_id}")
                     .route(web::post().to(admin::modify_payment_status)),
             )
