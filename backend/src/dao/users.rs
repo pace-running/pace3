@@ -1,18 +1,25 @@
 use crate::models::users::User;
 use crate::schema::users::dsl::users;
-use crate::schema::users::username;
+use crate::schema::users::{password_hash, username};
 use crate::DbPool;
 use diesel::prelude::*;
-use diesel::{RunQueryDsl, TextExpressionMethods};
+use diesel::RunQueryDsl;
 
 #[derive(Clone)]
 pub struct Dao {
     pool: DbPool,
 }
 
+fn hash_password(password: String) -> String {
+    let config = argon2::Config::default();
+    // FIXME: don't use the same salt
+    argon2::hash_encoded(password.as_bytes(), b"cmFuZG9tc2FsdA", &config).unwrap()
+}
+
 pub trait UserDAOTrait {
     fn new(pool: DbPool) -> Dao;
     fn fetch_user(&self, user_name: String) -> User;
+    fn set_password(&self, user_name: String, new_password: String);
 }
 
 impl UserDAOTrait for Dao {
@@ -26,11 +33,24 @@ impl UserDAOTrait for Dao {
             .get()
             .expect("couldn't get db connection from pool");
         let database_result = users
-            .filter(username.like(user_name))
+            .filter(username.eq(user_name))
             .first::<User>(connection);
         return match database_result {
             Ok(user) => user,
             Err(_) => User::default(),
         };
+    }
+
+    fn set_password(&self, user_name: String, new_password: String) {
+        let new_hash = hash_password(new_password);
+        let connection = &mut self
+            .pool
+            .get()
+            .expect("couldn't get db connection from pool");
+        diesel::update(users)
+            .set(password_hash.eq(new_hash))
+            .filter(username.eq(user_name))
+            .execute(connection)
+            .expect("could not update password for user");
     }
 }

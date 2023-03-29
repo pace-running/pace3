@@ -2,7 +2,7 @@ use crate::dao::users::*;
 use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
-use crate::models::users::{LoginData, LoginResponse};
+use crate::models::users::{LoginData, LoginResponse, PasswordChangeData};
 use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country,
@@ -115,6 +115,28 @@ pub async fn check_password(
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Identity::login(&request.extensions(), response.username).unwrap();
+        Ok(HttpResponse::Ok()
+            .content_type("application/json")
+            .body(json))
+    } else {
+        Ok(forbidden())
+    }
+}
+
+pub async fn change_password(
+    user_name: Identity,
+    data: Json<PasswordChangeData>,
+    dao: Data<Dao>,
+) -> Result<HttpResponse, Error> {
+    let user = dao.fetch_user(user_name.id().unwrap());
+    let login_data = LoginData {
+        username: user_name.id().unwrap(),
+        password: data.old_password.to_string(),
+    };
+    if user.eq(&login_data) {
+        dao.set_password(user_name.id().unwrap(), data.new_password.to_string());
+        let response = LoginResponse::from(&user);
+        let json = serde_json::to_string(&response)?;
         Ok(HttpResponse::Ok()
             .content_type("application/json")
             .body(json))
