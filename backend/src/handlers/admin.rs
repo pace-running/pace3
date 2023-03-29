@@ -552,7 +552,7 @@ mod tests {
         establish_connection, insert_rejected_transaction,
         models::rejected_transaction::NewRejectedTransaction,
     };
-    use actix_web::{test};
+    use actix_web::test;
 
     use super::filter_rfp;
 
