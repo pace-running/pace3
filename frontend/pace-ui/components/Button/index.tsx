@@ -8,6 +8,7 @@ type ButtonProps = {
   onClick?: MouseEventHandler;
   disabled?: boolean;
   styling?: string;
+  testID?: string;
 };
 
 const Button: React.FC<ButtonProps> = props => {
@@ -20,6 +21,7 @@ const Button: React.FC<ButtonProps> = props => {
       disabled={props.disabled ?? false}
       className={props.styling}
       aria-label={props.label}
+      data-testid={props.testID}
     >
       {props.label}
     </button>

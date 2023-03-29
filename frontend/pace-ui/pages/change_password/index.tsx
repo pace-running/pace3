@@ -101,6 +101,7 @@ const ChangePassword: NextPage = () => {
             type='submit'
             onSubmit={handleSubmit}
             disabled={!(values.oldPassword && isValid)}
+            testID={'btn-confirm-new-password'}
           />
         </div>
       </form>

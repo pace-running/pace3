@@ -54,6 +54,7 @@ const Admin: NextPage = () => {
           onClick={() => {
             router.push('/change_password');
           }}
+          testID={'btn-change-password'}
         />
         <div>
           <h4>Statistiken:</h4>
