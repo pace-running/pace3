@@ -108,7 +108,7 @@ pub struct RunnerListResponse {
 pub async fn check_password(
     request: HttpRequest,
     login_data: Json<LoginData>,
-    dao: Data<Dao>,
+    dao: Data<dyn UserDAOTrait>,
 ) -> Result<HttpResponse, Error> {
     let user = dao.fetch_user(login_data.username.to_string());
     if user.eq(&login_data.into_inner()) {
@@ -528,11 +528,12 @@ pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Erro
 mod tests {
     use crate::handlers::admin::check_password;
     use crate::models::users::LoginData;
-    use crate::{
-        establish_connection, insert_rejected_transaction,
-        models::rejected_transaction::NewRejectedTransaction,
-    };
+    use crate::{establish_connection, insert_rejected_transaction, models::rejected_transaction::NewRejectedTransaction};
+    use crate::dao::users::{MockUserDAOTrait, UserDAOTrait};
     use actix_web::{http, test, web};
+    use mockall::*;
+    use mockall::predicate::*;
+    use crate::models::users::User;
 
     use super::filter_rfp;
 
@@ -560,31 +561,35 @@ mod tests {
         assert_eq!(inserted_transaction.iban, "DE87876876876");
     }
 
-    #[test]
+    #[actix_web::test]
     async fn unit_test_wrong_empty_user() {
+        let mut dao = MockUserDAOTrait::new();
+
+        //dao.expect_fetch_user().notCalled()
         let login_data = web::Json(LoginData {
             username: "".to_string(),
             password: "".to_string(),
         });
         let req = test::TestRequest::default().to_http_request();
-        let result = check_password(req, login_data).await.unwrap();
+        let result = check_password(req, login_data, web::Data::from(dao)).await.unwrap();
         assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
     }
 
-    #[test]
+    #[actix_web::test]
     async fn unit_test_wrong_password() {
+        let mut dao = MockUserDAOTrait::new();
         let login_data = web::Json(LoginData {
             username: "admin".to_string(),
             password: "wrongpassword".to_string(),
         });
         let req = test::TestRequest::default().to_http_request();
-        let result = check_password(req, login_data).await.unwrap();
+        let result = check_password(req, login_data, dao).await.unwrap();
         assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
     }
 
     /*
     // FIXME: disabled as the test is incomplete
-    #[test]
+    #[actix_web::test]
     async fn unit_test_new_user_password() {
         let conn = &mut establish_connection();
         conn.begin_test_transaction()

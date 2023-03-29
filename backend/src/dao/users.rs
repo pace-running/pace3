@@ -4,21 +4,27 @@ use crate::schema::users::username;
 use crate::DbPool;
 use diesel::prelude::*;
 use diesel::{RunQueryDsl, TextExpressionMethods};
+use mockall::*;
+use mockall::predicate::*;
 
 #[derive(Clone)]
 pub struct Dao {
     pool: DbPool,
 }
 
+#[automock]
 pub trait UserDAOTrait {
-    fn new(pool: DbPool) -> Dao;
+//    fn new(pool: DbPool) -> Dao;
     fn fetch_user(&self, user_name: String) -> User;
 }
 
-impl UserDAOTrait for Dao {
-    fn new(pool: DbPool) -> Dao {
-        Dao { pool: pool }
+impl Dao {
+    pub fn new(pool: DbPool) -> Dao {
+        return Dao { pool }
     }
+}
+
+impl UserDAOTrait for Dao {
 
     fn fetch_user(&self, user_name: String) -> User {
         let connection = &mut self

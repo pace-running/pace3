@@ -10,6 +10,7 @@ use pace::app_config::routes;
 use pace::dao::users::{Dao, UserDAOTrait};
 use pace::{has_https, session_key};
 use std::env;
+use std::sync::Arc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -21,6 +22,8 @@ async fn main() -> std::io::Result<()> {
         .build(connection_manager)
         .expect("Could not build connection pool");
     let dao = Dao::new(pool);
+    let dao_arc: Arc<dyn UserDAOTrait> = Arc::new(dao.clone());
+    let dao_data: web::Data<dyn UserDAOTrait> = web::Data::from(dao_arc);
 
     let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
@@ -52,7 +55,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(prometheus.clone())
             .wrap(cors)
             .configure(routes)
-            .app_data(web::Data::new(dao.clone()))
+            .app_data(dao_data)
     })
     .bind(("0.0.0.0", 8080))?
     .run()
