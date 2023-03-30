@@ -110,7 +110,7 @@ describe('change password page', () => {
     test('rejecting password', async () => {
       const response = {
         status: 403,
-        data: { errorMessage: 'Das alte Passwort ist nicht korrekt' }
+        data: { result: "fail", error_message: 'Das alte Passwort ist nicht korrekt' }
       };
       savePassword.mockRejectedValue(response);
 

@@ -47,6 +47,12 @@ pub struct LoginResponse {
     pub role: String,
 }
 
+#[derive(Serialize)]
+pub struct ErrorResponse {
+    pub result: String,
+    pub error_message: Option<String>,
+}
+
 impl From<&User> for LoginResponse {
     fn from(user: &User) -> Self {
         LoginResponse {

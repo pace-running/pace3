@@ -2,7 +2,7 @@ use crate::dao::users::*;
 use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
-use crate::models::users::{LoginData, LoginResponse, PasswordChangeData};
+use crate::models::users::{ErrorResponse, LoginData, LoginResponse, PasswordChangeData};
 use crate::services::email::send_payment_confirmation;
 use crate::{
     establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country,
@@ -119,7 +119,7 @@ pub async fn check_password(
             .content_type("application/json")
             .body(json))
     } else {
-        Ok(forbidden())
+        Ok(forbidden(None))
     }
 }
 
@@ -141,7 +141,9 @@ pub async fn change_password(
             .content_type("application/json")
             .body(json))
     } else {
-        Ok(forbidden())
+        Ok(forbidden(Some(
+            "Das alte Passwort ist nicht korrekt".to_string(),
+        )))
     }
 }
 
@@ -483,10 +485,15 @@ pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::NoContent().finish())
 }
 
-fn forbidden() -> HttpResponse {
+fn forbidden(error_message: Option<String>) -> HttpResponse {
+    let response = ErrorResponse {
+        error_message,
+        result: "fail".to_string(),
+    };
+    let json = serde_json::to_string(&response);
     HttpResponse::Forbidden()
         .content_type("application/json")
-        .body("\"result\": \"fail\"")
+        .body(json.unwrap())
 }
 
 pub fn change_payment_status(

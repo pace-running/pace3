@@ -6,7 +6,7 @@ import router from 'next/router';
 import * as Yup from 'yup';
 import { savePassword } from '../../apis/api';
 import { useState } from 'react';
-import { AxiosResponse } from 'axios';
+import {AxiosError, AxiosResponse} from 'axios';
 
 type ChangePasswordValues = {
   oldPassword?: string;
@@ -33,11 +33,15 @@ const ChangePassword: NextPage = () => {
     try {
       await savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword });
       await router.push('/admin');
-    } catch (response: any) {
-      if (response as AxiosResponse) {
-        setServerError((response as AxiosResponse).data.errorMessage);
+    } catch (error: any) {
+      // @ts-ignore
+      // TODO: create Type for the error response
+      if (error as AxiosError && (error as AxiosError).response?.data?.error_message) {
+        // @ts-ignore
+        setServerError((error as AxiosError).response.data.error_message);
       } else {
-        console.error('Unknown error: ', response);
+        console.error('Unknown error: ', error);
+        setServerError("Unbekannter Fehler")
       }
     }
   };
