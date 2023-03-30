@@ -77,6 +77,7 @@ const Finance: NextPage = () => {
           logOutUser();
           router.push('/admin/login');
         }}
+        testID='logout-btn'
       />
       <br />
       <br />

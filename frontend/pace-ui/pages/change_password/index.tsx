@@ -6,7 +6,7 @@ import router from 'next/router';
 import * as Yup from 'yup';
 import { savePassword } from '../../apis/api';
 import { useState } from 'react';
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError } from 'axios';
 
 type ChangePasswordValues = {
   oldPassword?: string;

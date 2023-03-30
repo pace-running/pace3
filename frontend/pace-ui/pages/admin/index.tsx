@@ -65,6 +65,7 @@ const Admin: NextPage = () => {
             logOutUser();
             router.push('/admin/login');
           }}
+          testID='logout-btn'
         />
         <div>
           <h4>Statistiken:</h4>
