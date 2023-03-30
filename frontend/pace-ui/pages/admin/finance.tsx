@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import router from 'next/router';
 import { useEffect, useState } from 'react';
-import { getAllRejectedTransactions, uploadPaymentCSV } from '../../apis/api';
+import { getAllRejectedTransactions, uploadPaymentCSV, logOutUser } from '../../apis/api';
 import Button from '../../components/Button';
 
 const Finance: NextPage = () => {
@@ -66,6 +66,16 @@ const Finance: NextPage = () => {
         type={'button'}
         onClick={() => {
           router.push('/admin');
+        }}
+      />
+      &nbsp;&nbsp;&nbsp;
+      <Button
+        name={'logout-btn'}
+        label={'Ausloggen'}
+        type={'button'}
+        onClick={() => {
+          logOutUser();
+          router.push('/admin/login');
         }}
       />
       <br />

@@ -17,7 +17,7 @@ jest.mock('next/router', () => ({
 jest.mock('../../apis/api', () => ({
   changePaymentStatus: jest.fn(),
   fetchFilteredRunners: jest.fn(),
-  logOutUser: jest.fn(),
+  logOutUser: jest.fn()
 }));
 
 describe('admin main page', () => {
@@ -258,6 +258,4 @@ describe('admin main page', () => {
       expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '');
     });
   });
-
- 
 });
