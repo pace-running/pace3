@@ -58,14 +58,18 @@ export async function getAllRejectedTransactions() {
 }
 
 export async function savePassword(data: { oldPassword?: string; newPassword?: string }): Promise<AxiosPromise> {
-  console.log(`PUT request with new password`);
-  return axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/change_password`, {
-    // make it Rust-y
-    old_password: data.oldPassword,
-    new_password: data.newPassword,
-  }, {
-    headers: { 'content-type': 'application/json' }
-  });
+  console.log('PUT request with new password');
+  return axios.put(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/change_password`,
+    {
+      // make it Rust-y
+      old_password: data.oldPassword,
+      new_password: data.newPassword
+    },
+    {
+      headers: { 'content-type': 'application/json' }
+    }
+  );
 }
 export async function logOutUser() {
   return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logout`, {

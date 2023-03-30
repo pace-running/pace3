@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ChangePassword from '../../pages/change_password';
 import router from 'next/router';
 import { savePassword } from '../../apis/api';
-import {AxiosError} from "axios";
+import { AxiosError } from 'axios';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -111,7 +111,7 @@ describe('change password page', () => {
     test('rejecting password', async () => {
       const response = {
         status: 403,
-        data: { result: "fail", error_message: 'Das alte Passwort ist nicht korrekt' }
+        data: { result: 'fail', error_message: 'Das alte Passwort ist nicht korrekt' }
       };
       const error = new AxiosError('', null, null, null, response);
       savePassword.mockRejectedValue(error);

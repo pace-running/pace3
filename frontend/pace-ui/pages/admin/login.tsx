@@ -31,7 +31,7 @@ const Login: NextPage = () => {
           <h1>Login</h1>
           <TextInput type={'text'} name={'username'} label={'Username'} />
           <TextInput type={'password'} name={'password'} label={'Passwort'} />
-          <Button name={'submitButton'} label={'Login'} type={'submit'} styling={'brownbg'} testID={'btn-login'}/>
+          <Button name={'submitButton'} label={'Login'} type={'submit'} styling={'brownbg'} testID={'btn-login'} />
         </div>
       </form>
     </BaseLayout>
