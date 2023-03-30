@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import router from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { changePaymentStatus, fetchFilteredRunners } from '../../apis/api';
+import { changePaymentStatus, fetchFilteredRunners, logOutUser } from '../../apis/api';
 import Button from '../../components/Button';
 import LoadingScreen from '../../components/LoadingScreen';
 
@@ -56,6 +56,18 @@ const Admin: NextPage = () => {
           }}
           testID={'btn-change-password'}
         />
+
+        &nbsp;&nbsp;&nbsp;
+        <Button
+          name={'btn-logout'}
+          label={'Ausloggen'}
+          type={'button'}
+          onClick={() => {
+            logOutUser();
+            router.push('/admin/login');
+          }}
+        />
+
         <div>
           <h4>Statistiken:</h4>
           <p>Statistiken beziehen sich auf den angewendeten Filter!</p>

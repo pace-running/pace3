@@ -67,3 +67,8 @@ export async function savePassword(data: { oldPassword?: string; newPassword?: s
     headers: { 'content-type': 'application/json' }
   });
 }
+export async function logOutUser() {
+  return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logout`, {
+    headers: { 'content-type': 'application/json' }
+  });
+}
