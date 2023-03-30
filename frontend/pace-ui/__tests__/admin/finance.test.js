@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import Finance from '../../pages/admin/finance';
 import router from 'next/router';
-import { uploadPaymentCSV, getAllRejectedTransactions } from '../../apis/api';
+import { uploadPaymentCSV, getAllRejectedTransactions, logOutUser } from '../../apis/api';
 import { act } from 'react-dom/test-utils';
 
 jest.mock('next/router', () => ({
@@ -15,7 +15,8 @@ jest.mock('next/router', () => ({
 
 jest.mock('../../apis/api', () => ({
   uploadPaymentCSV: jest.fn(),
-  getAllRejectedTransactions: jest.fn()
+  getAllRejectedTransactions: jest.fn(),
+  logOutUser: jest.fn()
 }));
 
 describe('test the finance page', () => {
@@ -31,6 +32,13 @@ describe('test the finance page', () => {
     render(<Finance />);
     await userEvent.click(screen.getByRole('button', { name: 'Zurück zum Adminbereich' }));
     expect(router.push).toHaveBeenCalledWith('/admin');
+  });
+
+  test('logout button logs out the user and re-routes to the login page', async () => {
+    render(<Finance />);
+    await userEvent.click(screen.getByRole('button', { name: 'Ausloggen' }));
+    expect(logOutUser).toHaveBeenCalled();
+    expect(router.push).toHaveBeenCalledWith('/admin/login');
   });
 
   test('clicking the button without uploading a file results in error message', async () => {

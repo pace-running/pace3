@@ -56,7 +56,6 @@ const Admin: NextPage = () => {
           }}
           testID={'btn-change-password'}
         />
-
         &nbsp;&nbsp;&nbsp;
         <Button
           name={'btn-logout'}
@@ -67,7 +66,6 @@ const Admin: NextPage = () => {
             router.push('/admin/login');
           }}
         />
-
         <div>
           <h4>Statistiken:</h4>
           <p>Statistiken beziehen sich auf den angewendeten Filter!</p>
