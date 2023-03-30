@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
 import router from 'next/router';
-import { changePaymentStatus, fetchFilteredRunners } from '../../apis/api';
+import { changePaymentStatus, fetchFilteredRunners, logOutUser } from '../../apis/api';
 import Admin from '../../pages/admin';
 
 jest.mock('axios');
@@ -16,7 +16,8 @@ jest.mock('next/router', () => ({
 
 jest.mock('../../apis/api', () => ({
   changePaymentStatus: jest.fn(),
-  fetchFilteredRunners: jest.fn()
+  fetchFilteredRunners: jest.fn(),
+  logOutUser: jest.fn(),
 }));
 
 describe('admin main page', () => {
@@ -212,12 +213,24 @@ describe('admin main page', () => {
   });
 
   test('clicking Change Password Button changes the page', async () => {
+    fetchFilteredRunners.mockResolvedValue(apiResponse);
     await act(async () => render(<Admin />));
     router.push = jest.fn();
     const button = screen.getByRole('button', { name: 'Passwort ändern' });
 
     await userEvent.click(button);
     expect(router.push).toHaveBeenCalledWith('/change_password');
+  });
+
+  test('clicking LogOut Button logs the user out and re-routes to the login page ', async () => {
+    fetchFilteredRunners.mockResolvedValue(apiResponse);
+    await act(async () => render(<Admin />));
+    router.push = jest.fn();
+    const button = screen.getByRole('button', { name: 'Ausloggen' });
+
+    await userEvent.click(button);
+    expect(logOutUser).toHaveBeenCalled();
+    expect(router.push).toHaveBeenCalledWith('/admin/login');
   });
 
   describe('pagination works as intended', () => {
@@ -245,4 +258,6 @@ describe('admin main page', () => {
       expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '');
     });
   });
+
+ 
 });
