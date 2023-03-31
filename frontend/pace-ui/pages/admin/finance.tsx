@@ -91,9 +91,7 @@ const Finance: NextPage = () => {
       <br />
       <p style={{ color: 'red' }}>{error}</p>
       <div>
-        <button type='button' onClick={handleParse}>
-          Einlesen
-        </button>
+        <Button name={'btn-upload'} label={'Einlesen'} type={'button'} onClick={handleParse} testID='btn-upload' />
       </div>
       <br />
       {uploadFeedback &&
