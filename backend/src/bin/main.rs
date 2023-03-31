@@ -7,7 +7,7 @@ use diesel::r2d2::ConnectionManager;
 use diesel::PgConnection;
 use dotenvy::dotenv;
 use pace::app_config::routes;
-use pace::dao::users::{Dao, UserDAOTrait};
+use pace::dao::users::Dao;
 use pace::{has_https, session_key};
 use std::env;
 

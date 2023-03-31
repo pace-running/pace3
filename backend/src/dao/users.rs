@@ -4,6 +4,8 @@ use crate::schema::users::{password_hash, username};
 use crate::DbPool;
 use diesel::prelude::*;
 use diesel::RunQueryDsl;
+use mockall::predicate::*;
+use mockall::*;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
@@ -24,16 +26,18 @@ fn hash_password(password: String) -> String {
 }
 
 pub trait UserDAOTrait {
-    fn new(pool: DbPool) -> Dao;
     fn fetch_user(&self, user_name: String) -> User;
     fn set_password(&self, user_name: String, new_password: String);
 }
 
-impl UserDAOTrait for Dao {
-    fn new(pool: DbPool) -> Dao {
-        Dao { pool: pool }
+impl Dao {
+    pub fn new(pool: DbPool) -> Dao {
+        return Dao { pool };
     }
+}
 
+#[automock]
+impl UserDAOTrait for Dao {
     fn fetch_user(&self, user_name: String) -> User {
         let connection = &mut self
             .pool
