@@ -1,0 +1,20 @@
+Umsatzanzeige;;;;;;;;;;;;;
+;;;;;;;;;;;;;
+BLZ:;20190003;;Datum:;26.04.2022;;;;;;;;;
+Konto:;19400420;;Uhrzeit:;08:54:42;;;;;;;;;
+Abfrage von:;Tim Ole Brückner;;Kontoinhaber:;Fußball-Club St. Pauli;;;;;;;;;
+;;;;;;;;;;;;;
+Zeitraum:;;von:;22.04.2022;bis:;26.04.2022;;;;;;;;
+Betrag in Euro:;;von:;;bis:;;;;;;;;;
+Primanotanummer:;;von:;;bis:;;;;;;;;;
+Textschlüssel:;;von:;;bis:;;;;;;;;;
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;
+Buchungstag;Valuta;Textschlüssel;Primanota;Zahlungsempfänger;ZahlungsempfängerKto;ZahlungsempfängerIBAN;ZahlungsempfängerBLZ;ZahlungsempfängerBIC;Vorgang/Verwendungszweck;Kundenreferenz;Währung;Umsatz;Soll/Haben
+26.04.2022;26.04.2022;51 Überweisungsgutschr.;931;Christoph K;0;DE12342301028154;24151005;NOLADE21STS;Echtzeit-Überweisung LGR-JAQPY;;EUR;10;H
+26.04.2022;26.04.2022;51 Überweisungsgutschr.;931;Irgendwer Schmidt;0;DE95612345604479839722;67230000;MLPBDE61XXX;Überweisung LGR-YPKDM;;EUR;25;H
+26.04.2022;26.04.2022;51 Überweisungsgutschr.;931;John Doe;0;DE123456789015865280857;11010101;SOBKDEB2XXX;Überweisung LGR-QVPMH EREF: ct-8f3f9d9cae8a4746971e9937e28cef60;ct-8f3f9d9cae8a4746971e9937e28cef60;EUR;5;H
+26.04.2022;26.04.2022;51 Überweisungsgutschr.;931;Heike Meyer;0;DE032005123401264414960;20050550;HASPDEHHXXX;Überweisung LGR-TTZLK und LGR-WEGDS;;EUR;50;H
+;;;;;;;;;;;;;
+;;;;;;;;;;;;;
