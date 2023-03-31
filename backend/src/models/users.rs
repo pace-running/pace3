@@ -35,7 +35,7 @@ pub struct LoginData {
     pub password: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct PasswordChangeData {
     pub old_password: String,
     pub new_password: String,

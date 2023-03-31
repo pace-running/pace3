@@ -113,6 +113,9 @@ pub async fn check_password(
     login_data: Json<LoginData>,
     dao: Data<Dao>,
 ) -> Result<HttpResponse, Error> {
+    if login_data.username.is_empty() {
+        return Ok(forbidden(None))
+    }
     let user = dao.fetch_user(login_data.username.to_string());
     if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);
@@ -131,13 +134,24 @@ pub async fn change_password(
     data: Json<PasswordChangeData>,
     dao: Data<Dao>,
 ) -> Result<HttpResponse, Error> {
-    let user = dao.fetch_user(user_name.id().unwrap());
+    do_change_password(user_name.id().unwrap(), data.into_inner(), dao.into_inner().as_ref()).await
+}
+
+async fn do_change_password(
+    user_name: String,
+    data: PasswordChangeData,
+    dao: &Dao,
+)  -> Result<HttpResponse, Error> {
+    if user_name.is_empty() || data.old_password.is_empty() || data.new_password.is_empty() {
+        return Ok(forbidden(None))
+    }
+    let user = dao.fetch_user(user_name.clone());
     let login_data = LoginData {
-        username: user_name.id().unwrap(),
+        username: user_name.clone(),
         password: data.old_password.to_string(),
     };
     if user.eq(&login_data) {
-        dao.set_password(user_name.id().unwrap(), data.new_password.to_string());
+        dao.set_password(user_name.clone(), data.new_password.clone());
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Ok(HttpResponse::Ok()
@@ -560,8 +574,8 @@ pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Erro
 mod tests {
     #[double]
     use crate::dao::users::Dao;
-    use crate::handlers::admin::check_password;
-    use crate::models::users::LoginData;
+    use crate::handlers::admin::{check_password, do_change_password};
+    use crate::models::users::{LoginData, PasswordChangeData};
     use crate::models::users::User;
     use crate::{
         establish_connection, insert_rejected_transaction,
@@ -600,10 +614,8 @@ mod tests {
     #[actix_web::test]
     async fn unit_test_wrong_empty_user() {
         let mut dao = Dao::new();
-        // FIXME: should not be called actually, fix the code!
         dao.expect_fetch_user()
-            .times(1)
-            .returning(|_| User::default());
+            .times(0);
 
         //dao.expect_fetch_user().notCalled()
         let login_data = web::Json(LoginData {
@@ -641,38 +653,51 @@ mod tests {
         assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
     }
 
-    /*
-    // FIXME: disabled as the test is incomplete
     #[actix_web::test]
-    async fn unit_test_new_user_password() {
-        let conn = &mut establish_connection();
-        conn.begin_test_transaction()
-            .expect("Failed to start test transaction");
-        let hashed_password = hash_password(String::from("testpassword"));
-        let new_user = (
-            username.eq("testuser"),
-            role.eq("nonadmin"),
-            password_hash.eq(hashed_password),
-        );
-        let rows_inserted = diesel::insert_into(schema::users::table)
-            .values(&new_user)
-            .execute(conn);
-        assert_eq!(rows_inserted, Ok(1));
+    async fn unit_test_change_password_empty_password_given() {
+        let mut dao = Dao::new();
+        dao.expect_set_password().times(0);
+        dao.expect_fetch_user().times(0);
 
-        let login_data = web::Json(LoginData {
-            username: "testuser".to_string(),
-            password: "testpassword".to_string(),
-        });
-        let req = test::TestRequest::default().to_http_request();
-        // FIXME: need injection of connection to check_password to be in the same transaction
-        // TODO: also need to mock Identity/login
-        let result = check_password(req, login_data).await.unwrap();
-        assert_eq!(result.status(), http::StatusCode::OK);
+        let data = PasswordChangeData {
+            old_password: "oldpassword".to_string(),
+            new_password: "".to_string(),
+        };
+        let result = do_change_password("admin".to_string(), data, &dao)
+            .await
+            .unwrap();
+        assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
     }
 
-    fn hash_password(password: String) -> String {
-        let config = argon2::Config::default();
-        argon2::hash_encoded(password.as_bytes(), b"cmFuZG9tc2FsdA", &config).unwrap()
+    #[actix_web::test]
+    async fn unit_test_change_password_empty_user_given() {
+        let mut dao = Dao::new();
+        dao.expect_set_password().times(0);
+        dao.expect_fetch_user().times(0);
+
+        let data = PasswordChangeData {
+            old_password: "oldpassword".to_string(),
+            new_password: "newpassword".to_string(),
+        };
+        let result = do_change_password("".to_string(), data, &dao)
+            .await
+            .unwrap();
+        assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
     }
-    */
+
+    #[actix_web::test]
+    async fn unit_test_change_password_empty_old_password() {
+        let mut dao = Dao::new();
+        dao.expect_set_password().times(0);
+        dao.expect_fetch_user().times(0);
+
+        let data = PasswordChangeData {
+            old_password: "".to_string(),
+            new_password: "newpassword".to_string(),
+        };
+        let result = do_change_password("admin".to_string(), data, &dao)
+            .await
+            .unwrap();
+        assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
+    }
 }
