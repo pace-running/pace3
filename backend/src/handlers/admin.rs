@@ -703,10 +703,10 @@ mod tests {
         dao.expect_set_password()
             .with(
                 predicate::eq("admin".to_string()),
-                predicate::eq("newpassword".to_string())
+                predicate::eq("newpassword".to_string()),
             )
             .times(1)
-            .returning(|_,_| ());
+            .returning(|_, _| ());
         dao.expect_fetch_user()
             .with(predicate::eq("admin".to_string()))
             .times(1)

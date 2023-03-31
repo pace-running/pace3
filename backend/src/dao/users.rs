@@ -1,12 +1,11 @@
 use crate::models::users::User;
 use crate::schema::users::dsl::users;
 use crate::schema::users::{password_hash, username};
-use crate::{DbPool, hash_password};
+use crate::{hash_password, DbPool};
 use diesel::prelude::*;
 use diesel::RunQueryDsl;
 use mockall::predicate::*;
 use mockall::*;
-
 
 #[derive(Clone)]
 pub struct Dao {
