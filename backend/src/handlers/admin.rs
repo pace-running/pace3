@@ -85,14 +85,6 @@ pub struct FullRunnerInfo {
     shipping_details: Option<ShippingDetails>,
 }
 
-// TODO: delete  after changing implementation of csv parsing
-#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
-pub struct FaultyTransaction {
-    runner_ids: Option<Vec<String>>,
-    reason_for_payment: String,
-    amount: String,
-    expected_amount: Option<String>,
-}
 
 #[derive(Deserialize, Serialize)]
 pub struct RejectedTransactionsResponse {
