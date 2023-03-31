@@ -85,7 +85,6 @@ pub struct FullRunnerInfo {
     shipping_details: Option<ShippingDetails>,
 }
 
-
 #[derive(Deserialize, Serialize)]
 pub struct RejectedTransactionsResponse {
     transaction_list: Vec<RejectedTransaction>,
@@ -106,7 +105,7 @@ pub async fn check_password(
     dao: Data<Dao>,
 ) -> Result<HttpResponse, Error> {
     if login_data.username.is_empty() {
-        return Ok(forbidden(None))
+        return Ok(forbidden(None));
     }
     let user = dao.fetch_user(login_data.username.to_string());
     if user.eq(&login_data.into_inner()) {
@@ -126,16 +125,21 @@ pub async fn change_password(
     data: Json<PasswordChangeData>,
     dao: Data<Dao>,
 ) -> Result<HttpResponse, Error> {
-    do_change_password(user_name.id().unwrap(), data.into_inner(), dao.into_inner().as_ref()).await
+    do_change_password(
+        user_name.id().unwrap(),
+        data.into_inner(),
+        dao.into_inner().as_ref(),
+    )
+    .await
 }
 
 async fn do_change_password(
     user_name: String,
     data: PasswordChangeData,
     dao: &Dao,
-)  -> Result<HttpResponse, Error> {
+) -> Result<HttpResponse, Error> {
     if user_name.is_empty() || data.old_password.is_empty() || data.new_password.is_empty() {
-        return Ok(forbidden(None))
+        return Ok(forbidden(None));
     }
     let user = dao.fetch_user(user_name.clone());
     let login_data = LoginData {
@@ -567,8 +571,9 @@ mod tests {
     #[double]
     use crate::dao::users::Dao;
     use crate::handlers::admin::{check_password, do_change_password};
-    use crate::models::users::{LoginData, PasswordChangeData};
+    use crate::hash_password;
     use crate::models::users::User;
+    use crate::models::users::{LoginData, PasswordChangeData};
     use crate::{
         establish_connection, insert_rejected_transaction,
         models::rejected_transaction::NewRejectedTransaction,
@@ -606,8 +611,7 @@ mod tests {
     #[actix_web::test]
     async fn unit_test_wrong_empty_user() {
         let mut dao = Dao::new();
-        dao.expect_fetch_user()
-            .times(0);
+        dao.expect_fetch_user().times(0);
 
         //dao.expect_fetch_user().notCalled()
         let login_data = web::Json(LoginData {
@@ -691,5 +695,35 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(result.status(), http::StatusCode::FORBIDDEN);
+    }
+
+    #[actix_web::test]
+    async fn unit_test_change_password_success() {
+        let mut dao = Dao::new();
+        dao.expect_set_password()
+            .with(
+                predicate::eq("admin".to_string()),
+                predicate::eq("newpassword".to_string())
+            )
+            .times(1)
+            .returning(|_,_| ());
+        dao.expect_fetch_user()
+            .with(predicate::eq("admin".to_string()))
+            .times(1)
+            .returning(|_| User {
+                id: 1,
+                username: "admin".to_string(),
+                password_hash: hash_password("oldpassword".to_string()),
+                role: "admin".to_string(),
+            });
+
+        let data = PasswordChangeData {
+            old_password: "oldpassword".to_string(),
+            new_password: "newpassword".to_string(),
+        };
+        let result = do_change_password("admin".to_string(), data, &dao)
+            .await
+            .unwrap();
+        assert_eq!(result.status(), http::StatusCode::OK);
     }
 }

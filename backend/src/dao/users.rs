@@ -1,28 +1,16 @@
 use crate::models::users::User;
 use crate::schema::users::dsl::users;
 use crate::schema::users::{password_hash, username};
-use crate::DbPool;
+use crate::{DbPool, hash_password};
 use diesel::prelude::*;
 use diesel::RunQueryDsl;
 use mockall::predicate::*;
 use mockall::*;
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+
 
 #[derive(Clone)]
 pub struct Dao {
     pool: DbPool,
-}
-
-fn hash_password(password: String) -> String {
-    let config = argon2::Config::default();
-    let salt: String = thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(16)
-        .map(char::from)
-        .collect();
-
-    argon2::hash_encoded(password.as_bytes(), salt.as_bytes(), &config).unwrap()
 }
 
 pub trait UserDAOTrait {
