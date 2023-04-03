@@ -2,16 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: pace3-ingress
-  namespace: pace3
-  labels:
-    app: pace3
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    ingress.kubernetes.io/content-security-policy: "default-src 'self'"
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
-    - host: pace3.lauf-gegen-rechts.de
+    - host: www.stadtpark-marathon.de
       http:
         paths:
           - path: /api
@@ -31,5 +24,4 @@ spec:
   tls:
     - secretName: pace3-tls
       hosts:
-        - pace3.lauf-gegen-rechts.de
-
+        - www.stadtpark-marathon.de

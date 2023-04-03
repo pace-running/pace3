@@ -1,0 +1,7 @@
+namespace: pace3
+bases:
+- ../base/
+
+patchesStrategicMerge:
+  - ingress.yaml
+

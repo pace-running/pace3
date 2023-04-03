@@ -59,7 +59,7 @@ jobs:
           file: ./frontend/pace-ui/Dockerfile
           push: true
           tags: registry.k3s.colodeck.de/pace3-frontend:latest
-  deploy:
+  deploy-dev:
     if: github.ref == 'refs/heads/main'
     runs-on: self-hosted
     needs: build
@@ -68,14 +68,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: deploy
-        run: kubectl apply -f infra-setup
+        run: kubectl apply -k infra-setup/dev
       - name: reload
         run: kubectl -n pace3 rollout restart deployment pace3-deployment
       - name: wait
         run: kubectl -n pace3 rollout status deployment pace3-deployment --timeout=2200s
   cypress-run:
     runs-on: ubuntu-20.04
-    needs: deploy
+    needs: deploy-dev
     env:
       CYPRESS_BASE_URL: "https://pace3.lauf-gegen-rechts.de/"
     steps:
@@ -83,3 +83,18 @@ jobs:
       - uses: cypress-io/github-action@v4
         with:
           working-directory: cypress
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    needs: cypress-run
+    env:
+      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+    steps:
+      - uses: actions/checkout@v3
+      - name: deploy
+        run: kubectl apply -k infra-setup/prod
+      - name: reload
+        run: kubectl -n pace3-prod rollout restart deployment pace3-deployment
+      - name: wait
+        run: kubectl -n pace3-prod rollout status deployment pace3-deployment --timeout=2200s
+

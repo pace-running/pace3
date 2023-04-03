@@ -1,0 +1,9 @@
+namespace: pace3-prod
+commonLabels:
+  variant: prod
+bases:
+- ../base/
+
+patchesStrategicMerge:
+  - ingress.yaml
+
