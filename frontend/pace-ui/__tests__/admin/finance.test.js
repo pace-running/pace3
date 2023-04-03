@@ -161,9 +161,8 @@ describe('test the finance page', () => {
     expect(firstRowCells[7]).toHaveTextContent('DE57500105175574174785');
   });
 
-  describe('deleting faulty transactions',()=>{
-
-    test('selecting rows and clicking the delete button opens a modal window', async ()=>{
+  describe('deleting faulty transactions', () => {
+    test('selecting rows and clicking the delete button opens a modal window', async () => {
       const apiResponse = {
         status: 200,
         data: [
@@ -195,13 +194,11 @@ describe('test the finance page', () => {
       await act(async () => render(<Finance />));
 
       await userEvent.click(screen.getByTestId('checkbox-55'));
-      await userEvent.click(screen.getByRole('button',{name: 'Ausgewählte Transaktionen löschen'}));
+      await userEvent.click(screen.getByRole('button', { name: 'Ausgewählte Transaktionen löschen' }));
 
       expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-      expect(screen.getByRole('button',{name: 'Ja, löschen'})).toBeInTheDocument();
-      expect(screen.getByRole('button',{name: 'Zurück'})).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Ja, löschen' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Zurück' })).toBeInTheDocument();
     });
   });
-
-  
 });

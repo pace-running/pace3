@@ -79,7 +79,7 @@ export async function logOutUser() {
 
 export async function deleteFaultyTransactions(ids: number[]) {
   return await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/finance`, {
-    data: {ids: ids},
+    data: { ids: ids },
     headers: { 'content-type': 'application/json' }
   });
 }

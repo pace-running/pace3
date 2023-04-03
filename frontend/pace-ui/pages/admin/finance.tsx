@@ -137,7 +137,7 @@ const Finance: NextPage = () => {
                         onChange={() => {
                           const newState = new Set(checkboxStates);
                           if (checkboxStates.has(transaction.id)) {
-                            newState.delete(transaction.id)
+                            newState.delete(transaction.id);
                           } else {
                             newState.add(transaction.id);
                           }
@@ -170,13 +170,25 @@ const Finance: NextPage = () => {
         <Modal name={'confirmDeletionModal'} onClose={() => setShowDeletionModal(false)} open={showDeletionModal}>
           <h4>Sind Sie sicher, dass Sie die ausgewählten Transaktionen löschen möchten?</h4>
           <div>
-            <Button name={'btn-confirm-deletion'} label={'Ja, löschen'} type={'button'} onClick={()=>{
-              deleteFaultyTransactions(Array.from(checkboxStates));
-              setTransactionsLoaded(false);
-              setCheckboxStates(new Set<number>());
-              setShowDeletionModal(false);
-            }}/>
-            <Button name={'btn-cancel-deletion'} label={'Zurück'} type={'button'} onClick={()=>{setShowDeletionModal(false)}}/>
+            <Button
+              name={'btn-confirm-deletion'}
+              label={'Ja, löschen'}
+              type={'button'}
+              onClick={() => {
+                deleteFaultyTransactions(Array.from(checkboxStates));
+                setTransactionsLoaded(false);
+                setCheckboxStates(new Set<number>());
+                setShowDeletionModal(false);
+              }}
+            />
+            <Button
+              name={'btn-cancel-deletion'}
+              label={'Zurück'}
+              type={'button'}
+              onClick={() => {
+                setShowDeletionModal(false);
+              }}
+            />
           </div>
         </Modal>
       </div>
