@@ -140,25 +140,25 @@ describe('test the finance page', () => {
     const headers = within(table).getAllByRole('columnheader');
     const firstRow = within(table).getAllByRole('row')[1];
     const firstRowCells = firstRow.children;
-    expect(headers[0]).toHaveTextContent('Datum');
-    expect(firstRowCells[0]).toHaveTextContent('26.01.2023');
-    expect(headers[1]).toHaveTextContent('Teilnehmenden IDs');
-    expect(firstRowCells[1]).toHaveTextContent('105');
+    expect(headers[1]).toHaveTextContent('Datum');
+    expect(firstRowCells[1]).toHaveTextContent('26.01.2023');
+    expect(headers[2]).toHaveTextContent('Teilnehmenden IDs');
+    expect(firstRowCells[2]).toHaveTextContent('105');
 
-    expect(headers[2]).toHaveTextContent('Verwendungszweck');
-    expect(firstRowCells[2]).toHaveTextContent('LGR-YPKDM, LGR-YPKPP');
+    expect(headers[3]).toHaveTextContent('Verwendungszweck');
+    expect(firstRowCells[3]).toHaveTextContent('LGR-YPKDM, LGR-YPKPP');
 
-    expect(headers[3]).toHaveTextContent('Betrag');
-    expect(firstRowCells[3]).toHaveTextContent('25');
-    expect(headers[4]).toHaveTextContent('Erwarteter Betrag');
-    expect(firstRowCells[4]).toHaveTextContent('25, 25');
-    expect(headers[5]).toHaveTextContent('Währung');
-    expect(firstRowCells[5]).toHaveTextContent('EUR');
-    expect(headers[6]).toHaveTextContent('Name');
-    expect(firstRowCells[6]).toHaveTextContent('Test McTesty');
+    expect(headers[4]).toHaveTextContent('Betrag');
+    expect(firstRowCells[4]).toHaveTextContent('25');
+    expect(headers[5]).toHaveTextContent('Erwarteter Betrag');
+    expect(firstRowCells[5]).toHaveTextContent('25, 25');
+    expect(headers[6]).toHaveTextContent('Währung');
+    expect(firstRowCells[6]).toHaveTextContent('EUR');
+    expect(headers[7]).toHaveTextContent('Name');
+    expect(firstRowCells[7]).toHaveTextContent('Test McTesty');
 
-    expect(headers[7]).toHaveTextContent('IBAN');
-    expect(firstRowCells[7]).toHaveTextContent('DE57500105175574174785');
+    expect(headers[8]).toHaveTextContent('IBAN');
+    expect(firstRowCells[8]).toHaveTextContent('DE57500105175574174785');
   });
 
   describe('deleting faulty transactions', () => {
