@@ -7,6 +7,7 @@ type CheckboxProps = {
   check: boolean;
   onChange?: ChangeEventHandler;
   rest?: ReactNode;
+  testID?: string;
 };
 
 const Checkbox: React.FC<CheckboxProps> = props => {
@@ -21,6 +22,7 @@ const Checkbox: React.FC<CheckboxProps> = props => {
         onChange={props.onChange}
         role={props.role ?? undefined}
         checked={props.check}
+        data-testid={props.testID}
       />
       <label className='form-check-label' htmlFor={props.name}>
         {props.label}

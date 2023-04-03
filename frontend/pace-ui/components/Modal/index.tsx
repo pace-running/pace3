@@ -14,7 +14,7 @@ const Modal: React.FC<ModalProps> = props => {
   return (
     <div>
       <div className='overlay' onClick={props.onClose}></div>
-      <div className='modal-window' id={props.name} style={{ textAlign: 'center' }}>
+      <div className='modal-window' id={props.name} style={{ textAlign: 'center' }} role='alertdialog'>
         <button type='button' className='close-modal' aria-label='Close' onClick={props.onClose}>
           <span aria-hidden='true'>
             <svg
