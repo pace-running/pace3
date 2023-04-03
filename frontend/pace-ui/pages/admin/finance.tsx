@@ -1,8 +1,10 @@
 import { NextPage } from 'next';
 import router from 'next/router';
 import { useEffect, useState } from 'react';
-import { getAllRejectedTransactions, uploadPaymentCSV, logOutUser } from '../../apis/api';
+import { getAllRejectedTransactions, uploadPaymentCSV, logOutUser, deleteFaultyTransactions } from '../../apis/api';
 import Button from '../../components/Button';
+import Checkbox from '../../components/Checkbox';
+import Modal from '../../components/Modal';
 
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
@@ -10,6 +12,8 @@ const Finance: NextPage = () => {
   const [rejectedPayments, setRejectedPayments] = useState<RejectedTransaction[]>();
   const [uploadFeedback, setUploadFeedback] = useState<number[]>();
   const [transactionsLoaded, setTransactionsLoaded] = useState(false);
+  const [checkboxStates, setCheckboxStates] = useState(new Set<number>());
+  const [showDeletionModal, setShowDeletionModal] = useState(false);
 
   const allowedExtensions = ['csv'];
 
@@ -108,6 +112,7 @@ const Finance: NextPage = () => {
         <table id='rejectedPaymentsTable' style={{ overflow: 'scroll' }}>
           <thead>
             <tr key={'head'}>
+              <th>Auswahl zum Löschen</th>
               <th>Datum</th>
               <th>Teilnehmenden IDs</th>
               <th>Verwendungszweck</th>
@@ -123,6 +128,23 @@ const Finance: NextPage = () => {
               rejectedPayments.map((transaction, key) => {
                 return (
                   <tr key={key}>
+                    <td>
+                      <Checkbox
+                        name={`checkbox-${transaction.id}`}
+                        label='Löschen'
+                        testID={`checkbox-${transaction.id}`}
+                        check={checkboxStates.has(transaction.id)}
+                        onChange={() => {
+                          const newState = new Set(checkboxStates);
+                          if (checkboxStates.has(transaction.id)) {
+                            newState.delete(transaction.id)
+                          } else {
+                            newState.add(transaction.id);
+                          }
+                          setCheckboxStates(newState);
+                        }}
+                      />
+                    </td>
                     <td>{transaction.date_of_payment}</td>
                     <td>{transaction.runner_ids}</td>
                     <td>{transaction.reasons_for_payment}</td>
@@ -136,6 +158,27 @@ const Finance: NextPage = () => {
               })}
           </tbody>
         </table>
+        <br />
+        <Button
+          name={'btn-open-deletion-modal'}
+          label={'Ausgewählte Transaktionen löschen'}
+          type={'button'}
+          onClick={() => {
+            setShowDeletionModal(true);
+          }}
+        />
+        <Modal name={'confirmDeletionModal'} onClose={() => setShowDeletionModal(false)} open={showDeletionModal}>
+          <h4>Sind Sie sicher, dass Sie die ausgewählten Transaktionen löschen möchten?</h4>
+          <div>
+            <Button name={'btn-confirm-deletion'} label={'Ja, löschen'} type={'button'} onClick={()=>{
+              deleteFaultyTransactions(Array.from(checkboxStates));
+              setTransactionsLoaded(false);
+              setCheckboxStates(new Set<number>());
+              setShowDeletionModal(false);
+            }}/>
+            <Button name={'btn-cancel-deletion'} label={'Zurück'} type={'button'} onClick={()=>{setShowDeletionModal(false)}}/>
+          </div>
+        </Modal>
       </div>
     </div>
   );

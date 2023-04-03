@@ -160,4 +160,48 @@ describe('test the finance page', () => {
     expect(headers[7]).toHaveTextContent('IBAN');
     expect(firstRowCells[7]).toHaveTextContent('DE57500105175574174785');
   });
+
+  describe('deleting faulty transactions',()=>{
+
+    test('selecting rows and clicking the delete button opens a modal window', async ()=>{
+      const apiResponse = {
+        status: 200,
+        data: [
+          {
+            id: 55,
+            runner_ids: '105',
+            reasons_for_payment: 'LGR-YPKDM, LGR-YPKPP',
+            payment_amount: '25',
+            expected_amount: '25, 25',
+            currency: 'EUR',
+            date_of_payment: '26.01.2023',
+            payer_name: 'Test McTesty',
+            iban: 'DE57500105175574174785'
+          },
+          {
+            id: 57,
+            runner_ids: '10',
+            reasons_for_payment: 'LGR-YPKDP',
+            payment_amount: '25',
+            expected_amount: '25',
+            currency: 'EUR',
+            date_of_payment: '26.01.2023',
+            payer_name: 'Testy McTest',
+            iban: 'DE57500105175574174788'
+          }
+        ]
+      };
+      getAllRejectedTransactions.mockResolvedValue(apiResponse);
+      await act(async () => render(<Finance />));
+
+      await userEvent.click(screen.getByTestId('checkbox-55'));
+      await userEvent.click(screen.getByRole('button',{name: 'Ausgewählte Transaktionen löschen'}));
+
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+      expect(screen.getByRole('button',{name: 'Ja, löschen'})).toBeInTheDocument();
+      expect(screen.getByRole('button',{name: 'Zurück'})).toBeInTheDocument();
+    });
+  });
+
+  
 });

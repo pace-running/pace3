@@ -76,3 +76,10 @@ export async function logOutUser() {
     headers: { 'content-type': 'application/json' }
   });
 }
+
+export async function deleteFaultyTransactions(ids: number[]) {
+  return await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/finance`, {
+    data: {ids: ids},
+    headers: { 'content-type': 'application/json' }
+  });
+}
