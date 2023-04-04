@@ -60,6 +60,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    theme (event_key) {
+        event_key -> Varchar,
+        event_value -> Varchar,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Int4,
         username -> Varchar,
@@ -75,5 +82,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     rejected_transactions,
     runners,
     shippings,
+    theme,
     users,
 );
