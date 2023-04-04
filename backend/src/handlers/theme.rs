@@ -13,7 +13,10 @@ async fn do_get_theme(conn: &mut PgConnection) -> Result<HttpResponse, Error> {
 
     let theme_list = theme.load::<ThemeSetting>(conn).unwrap();
     
-    let m = HashMap::from(theme_list);
+    let mut m: HashMap<String, String> = HashMap::new();
+    for setting in theme_list.into_iter() {
+        m.insert(setting.event_key, setting.event_value);
+    }
     Ok(HttpResponse::Ok().content_type("text/json")
     .body(serde_json::to_string(&m).unwrap()))
 }
@@ -27,7 +30,6 @@ mod tests {
     #[actix_web::test]
     async fn integration_do_get_theme() {
         use diesel::{Connection, RunQueryDsl};
-        println!("1 here!!!!!");
 
         use crate::{establish_connection, handlers::theme::do_get_theme, schema::theme};
 
@@ -40,8 +42,6 @@ mod tests {
             .execute(conn);
 
         let response = do_get_theme(conn).await;
-
-
 
         println!("response: {:?}", response.unwrap().body());
     }
