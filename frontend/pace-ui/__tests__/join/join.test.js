@@ -36,7 +36,7 @@ describe('testing of the registration page', () => {
     test('loads and displays join page', () => {
       render(<Join />);
 
-      expect(screen.getByText('[event_name]')).toBeInTheDocument();
+      expect(screen.getAllByText('[event_name]')).toHaveLength(2);
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });

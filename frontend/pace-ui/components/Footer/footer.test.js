@@ -12,4 +12,8 @@ describe('checking footer', () => {
     expect(screen.getByRole('link', { name: 'Datenschutz' })).toHaveAttribute('href', '/privacy_notice');
     expect(screen.getByRole('link', { name: 'Impressum' })).toHaveAttribute('href', '/imprint');
   });
+
+  test('Event name is displayed in the footer', () => {
+    expect(screen.getByText('[event_name]')).toBeInTheDocument();
+  });
 });

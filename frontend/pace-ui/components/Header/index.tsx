@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import router from 'next/router';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
