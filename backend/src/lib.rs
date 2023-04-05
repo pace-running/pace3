@@ -25,10 +25,20 @@ use diesel::r2d2::ConnectionManager;
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
+pub fn get_connection_pool() -> Result<DbPool, r2d2::Error> {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let connection_manager = ConnectionManager::<PgConnection>::new(database_url);
+    // TODO: store in lazy loaded singleton
+    r2d2::Pool::builder()
+        .build(connection_manager)
+}
+
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
 
-    // FIXME: use the connection pool from the application instead
+    // FIXME: use the connection pool from a singleton get_connection_pool
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url).unwrap()
 }

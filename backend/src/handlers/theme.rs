@@ -27,6 +27,7 @@ async fn do_get_theme(conn: &mut DatabaseConnection) -> Result<HttpResponse, Err
 
 #[cfg(test)]
 mod tests {
+    use crate::{DatabaseConnection, get_connection_pool};
     use crate::schema::theme::dsl::theme as schema_theme;
     use crate::schema::theme::dsl::*;
     use actix_web::body::MessageBody;
@@ -39,15 +40,15 @@ mod tests {
 
         use crate::{establish_connection, handlers::theme::do_get_theme, schema::theme};
 
-        let conn = &mut establish_connection();
+        let mut conn: DatabaseConnection = get_connection_pool().unwrap().get().unwrap();
         let _ = conn.begin_test_transaction();
 
         let _ = diesel::update(schema_theme)
             .filter(event_key.eq("event_name"))
             .set(event_value.eq("test title"))
-            .execute(conn);
+            .execute(&mut conn);
 
-        let response = do_get_theme(conn).await.unwrap();
+        let response = do_get_theme(&mut conn).await.unwrap();
 
         let expected_response: Value =
             serde_json::from_str("{\"event_name\":\"test title\"}").unwrap();
