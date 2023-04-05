@@ -27,9 +27,9 @@ async fn do_get_theme(conn: &mut DatabaseConnection) -> Result<HttpResponse, Err
 
 #[cfg(test)]
 mod tests {
-    use crate::{DatabaseConnection, get_connection_pool};
     use crate::schema::theme::dsl::theme as schema_theme;
     use crate::schema::theme::dsl::*;
+    use crate::{get_connection_pool, DatabaseConnection};
     use actix_web::body::MessageBody;
     use diesel::ExpressionMethods;
     use serde_json::*;

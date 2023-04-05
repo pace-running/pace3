@@ -5,7 +5,7 @@ use actix_web::{cookie::Key, http, web, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
 use pace::app_config::routes;
 use pace::dao::users::Dao;
-use pace::{has_https, session_key, get_connection_pool};
+use pace::{get_connection_pool, has_https, session_key};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
