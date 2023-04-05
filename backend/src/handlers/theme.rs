@@ -10,15 +10,15 @@ pub async fn get_theme() -> Result<HttpResponse, Error> {
 }
 
 async fn do_get_theme(conn: &mut PgConnection) -> Result<HttpResponse, Error> {
-
     let theme_list = theme.load::<ThemeSetting>(conn).unwrap();
-    
+
     let mut m: HashMap<String, String> = HashMap::new();
     for setting in theme_list.into_iter() {
         m.insert(setting.event_key, setting.event_value);
     }
-    Ok(HttpResponse::Ok().content_type("text/json")
-    .body(serde_json::to_string(&m).unwrap()))
+    Ok(HttpResponse::Ok()
+        .content_type("text/json")
+        .body(serde_json::to_string(&m).unwrap()))
 }
 
 #[cfg(test)]
