@@ -21,6 +21,10 @@ impl Dao {
     pub fn new(pool: DbPool) -> Dao {
         return Dao { pool };
     }
+
+    pub fn pool(&self) -> DbPool {
+        self.pool.clone()
+    }
 }
 
 #[automock]

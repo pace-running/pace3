@@ -1,4 +1,9 @@
 import axios, { AxiosPromise } from 'axios';
+import { ThemeVars } from '../utility/theme';
+
+export async function fetchTheme(): Promise<AxiosPromise<ThemeVars>> {
+  return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/theme`, {});
+}
 
 export async function submitJoinInfo(data: InfoRequestData) {
   return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/runners`, data, {

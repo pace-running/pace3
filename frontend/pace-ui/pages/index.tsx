@@ -4,11 +4,13 @@ import BaseLayout from '../components/Layout/baseLayout';
 import Container from 'react-bootstrap/Container';
 import Image from 'next/image';
 import React from 'react';
+import { getThemeVar } from '../utility/theme';
 
 const Home: NextPage = () => {
   // const router = useRouter();
+  const eventName = getThemeVar('event_name');
   return (
-    <BaseLayout pageTitle='Lauf gegen Rechts'>
+    <BaseLayout pageTitle={eventName}>
       <section>
         <Container className='flex-row'>
           <div className='head-text'>

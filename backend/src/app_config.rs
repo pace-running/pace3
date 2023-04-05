@@ -1,4 +1,4 @@
-use crate::handlers::{admin, health, runners};
+use crate::handlers::{admin, health, runners, theme};
 use actix_web::web;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
@@ -29,6 +29,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                 web::resource("/api/admin/finance")
                     .route(web::post().to(admin::parse_payment_csv))
                     .route(web::get().to(admin::get_rejected_transactions)),
-            ),
+            )
+            .service(web::resource("/api/theme").route(web::get().to(theme::get_theme))),
     );
 }
