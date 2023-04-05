@@ -1,5 +1,41 @@
 import axios, { AxiosPromise } from 'axios';
 
+type ThemeVars = { [key: string]: string; };
+let themeVars: ThemeVars;
+let themeVarsLoaded = false;
+let themeVarsLoading = false;
+
+export function getThemeVar(key: string): string {
+  console.log("getThemeVar")
+  if (!themeVars && !themeVarsLoaded) {
+    throw new Error("Theme vars were not loaded yet");
+  }
+  console.log("@@@ ", themeVars, key);
+  const value = themeVars[key];
+  if (value === undefined) {
+    throw new Error(`Theme vars "${key}" is not defined`);
+  };
+  return value;
+}
+
+export async function initTheme(): Promise<void> {
+  console.log("initTheme");
+  if (themeVarsLoaded || themeVarsLoading) {
+    return;
+  }
+  const response = await fetchTheme();
+  if (response.status !== 200) {
+    throw new Error("Could not fetch theme from backend");
+  }
+  themeVars = response.data;
+  themeVarsLoaded = true;
+  console.log("initTheme is done");
+}
+
+async function fetchTheme(): Promise<AxiosPromise<ThemeVars>> {
+  return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/theme`, {});
+}
+
 export async function submitJoinInfo(data: InfoRequestData) {
   return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/runners`, data, {
     headers: { 'content-type': 'application/json' }
