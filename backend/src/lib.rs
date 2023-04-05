@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use dotenvy::dotenv;
 use models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
+use r2d2::PooledConnection;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
@@ -22,6 +23,7 @@ pub mod services;
 
 use diesel::r2d2::ConnectionManager;
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();

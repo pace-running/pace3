@@ -1,17 +1,19 @@
 use std::collections::HashMap;
 
-use crate::{models::theme::ThemeSetting, DbPool};
+use crate::dao::users::Dao;
+use crate::models::theme::ThemeSetting;
 use crate::schema::theme::dsl::*;
-use actix_web::web::Data;
-use actix_web::{Error, HttpResponse};
-use diesel::{PgConnection, RunQueryDsl};
+use crate::DatabaseConnection;
+use actix_web::{web, Error, HttpResponse};
+use diesel::RunQueryDsl;
 
-pub async fn get_theme() -> Result<HttpResponse, Error> {
-// TODO: wire up to do_get_theme
-    Ok(HttpResponse::Ok().into())
+pub async fn get_theme(dao: web::Data<Dao>) -> Result<HttpResponse, Error> {
+    let mut conn = dao.pool().get().expect("Could not get connection");
+    let response = do_get_theme(&mut conn).await;
+    response
 }
 
-async fn do_get_theme(conn: &mut PgConnection) -> Result<HttpResponse, Error> {
+async fn do_get_theme(conn: &mut DatabaseConnection) -> Result<HttpResponse, Error> {
     let theme_list = theme.load::<ThemeSetting>(conn).unwrap();
 
     let mut m: HashMap<String, String> = HashMap::new();
@@ -25,7 +27,6 @@ async fn do_get_theme(conn: &mut PgConnection) -> Result<HttpResponse, Error> {
 
 #[cfg(test)]
 mod tests {
-    use crate::models::theme::ThemeSetting;
     use crate::schema::theme::dsl::theme as schema_theme;
     use crate::schema::theme::dsl::*;
     use actix_web::body::MessageBody;
