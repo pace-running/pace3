@@ -4,7 +4,7 @@ import type { AppProps } from 'next/app';
 import JoinFormProvider from '../context/JoinFormContext';
 import RunnerContext from '../context/RunnerContext';
 import { useEffect, useState } from 'react';
-import { initTheme } from '../apis/api';
+import { initTheme } from '../utility/theme';
 import LoadingScreen from '../components/LoadingScreen';
 
 function MyApp({ Component, pageProps: { ...pageProps } }: AppProps) {

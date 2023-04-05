@@ -69,10 +69,7 @@ useRouter.mockReturnValue({
 });
 
 jest.mock('../../apis/api', () => ({
-  fetchRunnerDetails: jest.fn(),
-  getThemeVar: jest.fn().mockImplementation(key => {
-    return `[${key}]`;
-  })
+  fetchRunnerDetails: jest.fn()
 }));
 fetchRunnerDetails.mockReturnValue(response);
 

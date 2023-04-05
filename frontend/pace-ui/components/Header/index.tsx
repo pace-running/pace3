@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import React from 'react';
-import { getThemeVar } from '../../apis/api';
+import { getThemeVar } from '../../utility/theme';
 
 const Header: React.FC = () => {
   const eventName = getThemeVar('event_name');

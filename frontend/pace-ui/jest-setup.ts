@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
 
-jest.mock('./apis/api', () => ({
+jest.mock('./utility/theme', () => ({
   getThemeVar: jest.fn().mockImplementation(key => {
     return `[${key}]`;
   })

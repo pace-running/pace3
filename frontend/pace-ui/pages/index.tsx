@@ -4,7 +4,7 @@ import BaseLayout from '../components/Layout/baseLayout';
 import Container from 'react-bootstrap/Container';
 import Image from 'next/image';
 import React from 'react';
-import { getThemeVar } from '../apis/api';
+import { getThemeVar } from '../utility/theme';
 
 const Home: NextPage = () => {
   // const router = useRouter();
