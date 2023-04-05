@@ -3,15 +3,14 @@ import BaseLayout from '../components/Layout/baseLayout';
 // import { useRouter } from 'next/router';
 import Container from 'react-bootstrap/Container';
 import Image from 'next/image';
-import React, { Component, useEffect, useState } from 'react';
-import LoadingScreen from '../components/LoadingScreen';
-import { getThemeVar, initTheme } from '../apis/api';
+import React from 'react';
+import { getThemeVar } from '../apis/api';
 
 const Home: NextPage = () => {
   // const router = useRouter();
-  const eventName = getThemeVar("event_name");
+  const eventName = getThemeVar('event_name');
   return (
-    <BaseLayout pageTitle={ eventName }>
+    <BaseLayout pageTitle={eventName}>
       <section>
         <Container className='flex-row'>
           <div className='head-text'>
@@ -45,23 +44,4 @@ const Home: NextPage = () => {
   );
 };
 
-const Root: NextPage = () => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    initTheme().then(() => {
-      console.log("setLoading false");
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    console.log("Root: loading");
-    return <LoadingScreen />
-  } else {
-    console.log("Root: finished loading");
-    return <Home />
-  }
-};
-
-export default Root;
+export default Home;

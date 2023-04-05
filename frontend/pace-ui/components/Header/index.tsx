@@ -8,14 +8,14 @@ import React from 'react';
 import { getThemeVar } from '../../apis/api';
 
 const Header: React.FC = () => {
-  const eventName = getThemeVar("event_name");
+  const eventName = getThemeVar('event_name');
   return (
     <Navbar className='navigation-bar' expand='lg'>
       <Container>
         <Navbar.Brand href='/'>
           <span className='logo'>
             <Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} />
-            <span style={{ fontWeight: 'bold', fontSize: 24 }}> { eventName }</span>
+            <span style={{ fontWeight: 'bold', fontSize: 24 }}> {eventName}</span>
           </span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls='basic-navbar-nav' />

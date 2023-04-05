@@ -1,5 +1,5 @@
-import { describe, expect, test, xtest } from '@jest/globals';
-import { findByText, render, screen, waitFor, waitForElementToBeRemoved, act } from '@testing-library/react';
+import { describe, expect, test } from '@jest/globals';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Join from '../../pages/join';
@@ -36,7 +36,7 @@ describe('testing of the registration page', () => {
     test('loads and displays join page', () => {
       render(<Join />);
 
-      expect(screen.getByText('Lauf gegen Rechts')).toBeInTheDocument();
+      expect(screen.getByText('[event_name]')).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });

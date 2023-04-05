@@ -13,12 +13,12 @@ describe('test header component', () => {
   test('St.Pauli logo is visible and clickable', async () => {
     const logo = screen.getByRole('img');
     expect(logo.alt).toBe('FC St. Pauli Logo');
-    expect(screen.getByRole('link', { name: 'FC St. Pauli Logo Lauf gegen Rechts' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'FC St. Pauli Logo [event_name]' })).toHaveAttribute('href', '/');
   });
 
   test('Link to home page is displayed', () => {
-    const link = screen.getByRole('link', { name: 'FC St. Pauli Logo Lauf gegen Rechts' });
-    expect(link).toHaveTextContent('Lauf gegen Rechts');
+    const link = screen.getByRole('link', { name: 'FC St. Pauli Logo [event_name]' });
+    expect(link).toHaveTextContent('[event_name]');
     expect(link).toHaveAttribute('href', '/');
   });
 

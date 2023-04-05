@@ -1,35 +1,35 @@
 import axios, { AxiosPromise } from 'axios';
 
-type ThemeVars = { [key: string]: string; };
+type ThemeVars = { [key: string]: string };
 let themeVars: ThemeVars;
 let themeVarsLoaded = false;
 let themeVarsLoading = false;
 
 export function getThemeVar(key: string): string {
-  console.log("getThemeVar")
   if (!themeVars && !themeVarsLoaded) {
-    throw new Error("Theme vars were not loaded yet");
+    throw new Error('Theme vars were not loaded yet');
   }
-  console.log("@@@ ", themeVars, key);
+
   const value = themeVars[key];
   if (value === undefined) {
     throw new Error(`Theme vars "${key}" is not defined`);
-  };
+  }
   return value;
 }
 
-export async function initTheme(): Promise<void> {
-  console.log("initTheme");
+export async function initTheme(): Promise<boolean> {
   if (themeVarsLoaded || themeVarsLoading) {
-    return;
+    return false;
   }
+  themeVarsLoading = true;
   const response = await fetchTheme();
   if (response.status !== 200) {
-    throw new Error("Could not fetch theme from backend");
+    throw new Error('Could not fetch theme from backend');
   }
   themeVars = response.data;
   themeVarsLoaded = true;
-  console.log("initTheme is done");
+  themeVarsLoading = false;
+  return true;
 }
 
 async function fetchTheme(): Promise<AxiosPromise<ThemeVars>> {
