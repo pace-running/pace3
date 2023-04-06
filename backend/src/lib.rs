@@ -35,7 +35,7 @@ use diesel::r2d2::ConnectionManager;
 use std::net::TcpListener;
 
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
+pub type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
 pub fn get_connection_pool() -> Result<DbPool, r2d2::Error> {
     dotenv().ok();

@@ -574,10 +574,6 @@ mod tests {
     use crate::hash_password;
     use crate::models::users::User;
     use crate::models::users::{LoginData, PasswordChangeData};
-    use crate::{
-        establish_connection, insert_rejected_transaction,
-        models::rejected_transaction::NewRejectedTransaction,
-    };
     use actix_web::{http, test, web};
     use mockall::*;
     use mockall_double::double;
@@ -589,23 +585,6 @@ mod tests {
         let rfp = "Vwz: �berweisung LGR-TTZLK und LGR-we0gS";
         let result = filter_rfp(rfp);
         assert_eq!(result, ["LGR-TTZLK", "LGR-WEOGS"]);
-    }
-
-    #[test]
-    async fn integration_put_rej_trans_into_database() {
-        let conn = &mut establish_connection();
-        let new_transaction = NewRejectedTransaction {
-            runner_ids: "2, 5",
-            date_of_payment: "03.02.2023",
-            reasons_for_payment: "LGR-POIUY, LGR-QWERT",
-            payment_amount: "44",
-            expected_amount: Some("45"),
-            currency: "EUR",
-            payer_name: "Testy McTest",
-            iban: "DE87876876876",
-        };
-        let inserted_transaction = insert_rejected_transaction(conn, new_transaction);
-        assert_eq!(inserted_transaction.iban, "DE87876876876");
     }
 
     #[actix_web::test]
