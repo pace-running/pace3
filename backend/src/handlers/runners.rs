@@ -15,66 +15,66 @@ use crate::{insert_runner, is_eu_country};
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {
-    verification_code: String,
+    pub verification_code: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct RunnerResponse {
     #[serde(flatten)]
-    runner_details: Option<RunnerDetails>,
-    is_tshirt_booked: bool,
+    pub runner_details: Option<RunnerDetails>,
+    pub is_tshirt_booked: bool,
     #[serde(flatten)]
-    shipping_details: Option<ShippingDetails>,
+    pub shipping_details: Option<ShippingDetails>,
     #[serde(flatten)]
-    inner_response: Response,
+    pub inner_response: Response,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct RunnerDetails {
-    runner_id: String,
-    start_number: String,
-    donation: String,
-    payment: String,
-    is_paid: bool,
-    tshirt_cost: String,
+    pub runner_id: String,
+    pub start_number: String,
+    pub donation: String,
+    pub payment: String,
+    pub is_paid: bool,
+    pub tshirt_cost: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct ShippingDetails {
-    tshirt_model: String,
-    tshirt_size: String,
-    country: String,
-    address_firstname: String,
-    address_lastname: String,
-    street_name: String,
-    house_number: String,
-    address_extra: Option<String>,
-    postal_code: String,
-    city: String,
-    delivery_status: String,
+    pub tshirt_model: String,
+    pub tshirt_size: String,
+    pub country: String,
+    pub address_firstname: String,
+    pub address_lastname: String,
+    pub street_name: String,
+    pub house_number: String,
+    pub address_extra: Option<String>,
+    pub postal_code: String,
+    pub city: String,
+    pub delivery_status: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct Response {
-    success_message: Option<String>,
-    error_message: Option<String>,
-    status_code: u16,
+    pub success_message: Option<String>,
+    pub error_message: Option<String>,
+    pub status_code: u16,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct ResponseBody<T> {
-    runner_id: Option<String>,
-    start_number: Option<i64>,
-    donation: Option<String>,
-    tshirt_cost: Option<String>,
-    reason_for_payment: Option<String>,
-    verification_code: Option<String>,
-    email_provided: Option<bool>,
+    pub runner_id: Option<String>,
+    pub start_number: Option<i64>,
+    pub donation: Option<String>,
+    pub tshirt_cost: Option<String>,
+    pub reason_for_payment: Option<String>,
+    pub verification_code: Option<String>,
+    pub email_provided: Option<bool>,
     #[serde(flatten)]
-    inner_response: T,
+    pub inner_response: T,
 }
 
-type ResponseWithBody = ResponseBody<Response>;
+pub type ResponseWithBody = ResponseBody<Response>;
 
 pub fn has_bad_data(form: &Info) -> bool {
     let donation: u16 = form
@@ -243,150 +243,5 @@ pub async fn get_runner(
             shipping_details: None,
             inner_response,
         })),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use actix_web::body::MessageBody;
-    use actix_web::http::StatusCode;
-    use actix_web::web::{Path, Query};
-
-    use crate::builders::InfoBuilder;
-    use crate::handlers::runners::*;
-    use crate::models::runner::create_verification_code;
-
-    #[actix_web::test]
-    async fn integration_minimal_submit() {
-        let participant = InfoBuilder::minimal_default().build();
-        let input_data = Json(participant);
-        let response = create_runner(input_data).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-        let bytes = response.into_body().try_into_bytes().unwrap();
-        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
-        let expected_response = Response {
-            success_message: Some("Data received".to_string()),
-            error_message: None,
-            status_code: 200,
-        };
-        assert_eq!(actual_response, expected_response);
-    }
-
-    #[actix_web::test]
-    async fn integration_submit_form_with_shipping() {
-        let participant = InfoBuilder::default().build();
-        let input_data = Json(participant);
-        let response = create_runner(input_data).await.unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-        let bytes = response.into_body().try_into_bytes().unwrap();
-        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
-        let expected_response = Response {
-            success_message: Some("Data received".to_string()),
-            error_message: None,
-            status_code: 200,
-        };
-        assert_eq!(actual_response, expected_response);
-    }
-
-    #[actix_web::test]
-    async fn integration_submit_wrong_form() {
-        let participant = InfoBuilder::default().with_house_number("").build();
-        let input_data = Json(participant);
-        let response = create_runner(input_data).await.unwrap();
-        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
-        let bytes = response.into_body().try_into_bytes().unwrap();
-        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
-        let expected_response = Response {
-            success_message: None,
-            error_message: Some("Bad data".to_string()),
-            status_code: 400,
-        };
-        assert_eq!(actual_response, expected_response);
-    }
-
-    #[actix_web::test]
-    async fn integration_get_runner_by_id() {
-        let participant = InfoBuilder::default().build();
-        let input_data = Json(participant.clone());
-        let post_response = create_runner(input_data).await.unwrap();
-        assert_eq!(post_response.status(), StatusCode::OK);
-        let bytes = post_response.into_body().try_into_bytes().unwrap();
-        let created_runner: ResponseWithBody = serde_json::from_slice(&bytes).unwrap();
-        let runner_id = created_runner
-            .runner_id
-            .as_ref()
-            .unwrap()
-            .parse::<i32>()
-            .unwrap();
-        let verification_code = TokenRequestData {
-            verification_code: created_runner.verification_code.unwrap(),
-        };
-        let get_response = get_runner(Path::from(runner_id), Query(verification_code))
-            .await
-            .unwrap();
-        assert_eq!(get_response.status(), StatusCode::OK);
-        let bytes = get_response.into_body().try_into_bytes().unwrap();
-        let returned_runner: RunnerResponse = serde_json::from_slice(&bytes).unwrap();
-        let expected_runner = RunnerResponse {
-            runner_details: Option::from(RunnerDetails {
-                runner_id: created_runner.runner_id.unwrap(),
-                start_number: created_runner.start_number.unwrap().to_string(),
-                tshirt_cost: created_runner.tshirt_cost.unwrap(),
-                donation: created_runner.donation.unwrap(),
-                payment: created_runner.reason_for_payment.unwrap(),
-                is_paid: false,
-            }),
-            is_tshirt_booked: true,
-            shipping_details: Option::from(ShippingDetails {
-                tshirt_model: participant.shipping_info.tshirt_model.to_string(),
-                tshirt_size: participant.shipping_info.tshirt_size.to_string(),
-                country: participant.shipping_info.country.to_string(),
-                address_firstname: participant.shipping_info.address_firstname.to_string(),
-                address_lastname: participant.shipping_info.address_lastname.to_string(),
-                street_name: participant.shipping_info.street_name.to_string(),
-                house_number: participant.shipping_info.house_number.to_string(),
-                address_extra: Some(participant.shipping_info.address_extra.to_string()),
-                postal_code: participant.shipping_info.postal_code.to_string(),
-                city: participant.shipping_info.city.to_string(),
-                delivery_status: "In Bearbeitung".to_string(),
-            }),
-            inner_response: Response {
-                success_message: Some("Data received".to_string()),
-                error_message: None,
-                status_code: StatusCode::OK.as_u16(),
-            },
-        };
-        assert_eq!(returned_runner, expected_runner);
-    }
-
-    #[actix_web::test]
-    async fn integration_wrong_verification_code_rejected() {
-        let participant = InfoBuilder::default().build();
-        let input_data = Json(participant.clone());
-        let post_response = create_runner(input_data).await.unwrap();
-        assert_eq!(post_response.status(), StatusCode::OK);
-        let bytes = post_response.into_body().try_into_bytes().unwrap();
-        let created_runner: ResponseWithBody = serde_json::from_slice(&bytes).unwrap();
-        let runner_id = created_runner
-            .runner_id
-            .as_ref()
-            .unwrap()
-            .parse::<i32>()
-            .unwrap();
-        let verification_code_token = TokenRequestData {
-            verification_code: create_verification_code(),
-        };
-        let get_response = get_runner(Path::from(runner_id), Query(verification_code_token))
-            .await
-            .unwrap();
-        assert_eq!(get_response.status(), StatusCode::FORBIDDEN);
-        let bytes = get_response.into_body().try_into_bytes().unwrap();
-        let actual_response: Response = serde_json::from_slice(&bytes).unwrap();
-        let expected_response = Response {
-            success_message: None,
-            error_message: Some("Code could not be verified".to_string()),
-            status_code: StatusCode::FORBIDDEN.as_u16(),
-        };
-        assert_eq!(expected_response, actual_response);
     }
 }

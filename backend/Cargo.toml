@@ -5,6 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/bin/main.rs"
+name = "pace"
+
 [dependencies]
 actix-web = "4.2.1"
 actix-web-prom = "0.6.0"
@@ -29,3 +36,7 @@ chrono = "0.4.23"
 r2d2 = "0.8.10"
 mockall = "0.11.4"
 mockall_double = "0.3.0"
+tokio = "1.27.0"
+
+[dev-dependencies]
+reqwest = { version = "0.11", features = ["json"] }

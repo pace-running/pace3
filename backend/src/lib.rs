@@ -7,7 +7,7 @@ use dotenvy::dotenv;
 use models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use r2d2::PooledConnection;
 use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 
 use self::models::runner::{NewRunner, Runner};
 use self::models::shipping::{NewShipping, Shipping};
@@ -22,6 +22,18 @@ pub mod schema;
 pub mod services;
 
 use diesel::r2d2::ConnectionManager;
+use std::net::TcpListener;
+use actix_web::cookie::Key;
+use actix_web::dev::Server;
+use actix_web_prom::PrometheusMetricsBuilder;
+use actix_web::{App, http, HttpServer, web};
+use actix_session::SessionMiddleware;
+use actix_session::storage::CookieSessionStore;
+use actix_cors::Cors;
+use actix_identity::IdentityMiddleware;
+use crate::app_config::routes;
+use crate::dao::users::Dao;
+
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
@@ -162,4 +174,44 @@ pub fn hash_password(password: String) -> String {
         .collect();
 
     argon2::hash_encoded(password.as_bytes(), salt.as_bytes(), &config).unwrap()
+}
+
+pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
+    let dao = Dao::new(get_connection_pool().expect("Could not initialize connection pool"));
+    let secret_key = Key::from(session_key().as_ref());
+    let prometheus = PrometheusMetricsBuilder::new("api")
+        .endpoint("/metrics")
+        .build()
+        .unwrap();
+    let server = HttpServer::new(move || {
+        let session_middleware =
+            SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
+                .cookie_secure(has_https())
+                .build();
+        let cors = Cors::default()
+            .allowed_origin_fn(|origin, _req_head| {
+                origin.as_bytes().ends_with(b"localhost:3000")
+                    || origin.as_bytes().ends_with(b"localhost:8089")
+                    || origin.as_bytes().ends_with(b"lauf-gegen-rechts.de")
+            })
+            .allowed_methods(vec!["GET", "POST", "PUT"])
+            .allowed_headers(vec![
+                http::header::AUTHORIZATION,
+                http::header::ACCEPT,
+                http::header::CONTENT_TYPE,
+            ])
+            .max_age(3600);
+
+        App::new()
+            .wrap(IdentityMiddleware::default())
+            .wrap(session_middleware)
+            .wrap(prometheus.clone())
+            .wrap(cors)
+            .configure(routes)
+            .app_data(web::Data::new(dao.clone()))
+    })
+    .listen(listener)?
+    .run();
+
+    Ok(server)
 }
