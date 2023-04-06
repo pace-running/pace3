@@ -1,14 +1,11 @@
 use diesel::prelude::*;
-use diesel::PgConnection;
 use rand::distributions::{Alphanumeric, DistString};
 use rand::Rng;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::constants::{
-    BLACKLIST_START_NUMBERS, CHARSET, REASON_FOR_PAYMENT_LENGTH, VERIFICATION_CODE_LENGTH,
-};
-use crate::get_next_start_number;
+use crate::constants::{CHARSET, REASON_FOR_PAYMENT_LENGTH, VERIFICATION_CODE_LENGTH};
+
 use crate::schema::runners;
 
 use super::info::Info;
@@ -72,16 +69,6 @@ impl<'a> From<(&'a Info, i64, &'a str, &'a str, &'a str)> for NewRunner<'a> {
     }
 }
 
-pub fn next_start_number(conn: &mut PgConnection) -> i64 {
-    let mut next = get_next_start_number(conn);
-
-    while BLACKLIST_START_NUMBERS.contains(&next) {
-        next = get_next_start_number(conn);
-    }
-
-    next
-}
-
 pub fn create_random_payment() -> String {
     let mut rng = rand::thread_rng();
 
@@ -103,18 +90,8 @@ pub fn create_verification_code() -> String {
 mod tests {
     use crate::builders::InfoBuilder;
     use crate::constants::VERIFICATION_CODE_LENGTH;
-    use crate::establish_connection;
 
     use super::*;
-
-    // For testing only
-    fn restart_start_number(conn: &mut PgConnection) {
-        use diesel::sql_query;
-
-        sql_query("ALTER SEQUENCE runner_start_number_seq RESTART")
-            .execute(conn)
-            .expect("Error resetting start_number sequence");
-    }
 
     #[actix_web::test]
     async fn unit_create_new_runner_test() {
@@ -164,30 +141,5 @@ mod tests {
         assert_eq!(verification_code_1.len(), VERIFICATION_CODE_LENGTH);
         assert_eq!(verification_code_2.len(), VERIFICATION_CODE_LENGTH);
         assert_ne!(verification_code_1, verification_code_2)
-    }
-
-    #[test]
-    fn integration_next_start_number_test_no_duplicates() {
-        use std::collections::HashSet;
-
-        let conn = &mut establish_connection();
-        restart_start_number(conn);
-        let mut generated = HashSet::new();
-
-        for _ in 1..100 {
-            let next = next_start_number(conn);
-            assert!(!generated.contains(&next));
-            generated.insert(next);
-        }
-    }
-
-    #[test]
-    fn integration_next_start_number_test_no_blacklisted() {
-        let conn = &mut establish_connection();
-        restart_start_number(conn);
-        for _ in 1..100 {
-            let next = next_start_number(conn);
-            assert!(!BLACKLIST_START_NUMBERS.contains(&next));
-        }
     }
 }

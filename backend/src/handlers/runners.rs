@@ -6,9 +6,9 @@ use serde::Serialize;
 
 use crate::insert_shipping;
 use crate::models::info::Info;
-use crate::models::runner;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
+use crate::models::{runner, start_number};
 use crate::services::email::send_registration_email;
 use crate::{establish_connection, retrieve_runner_by_id, retrieve_shipping_by_runner_id};
 use crate::{insert_runner, is_eu_country};
@@ -124,7 +124,7 @@ pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
         }));
     }
     let conn = &mut establish_connection();
-    let runner_start_number = runner::next_start_number(conn);
+    let runner_start_number = start_number::next_start_number(conn);
     let reason_for_payment = runner::create_random_payment();
     let verification_code = runner::create_verification_code();
     let tshirt_cost;
