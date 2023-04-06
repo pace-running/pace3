@@ -40,7 +40,7 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /pace
 
 # Copy our build
-COPY --from=builder /pace/target/release/main ./pace
+COPY --from=builder /pace/target/release/pace ./pace
 COPY --from=builder /pace/templates ./templates
 
 # Use an unprivileged user.
