@@ -7,7 +7,7 @@ use dotenvy::dotenv;
 use models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use r2d2::PooledConnection;
 use rand::distributions::Alphanumeric;
-use rand::{Rng, thread_rng};
+use rand::{thread_rng, Rng};
 
 use self::models::runner::{NewRunner, Runner};
 use self::models::shipping::{NewShipping, Shipping};
@@ -21,18 +21,18 @@ pub mod models;
 pub mod schema;
 pub mod services;
 
-use diesel::r2d2::ConnectionManager;
-use std::net::TcpListener;
-use actix_web::cookie::Key;
-use actix_web::dev::Server;
-use actix_web_prom::PrometheusMetricsBuilder;
-use actix_web::{App, http, HttpServer, web};
-use actix_session::SessionMiddleware;
-use actix_session::storage::CookieSessionStore;
-use actix_cors::Cors;
-use actix_identity::IdentityMiddleware;
 use crate::app_config::routes;
 use crate::dao::users::Dao;
+use actix_cors::Cors;
+use actix_identity::IdentityMiddleware;
+use actix_session::storage::CookieSessionStore;
+use actix_session::SessionMiddleware;
+use actix_web::cookie::Key;
+use actix_web::dev::Server;
+use actix_web::{http, web, App, HttpServer};
+use actix_web_prom::PrometheusMetricsBuilder;
+use diesel::r2d2::ConnectionManager;
+use std::net::TcpListener;
 
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;

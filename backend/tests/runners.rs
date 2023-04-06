@@ -1,7 +1,9 @@
-use actix_web::web::Json;
 use actix_web::http::StatusCode;
+use actix_web::web::Json;
 use pace::builders::InfoBuilder;
-use pace::handlers::runners::{Response, ResponseWithBody, RunnerDetails, RunnerResponse, ShippingDetails};
+use pace::handlers::runners::{
+    Response, ResponseWithBody, RunnerDetails, RunnerResponse, ShippingDetails,
+};
 use pace::models::runner::create_verification_code;
 
 mod helpers;
@@ -25,7 +27,10 @@ async fn create_runner_should_be_successful_if_only_participant_info_is_provided
     assert_eq!(actual_response.status(), StatusCode::OK);
 
     let response_json = helpers::extract_json_values(actual_response).await;
-    assert_eq!("Data received", response_json.get("success_message").unwrap())
+    assert_eq!(
+        "Data received",
+        response_json.get("success_message").unwrap()
+    )
 }
 
 #[actix_web::test]
@@ -47,7 +52,10 @@ async fn create_runner_should_be_successful_if_participant_and_shipping_info_are
     assert_eq!(actual_response.status(), StatusCode::OK);
 
     let response_json = helpers::extract_json_values(actual_response).await;
-    assert_eq!("Data received", response_json.get("success_message").unwrap())
+    assert_eq!(
+        "Data received",
+        response_json.get("success_message").unwrap()
+    )
 }
 
 #[actix_web::test]
@@ -105,7 +113,9 @@ async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verifica
     // actual test
 
     let actual_response = client
-        .get(format!("{address}/api/runners/{runner_id}?verification_code={verification_code}"))
+        .get(format!(
+            "{address}/api/runners/{runner_id}?verification_code={verification_code}"
+        ))
         .header("Content-Type", "application/json")
         .send()
         .await
@@ -179,7 +189,9 @@ async fn get_runner_should_fail_if_wrong_verification_code_is_send() {
     // actual test
 
     let actual_response = client
-        .get(format!("{address}/api/runners/{runner_id}?verification_code={verification_code}"))
+        .get(format!(
+            "{address}/api/runners/{runner_id}?verification_code={verification_code}"
+        ))
         .header("Content-Type", "application/json")
         .send()
         .await
