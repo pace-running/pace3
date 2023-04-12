@@ -38,7 +38,7 @@ async fn create_runner_should_be_successful_if_participant_and_shipping_info_are
     let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
-    let participant = InfoBuilder::default().build();
+    let participant = InfoBuilder::default_info().build();
     let input_data = Json(participant);
 
     let actual_response = client
@@ -63,7 +63,7 @@ async fn create_runner_should_fail_if_participant_info_is_incomplete() {
     let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
-    let participant = InfoBuilder::default().with_house_number("").build();
+    let participant = InfoBuilder::default_info().with_house_number("").build();
     let input_data = Json(participant);
 
     let actual_response = client
@@ -87,7 +87,7 @@ async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verifica
 
     // test setup
 
-    let participant = InfoBuilder::default().build();
+    let participant = InfoBuilder::default_info().build();
     let input_data = Json(participant.clone());
 
     let create_runner_response = client
@@ -163,7 +163,7 @@ async fn get_runner_should_fail_if_wrong_verification_code_is_send() {
 
     // test setup
 
-    let participant = InfoBuilder::default().build();
+    let participant = InfoBuilder::default_info().build();
     let input_data = Json(participant.clone());
 
     let create_runner_response = client

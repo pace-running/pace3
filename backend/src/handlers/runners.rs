@@ -126,9 +126,7 @@ pub async fn create_runner(
             },
         }));
     }
-    let conn = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let conn = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let runner_start_number = start_number::next_start_number(conn);
     let reason_for_payment = runner::create_random_payment();
     let verification_code = runner::create_verification_code();
@@ -193,9 +191,7 @@ pub async fn get_runner(
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
 
     if retrieved_runner

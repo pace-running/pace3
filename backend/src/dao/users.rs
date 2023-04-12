@@ -19,7 +19,7 @@ pub trait UserDAOTrait {
 
 impl Dao {
     pub fn new(pool: DbPool) -> Dao {
-        return Dao { pool };
+        Dao { pool }
     }
 
     pub fn pool(&self) -> DbPool {
@@ -37,10 +37,10 @@ impl UserDAOTrait for Dao {
         let database_result = users
             .filter(username.eq(user_name))
             .first::<User>(connection);
-        return match database_result {
+        match database_result {
             Ok(user) => user,
             Err(_) => User::default(),
-        };
+        }
     }
 
     fn set_password(&self, user_name: String, new_password: String) {

@@ -77,7 +77,7 @@ mod tests {
     #[actix_web::test]
     async fn unit_create_new_shipping_test() {
         let runner_id = 1;
-        let info = InfoBuilder::default().build();
+        let info = InfoBuilder::default_info().build();
         let shipping = NewShipping::from((&info, runner_id));
         assert_eq!(shipping.firstname, info.shipping_info.address_firstname);
         assert_eq!(shipping.lastname, info.shipping_info.address_lastname);

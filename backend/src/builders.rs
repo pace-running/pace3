@@ -35,7 +35,7 @@ impl InfoBuilder {
         }
     }
 
-    pub fn default() -> InfoBuilder {
+    pub fn default_info() -> InfoBuilder {
         Self {
             info: Info {
                 runner_info: Self::default_runner_info(),

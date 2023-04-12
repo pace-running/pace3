@@ -150,7 +150,7 @@ async fn do_change_password(
         password: data.old_password.to_string(),
     };
     if user.eq(&login_data) {
-        dao.set_password(user_name.clone(), data.new_password.clone());
+        dao.set_password(user_name, data.new_password);
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Ok(HttpResponse::Ok()
@@ -169,9 +169,7 @@ pub async fn show_runners(
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let rows_per_page = 15;
     let query_info = params.into_inner();
     let page_number = query_info.page_number;
@@ -239,9 +237,7 @@ pub async fn modify_payment_status(
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let result = change_payment_status(connection, runner_id, target_status.into_inner());
     Ok(HttpResponse::Ok()
         .content_type("text/json")
@@ -254,9 +250,7 @@ pub async fn get_full_runner(
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
 
     let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
     let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
@@ -322,9 +316,7 @@ pub async fn edit_runner(
     let info = form.into_inner();
     use crate::schema::runners::dsl::*;
 
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     // println!("runner_id: {}", runner_ID);
     // println!("info: {:?}", info);
 
@@ -400,9 +392,7 @@ pub async fn parse_payment_csv(
     mut raw_data: web::Payload,
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let mut bytes_mut = web::BytesMut::new();
     while let Some(item) = raw_data.next().await {
         bytes_mut.extend_from_slice(&item?);
@@ -437,12 +427,12 @@ fn register_payment(
     row: &str,
     connection: &mut PooledConnection<ConnectionManager<PgConnection>>,
 ) -> String {
-    let entries = row.split(";").collect::<Vec<_>>();
+    let entries = row.split(';').collect::<Vec<_>>();
 
     let rfp_string = entries[9];
     let rfp_list = filter_rfp(rfp_string);
     // println!("{:?}", rfp_list);
-    if rfp_list.len() == 0 {
+    if rfp_list.is_empty() {
         return "empty".to_string();
     }
     let paid_amount = entries[12];
@@ -453,7 +443,7 @@ fn register_payment(
         runner_ids: "",
         date_of_payment: entries[0],
         reasons_for_payment: &rfp_list.join(", "),
-        payment_amount: &paid_amount,
+        payment_amount: paid_amount,
         expected_amount: None,
         currency: entries[11],
         payer_name: entries[4],
@@ -461,7 +451,7 @@ fn register_payment(
     };
 
     for rfp in &rfp_list {
-        let result = retrieve_donation_by_reason_for_payment(connection, &rfp);
+        let result = retrieve_donation_by_reason_for_payment(connection, rfp);
         match result {
             Err(_) => {
                 let runner_ids = &successful_ids.join(", ");
@@ -481,14 +471,14 @@ fn register_payment(
         for id in successful_ids {
             change_payment_status(connection, id.trim().parse::<i32>().unwrap(), true);
         }
-        return "accepted".to_string();
+        "accepted".to_string()
     } else {
         let runner_ids = &successful_ids.join(", ");
         new_transaction.runner_ids = runner_ids;
         let expected = (paid_amount.trim().parse().unwrap_or(0) - budget).to_string();
         new_transaction.expected_amount = Some(&expected);
         insert_rejected_transaction(connection, new_transaction);
-        return "rejected".to_string();
+        "rejected".to_string()
     }
 }
 
@@ -499,16 +489,16 @@ fn filter_rfp(rfp: &str) -> Vec<String> {
         return list;
     }
     for i in 0..(char_array.len() - 4) {
-        if char_array[i] == 'L' && i < char_array.len() - 8 {
-            if &char_array[i + 1..i + 4].into_iter().collect::<String>() == "GR-" {
-                // println!("suffix: {:?}", &char_array[i+4..i+9]);
-                let mut reason = char_array[i..i + 9]
-                    .into_iter()
-                    .collect::<String>()
-                    .to_uppercase();
-                reason = str::replace(&reason, "0", "O").to_string();
-                list.push(reason);
-            }
+        if char_array[i] == 'L'
+            && i < char_array.len() - 8
+            && &char_array[i + 1..i + 4].iter().collect::<String>() == "GR-"
+        {
+            let mut reason = char_array[i..i + 9]
+                .iter()
+                .collect::<String>()
+                .to_uppercase();
+            reason = str::replace(&reason, "0", "O").to_string();
+            list.push(reason);
         }
     }
     list
@@ -572,9 +562,7 @@ pub async fn get_rejected_transactions(
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     use crate::schema::rejected_transactions::dsl::*;
-    let connection = &mut db_pool
-        .get()
-        .map_err(|e| error::ErrorInternalServerError(e))?;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let mut transaction_list = rejected_transactions
         .load::<RejectedTransaction>(connection)
         .unwrap();

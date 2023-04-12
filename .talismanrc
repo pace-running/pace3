@@ -1,4 +1,6 @@
 fileignoreconfig:
+- filename: backend/src/handlers/admin.rs
+  checksum: f757ad6d1e385f07743f546bb547f5b66c98516e8c5ae315408971197322bb4a
 - filename: infra-setup/deployment.yaml
   checksum: d278c6399ef66176d2bbc2696fd65a08531493e92b77b7ac8c73a6ad94d7ca8e
 - filename: backend/Cargo.lock

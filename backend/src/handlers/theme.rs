@@ -9,8 +9,7 @@ use diesel::RunQueryDsl;
 
 pub async fn get_theme(dao: web::Data<Dao>) -> Result<HttpResponse, Error> {
     let mut conn = dao.pool().get().expect("Could not get connection");
-    let response = do_get_theme(&mut conn).await;
-    response
+    do_get_theme(&mut conn).await
 }
 
 async fn do_get_theme(conn: &mut DatabaseConnection) -> Result<HttpResponse, Error> {
