@@ -1,11 +1,14 @@
 use pace::{
-    establish_connection, insert_rejected_transaction,
+    get_connection_pool, insert_rejected_transaction,
     models::rejected_transaction::NewRejectedTransaction,
 };
 
 #[test]
 fn put_rejected_transaction_into_database() {
-    let conn = &mut establish_connection();
+    let conn = &mut get_connection_pool()
+        .expect("Unable to get connection pool.")
+        .get()
+        .expect("Unable to get connection.");
     let new_transaction = NewRejectedTransaction {
         runner_ids: "2, 5",
         date_of_payment: "03.02.2023",

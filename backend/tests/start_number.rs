@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
 use pace::constants::BLACKLIST_START_NUMBERS;
-use pace::establish_connection;
+use pace::get_connection_pool;
 use pace::models::start_number::next_start_number;
 
 // For testing only
@@ -17,7 +17,10 @@ fn restart_start_number(conn: &mut PgConnection) {
 fn integration_next_start_number_test_no_duplicates() {
     use std::collections::HashSet;
 
-    let conn = &mut establish_connection();
+    let conn = &mut get_connection_pool()
+        .expect("Unable to get connection pool.")
+        .get()
+        .expect("Unable to get connection.");
     restart_start_number(conn);
     let mut generated = HashSet::new();
 
@@ -30,7 +33,10 @@ fn integration_next_start_number_test_no_duplicates() {
 
 #[test]
 fn integration_next_start_number_test_no_blacklisted() {
-    let conn = &mut establish_connection();
+    let conn = &mut get_connection_pool()
+        .expect("Unable to get connection pool.")
+        .get()
+        .expect("Unable to get connection.");
     restart_start_number(conn);
     for _ in 1..100 {
         let next = next_start_number(conn);

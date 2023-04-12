@@ -1,17 +1,17 @@
 use actix_web::http::StatusCode;
 use actix_web::web::Json;
-use actix_web::{web, Error, HttpResponse, Result};
+use actix_web::{error, web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::insert_shipping;
 use crate::models::info::Info;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 use crate::models::{runner, start_number};
 use crate::services::email::send_registration_email;
-use crate::{establish_connection, retrieve_runner_by_id, retrieve_shipping_by_runner_id};
 use crate::{insert_runner, is_eu_country};
+use crate::{insert_shipping, DbPool};
+use crate::{retrieve_runner_by_id, retrieve_shipping_by_runner_id};
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {
@@ -105,7 +105,10 @@ pub fn has_bad_data(form: &Info) -> bool {
         || (donation < 5)
 }
 
-pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
+pub async fn create_runner(
+    form: Json<Info>,
+    db_pool: web::Data<DbPool>,
+) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
         return Ok(HttpResponse::BadRequest().json(ResponseWithBody {
@@ -123,7 +126,9 @@ pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
             },
         }));
     }
-    let conn = &mut establish_connection();
+    let conn = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     let runner_start_number = start_number::next_start_number(conn);
     let reason_for_payment = runner::create_random_payment();
     let verification_code = runner::create_verification_code();
@@ -185,9 +190,12 @@ pub async fn create_runner(form: Json<Info>) -> Result<HttpResponse, Error> {
 pub async fn get_runner(
     request_data: web::Path<i32>,
     token: web::Query<TokenRequestData>,
+    db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
-    let connection = &mut establish_connection();
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
 
     if retrieved_runner

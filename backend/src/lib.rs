@@ -46,14 +46,6 @@ pub fn get_connection_pool() -> Result<DbPool, r2d2::Error> {
     r2d2::Pool::builder().build(connection_manager)
 }
 
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    // FIXME: use the connection pool from a singleton get_connection_pool
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url).unwrap()
-}
-
 pub fn has_https() -> bool {
     dotenv().ok();
     let https_enabled =

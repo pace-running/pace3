@@ -7,17 +7,20 @@ use crate::models::shipping::NewShipping;
 use crate::models::users::{ErrorResponse, LoginData, LoginResponse, PasswordChangeData};
 use crate::services::email::send_payment_confirmation;
 use crate::{
-    establish_connection, insert_rejected_transaction, insert_shipping, is_eu_country,
+    insert_rejected_transaction, insert_shipping, is_eu_country,
     retrieve_donation_by_reason_for_payment, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
+    DbPool,
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
 use actix_web::web::{self, Data, Json};
-use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse};
+use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
 use chrono::NaiveDate;
 use diesel::prelude::*;
+use diesel::r2d2::ConnectionManager;
 use futures_util::stream::StreamExt as _;
 use mockall_double::double;
+use r2d2::PooledConnection;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -163,9 +166,12 @@ async fn do_change_password(
 pub async fn show_runners(
     _: Identity,
     params: web::Query<QueryInfo>,
+    db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     use crate::schema::runners::dsl::*;
-    let connection = &mut establish_connection();
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     let rows_per_page = 15;
     let query_info = params.into_inner();
     let page_number = query_info.page_number;
@@ -230,9 +236,12 @@ pub async fn modify_payment_status(
     _: Identity,
     r_id: web::Path<i32>,
     target_status: Json<bool>,
+    db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
-    let connection = &mut establish_connection();
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     let result = change_payment_status(connection, runner_id, target_status.into_inner());
     Ok(HttpResponse::Ok()
         .content_type("text/json")
@@ -242,9 +251,12 @@ pub async fn modify_payment_status(
 pub async fn get_full_runner(
     _: Identity,
     request_data: web::Path<i32>,
+    db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
-    let connection = &mut establish_connection();
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
 
     let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
     let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
@@ -303,13 +315,16 @@ pub async fn edit_runner(
     _: Identity,
     request_data: web::Path<i32>,
     form: Json<FullRunnerInfo>,
+    db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     #[allow(non_snake_case)] // not snake case to avoid confusion with shippings column
     let runner_ID = request_data.into_inner();
     let info = form.into_inner();
     use crate::schema::runners::dsl::*;
 
-    let connection = &mut establish_connection();
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     // println!("runner_id: {}", runner_ID);
     // println!("info: {:?}", info);
 
@@ -383,7 +398,11 @@ pub async fn edit_runner(
 pub async fn parse_payment_csv(
     _: Identity,
     mut raw_data: web::Payload,
+    db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     let mut bytes_mut = web::BytesMut::new();
     while let Some(item) = raw_data.next().await {
         bytes_mut.extend_from_slice(&item?);
@@ -401,7 +420,8 @@ pub async fn parse_payment_csv(
     let mut rejected = 0;
     for record in reader.byte_records() {
         let record = record.unwrap_or_default();
-        let record_response = register_payment(&String::from_utf8_lossy(record.as_slice()));
+        let record_response =
+            register_payment(&String::from_utf8_lossy(record.as_slice()), connection);
         if record_response == "accepted" {
             accepted += 1;
         } else if record_response == "rejected" {
@@ -413,10 +433,11 @@ pub async fn parse_payment_csv(
         .body(serde_json::to_string(&[accepted, rejected]).unwrap()))
 }
 
-fn register_payment(row: &str) -> String {
+fn register_payment(
+    row: &str,
+    connection: &mut PooledConnection<ConnectionManager<PgConnection>>,
+) -> String {
     let entries = row.split(";").collect::<Vec<_>>();
-
-    let connection = &mut establish_connection();
 
     let rfp_string = entries[9];
     let rfp_list = filter_rfp(rfp_string);
@@ -546,9 +567,14 @@ fn send_payment_confirmation_email(runner: &Runner) -> bool {
     )
 }
 
-pub async fn get_rejected_transactions(_: Identity) -> Result<HttpResponse, Error> {
+pub async fn get_rejected_transactions(
+    _: Identity,
+    db_pool: web::Data<DbPool>,
+) -> Result<HttpResponse, Error> {
     use crate::schema::rejected_transactions::dsl::*;
-    let connection = &mut establish_connection();
+    let connection = &mut db_pool
+        .get()
+        .map_err(|e| error::ErrorInternalServerError(e))?;
     let mut transaction_list = rejected_transactions
         .load::<RejectedTransaction>(connection)
         .unwrap();
