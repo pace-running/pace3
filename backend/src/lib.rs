@@ -176,8 +176,8 @@ pub fn hash_password(password: String) -> String {
     argon2::hash_encoded(password.as_bytes(), salt.as_bytes(), &config).unwrap()
 }
 
-pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
-    let dao = Dao::new(get_connection_pool().expect("Could not initialize connection pool"));
+pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Error> {
+    let dao = Dao::new(db_pool.clone());
     let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
@@ -208,6 +208,7 @@ pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
             .wrap(prometheus.clone())
             .wrap(cors)
             .configure(routes)
+            .app_data(web::Data::new(db_pool.clone()))
             .app_data(web::Data::new(dao.clone()))
     })
     .listen(listener)?

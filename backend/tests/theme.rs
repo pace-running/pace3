@@ -4,7 +4,7 @@ mod helpers;
 
 #[actix_web::test]
 async fn get_theme_should_return_theme_settings() {
-    let address = helpers::create_app();
+    let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
     let actual_response = client

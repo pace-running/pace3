@@ -10,7 +10,7 @@ mod helpers;
 
 #[actix_web::test]
 async fn create_runner_should_be_successful_if_only_participant_info_is_provided() {
-    let address = helpers::create_app();
+    let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
     let participant = InfoBuilder::minimal_default().build();
@@ -35,7 +35,7 @@ async fn create_runner_should_be_successful_if_only_participant_info_is_provided
 
 #[actix_web::test]
 async fn create_runner_should_be_successful_if_participant_and_shipping_info_are_provided() {
-    let address = helpers::create_app();
+    let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
     let participant = InfoBuilder::default().build();
@@ -60,7 +60,7 @@ async fn create_runner_should_be_successful_if_participant_and_shipping_info_are
 
 #[actix_web::test]
 async fn create_runner_should_fail_if_participant_info_is_incomplete() {
-    let address = helpers::create_app();
+    let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
     let participant = InfoBuilder::default().with_house_number("").build();
@@ -82,7 +82,7 @@ async fn create_runner_should_fail_if_participant_info_is_incomplete() {
 
 #[actix_web::test]
 async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verification_code() {
-    let address = helpers::create_app();
+    let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
     // test setup
@@ -158,7 +158,7 @@ async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verifica
 
 #[actix_web::test]
 async fn get_runner_should_fail_if_wrong_verification_code_is_send() {
-    let address = helpers::create_app();
+    let address = helpers::create_app().await;
     let client = reqwest::Client::new();
 
     // test setup
