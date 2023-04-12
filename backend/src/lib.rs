@@ -15,9 +15,11 @@ use self::models::shipping::{NewShipping, Shipping};
 pub mod app_config;
 pub mod builders;
 pub mod constants;
+pub mod core;
 pub mod dao;
 pub mod handlers;
 pub mod models;
+pub mod repository;
 pub mod schema;
 pub mod services;
 

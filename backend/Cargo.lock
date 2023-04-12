@@ -1619,6 +1619,7 @@ dependencies = [
  "actix-session",
  "actix-web",
  "actix-web-prom",
+ "anyhow",
  "chrono",
  "csv",
  "diesel",
