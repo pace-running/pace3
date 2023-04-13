@@ -1,3 +1,4 @@
+use crate::core::service::RunnerService;
 #[double]
 use crate::dao::users::Dao;
 use crate::dao::users::UserDAOTrait;
@@ -8,8 +9,7 @@ use crate::models::users::{ErrorResponse, LoginData, LoginResponse, PasswordChan
 use crate::services::email::send_payment_confirmation;
 use crate::{
     insert_rejected_transaction, insert_shipping, is_eu_country,
-    retrieve_donation_by_reason_for_payment, retrieve_runner_by_id, retrieve_shipping_by_runner_id,
-    DbPool,
+    retrieve_donation_by_reason_for_payment, retrieve_shipping_by_runner_id, DbPool,
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
@@ -248,11 +248,15 @@ pub async fn get_full_runner(
     _: Identity,
     request_data: web::Path<i32>,
     db_pool: web::Data<DbPool>,
+    runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
 
-    let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
+    // let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
+    let retrieved_runner = runner_service
+        .find_runner_by_id(runner_id)
+        .expect(format!("Unable to find runner with id {runner_id}.").as_str());
     let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
 
     let inner_response = Response {

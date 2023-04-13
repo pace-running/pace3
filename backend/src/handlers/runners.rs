@@ -4,14 +4,13 @@ use actix_web::{error, web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::core::service::RunnerService;
 use crate::models::info::Info;
 use crate::models::runner::NewRunner;
 use crate::models::shipping::NewShipping;
 use crate::models::{runner, start_number};
 use crate::services::email::send_registration_email;
-use crate::{insert_runner, is_eu_country};
-use crate::{insert_shipping, DbPool};
-use crate::{retrieve_runner_by_id, retrieve_shipping_by_runner_id};
+use crate::{insert_shipping, is_eu_country, retrieve_shipping_by_runner_id, DbPool};
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {
@@ -108,6 +107,7 @@ pub fn has_bad_data(form: &Info) -> bool {
 pub async fn create_runner(
     form: Json<Info>,
     db_pool: web::Data<DbPool>,
+    runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
@@ -150,7 +150,7 @@ pub async fn create_runner(
         verification_code.as_str(),
         tshirt_cost,
     ));
-    let returned_runner = insert_runner(conn, new_runner);
+    let returned_runner = runner_service.add_runner(new_runner);
     if info.shipping_info.tshirt_toggle == "on" {
         let new_shipping = NewShipping::from((&info, returned_runner.id));
         insert_shipping(conn, new_shipping);
@@ -189,10 +189,13 @@ pub async fn get_runner(
     request_data: web::Path<i32>,
     token: web::Query<TokenRequestData>,
     db_pool: web::Data<DbPool>,
+    runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
+    let retrieved_runner = runner_service
+        .find_runner_by_id(runner_id)
+        .expect(format!("Unable to find runner with id {runner_id}.").as_str());
 
     if retrieved_runner
         .verification_code

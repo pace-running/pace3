@@ -9,7 +9,7 @@ use r2d2::PooledConnection;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
-use self::models::runner::{NewRunner, Runner};
+use self::models::runner::Runner;
 use self::models::shipping::{NewShipping, Shipping};
 
 pub mod app_config;
@@ -24,7 +24,9 @@ pub mod schema;
 pub mod services;
 
 use crate::app_config::routes;
+use crate::core::service::{DefaultRunnerService, RunnerService};
 use crate::dao::users::Dao;
+use crate::repository::PostgresRunnerRepository;
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::storage::CookieSessionStore;
@@ -35,6 +37,7 @@ use actix_web::{http, web, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
 use diesel::r2d2::ConnectionManager;
 use std::net::TcpListener;
+use std::sync::Arc;
 
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
@@ -61,13 +64,6 @@ pub fn session_key() -> String {
     })
 }
 
-pub fn insert_runner(conn: &mut PgConnection, new_runner: NewRunner) -> Runner {
-    diesel::insert_into(schema::runners::table)
-        .values(&new_runner)
-        .get_result(conn)
-        .expect("Error saving runner")
-}
-
 pub fn insert_rejected_transaction(
     conn: &mut PgConnection,
     new_transaction: NewRejectedTransaction,
@@ -76,15 +72,6 @@ pub fn insert_rejected_transaction(
         .values(&new_transaction)
         .get_result(conn)
         .expect("Error saving transaction")
-}
-
-pub fn retrieve_runner_by_id(conn: &mut PgConnection, id: i32) -> Runner {
-    use crate::schema::runners::dsl::runners;
-
-    runners
-        .find(id)
-        .get_result::<Runner>(conn)
-        .unwrap_or_else(|_| panic!("Could not retrieve runner with id {}", id))
 }
 
 pub fn retrieve_donation_by_reason_for_payment(
@@ -178,6 +165,10 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
         .build()
         .unwrap();
     let server = HttpServer::new(move || {
+        let runner_repository = PostgresRunnerRepository::new(db_pool.clone());
+        let runner_service: Arc<dyn RunnerService> =
+            Arc::new(DefaultRunnerService::new(runner_repository));
+
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
                 .cookie_secure(has_https())
@@ -204,6 +195,7 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
             .configure(routes)
             .app_data(web::Data::new(db_pool.clone()))
             .app_data(web::Data::new(dao.clone()))
+            .app_data(web::Data::from(runner_service))
     })
     .listen(listener)?
     .run();
