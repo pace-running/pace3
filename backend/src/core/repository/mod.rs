@@ -8,4 +8,4 @@ pub use user::UserRepository;
 #[cfg(test)]
 pub use runner::MockRunnerRepository;
 #[cfg(test)]
-pub use runner::MockUserRepository;
+pub use user::MockUserRepository;
