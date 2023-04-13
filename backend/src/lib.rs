@@ -16,7 +16,6 @@ pub mod app_config;
 pub mod builders;
 pub mod constants;
 pub mod core;
-pub mod dao;
 pub mod handlers;
 pub mod models;
 pub mod repository;
@@ -24,9 +23,8 @@ pub mod schema;
 pub mod services;
 
 use crate::app_config::routes;
-use crate::core::service::{DefaultRunnerService, RunnerService};
-use crate::dao::users::Dao;
-use crate::repository::PostgresRunnerRepository;
+use crate::core::service::{DefaultRunnerService, DefaultUserService, RunnerService, UserService};
+use crate::repository::{PostgresRunnerRepository, PostgresUserRepository};
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::storage::CookieSessionStore;
@@ -158,7 +156,6 @@ pub fn hash_password(password: String) -> String {
 }
 
 pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Error> {
-    let dao = Dao::new(db_pool.clone());
     let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
@@ -168,6 +165,9 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
         let runner_repository = PostgresRunnerRepository::new(db_pool.clone());
         let runner_service: Arc<dyn RunnerService> =
             Arc::new(DefaultRunnerService::new(runner_repository));
+
+        let user_repository = PostgresUserRepository::new(db_pool.clone());
+        let user_service: Arc<dyn UserService> = Arc::new(DefaultUserService::new(user_repository));
 
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
@@ -194,8 +194,8 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
             .wrap(cors)
             .configure(routes)
             .app_data(web::Data::new(db_pool.clone()))
-            .app_data(web::Data::new(dao.clone()))
             .app_data(web::Data::from(runner_service))
+            .app_data(web::Data::from(user_service))
     })
     .listen(listener)?
     .run();

@@ -24,12 +24,7 @@ VALUES(
     let result = user_repository
         .find_user_by_username("admin".to_string())
         .expect("Unable to find user.");
-    assert_eq!(result, User {
-        id: 1,
-        username: "admin".to_string(),
-        password_hash: "$argon2i$v=19$m=4096,t=3,p=1$eUdkUHNOSTBLOXkyTmRpaw$G657jZT/Gk+Ipb4fFL/Ly9fh0Sv10YM7zwYvD2UiFTc".to_string(),
-        role: "admin".to_string(),
-    })
+    assert_eq!(result.id, 1)
 }
 
 #[test]

@@ -1,7 +1,4 @@
-use crate::core::service::RunnerService;
-#[double]
-use crate::dao::users::Dao;
-use crate::dao::users::UserDAOTrait;
+use crate::core::service::{RunnerService, UserService};
 use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
@@ -13,13 +10,12 @@ use crate::{
 };
 use actix_identity::Identity;
 use actix_web::http::StatusCode;
-use actix_web::web::{self, Data, Json};
+use actix_web::web::{self, Json};
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
 use chrono::NaiveDate;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use futures_util::stream::StreamExt as _;
-use mockall_double::double;
 use r2d2::PooledConnection;
 use serde::{Deserialize, Serialize};
 
@@ -105,12 +101,14 @@ pub struct RunnerListResponse {
 pub async fn check_password(
     request: HttpRequest,
     login_data: Json<LoginData>,
-    dao: Data<Dao>,
+    user_service: web::Data<dyn UserService>,
 ) -> Result<HttpResponse, Error> {
     if login_data.username.is_empty() {
         return Ok(forbidden(None));
     }
-    let user = dao.fetch_user(login_data.username.to_string());
+    let user = user_service
+        .find_user_by_username(login_data.username.to_string())
+        .unwrap_or_else(|| panic!("Unable to find user {}", login_data.username));
     if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
@@ -126,31 +124,24 @@ pub async fn check_password(
 pub async fn change_password(
     user_name: Identity,
     data: Json<PasswordChangeData>,
-    dao: Data<Dao>,
+    user_service: web::Data<dyn UserService>,
 ) -> Result<HttpResponse, Error> {
-    do_change_password(
-        user_name.id().unwrap(),
-        data.into_inner(),
-        dao.into_inner().as_ref(),
-    )
-    .await
-}
+    let username = user_name.id().unwrap();
 
-async fn do_change_password(
-    user_name: String,
-    data: PasswordChangeData,
-    dao: &Dao,
-) -> Result<HttpResponse, Error> {
-    if user_name.is_empty() || data.old_password.is_empty() || data.new_password.is_empty() {
+    if username.is_empty() || data.old_password.is_empty() || data.new_password.is_empty() {
         return Ok(forbidden(None));
     }
-    let user = dao.fetch_user(user_name.clone());
+    let user = user_service
+        .find_user_by_username(username.to_string())
+        .unwrap_or_else(|| panic!("Unable to find user {}", username));
     let login_data = LoginData {
-        username: user_name.clone(),
+        username: username.clone(),
         password: data.old_password.to_string(),
     };
     if user.eq(&login_data) {
-        dao.set_password(user_name, data.new_password);
+        user_service
+            .set_password(username, data.new_password.to_string()) // talisman-ignore-line
+            .expect("Unable to change password");
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Ok(HttpResponse::Ok()
@@ -585,19 +576,9 @@ pub async fn get_rejected_transactions(
 
 #[cfg(test)]
 mod tests {
-    #[double]
-    use crate::dao::users::Dao;
-    use crate::handlers::admin::{check_password, do_change_password};
-    use crate::hash_password;
-    use crate::models::users::User;
-    use crate::models::users::{LoginData, PasswordChangeData};
-    use actix_web::{http, test, web};
-    use mockall::*;
-    use mockall_double::double;
-
     use super::filter_rfp;
 
-    #[test]
+    #[actix_web::test]
     async fn unit_reason_for_payment_is_extracted_from_string() {
         let rfp = "Vwz: �berweisung LGR-TTZLK und LGR-we0gS";
         let result = filter_rfp(rfp);

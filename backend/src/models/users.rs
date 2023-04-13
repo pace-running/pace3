@@ -29,13 +29,13 @@ impl Default for User {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct LoginData {
     pub username: String,
     pub password: String,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct PasswordChangeData {
     pub old_password: String,
     pub new_password: String,
