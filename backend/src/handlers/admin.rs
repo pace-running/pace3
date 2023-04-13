@@ -253,7 +253,6 @@ pub async fn get_full_runner(
     let runner_id = request_data.into_inner();
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
 
-    // let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
     let retrieved_runner = runner_service
         .find_runner_by_id(runner_id)
         .unwrap_or_else(|| panic!("Unable to find runner with id {runner_id}."));
@@ -610,7 +609,6 @@ mod tests {
         let mut dao = Dao::new();
         dao.expect_fetch_user().times(0);
 
-        //dao.expect_fetch_user().notCalled()
         let login_data = web::Json(LoginData {
             username: "".to_string(),
             password: "".to_string(),
