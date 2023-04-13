@@ -51,9 +51,9 @@ impl UserRepository for PostgresUserRepository {
             .expect("Unable to update password");
 
         if affected_rows == 0 {
-            Err(anyhow::Error::msg(
-                format!("Username {username} not found.").to_string(),
-            ))
+            Err(anyhow::Error::msg(format!(
+                "Username {username} not found."
+            )))
         } else {
             Ok(())
         }

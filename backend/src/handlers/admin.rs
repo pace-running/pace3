@@ -256,7 +256,7 @@ pub async fn get_full_runner(
     // let retrieved_runner = retrieve_runner_by_id(connection, runner_id);
     let retrieved_runner = runner_service
         .find_runner_by_id(runner_id)
-        .expect(format!("Unable to find runner with id {runner_id}.").as_str());
+        .unwrap_or_else(|| panic!("Unable to find runner with id {runner_id}."));
     let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
 
     let inner_response = Response {

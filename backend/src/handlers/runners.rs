@@ -195,7 +195,7 @@ pub async fn get_runner(
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let retrieved_runner = runner_service
         .find_runner_by_id(runner_id)
-        .expect(format!("Unable to find runner with id {runner_id}.").as_str());
+        .unwrap_or_else(|| panic!("Unable to find runner with id {runner_id}."));
 
     if retrieved_runner
         .verification_code
