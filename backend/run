@@ -82,9 +82,7 @@ task_test_unit() {
 ##DOC test_integration - Run all integration tests
 task_test_integration() {
   log_running_command "integration tests..."
-  task_migrate
-  cargo test integration -- --nocapture
-  docker-compose down
+  cargo test --test '*' -- --nocapture
 }
 
 ##DOC lint_check - Run linting check by clippy
