@@ -1,17 +1,14 @@
 use pace::models::users::{LoginData, PasswordChangeData};
-use pace::{
-    get_connection_pool, insert_rejected_transaction,
-    models::rejected_transaction::NewRejectedTransaction,
-};
+use pace::{insert_rejected_transaction, models::rejected_transaction::NewRejectedTransaction};
 
 mod helpers;
+use crate::helpers::{TestApp, TestDatabase};
 
 #[test]
 fn put_rejected_transaction_into_database() {
-    let conn = &mut get_connection_pool()
-        .expect("Unable to get connection pool.")
-        .get()
-        .expect("Unable to get connection.");
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let conn = &mut database.get_connection();
     let new_transaction = NewRejectedTransaction {
         runner_ids: "2, 5",
         date_of_payment: "03.02.2023",
@@ -28,8 +25,10 @@ fn put_rejected_transaction_into_database() {
 
 #[actix_web::test]
 async fn login_should_fail_if_login_data_is_empty() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     let login_data = LoginData {
         username: "".to_string(),
@@ -52,13 +51,10 @@ async fn login_should_fail_if_login_data_is_empty() {
 
 #[actix_web::test]
 async fn login_should_fail_if_password_is_wrong() {
-    // TODO: ensure that there is a user with username admin
-    //       and a password different than "not the correct password!".
-    //       Right now this tests expects a db running via docker-compose
-    //       With certain values already existing in the DB.
-
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     let login_data = LoginData {
         username: "admin".to_string(),
@@ -81,8 +77,10 @@ async fn login_should_fail_if_password_is_wrong() {
 
 #[actix_web::test]
 async fn change_password_should_fail_if_new_password_is_empty() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     let login_response = client
         .post(format!("{address}/api/admin/login"))
@@ -125,8 +123,10 @@ async fn change_password_should_fail_if_new_password_is_empty() {
 
 #[actix_web::test]
 async fn change_password_should_fail_if_old_password_is_empty() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     let login_response = client
         .post(format!("{address}/api/admin/login"))
@@ -169,8 +169,10 @@ async fn change_password_should_fail_if_old_password_is_empty() {
 
 #[actix_web::test]
 async fn change_password_should_fail_if_old_password_is_invalid() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     let login_response = client
         .post(format!("{address}/api/admin/login"))
@@ -213,8 +215,10 @@ async fn change_password_should_fail_if_old_password_is_invalid() {
 
 #[actix_web::test]
 async fn change_password_should_be_successful_if_new_and_old_passwords_are_valid() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     let login_response = client
         .post(format!("{address}/api/admin/login"))
@@ -245,22 +249,6 @@ async fn change_password_should_be_successful_if_new_and_old_passwords_are_valid
         .header("Content-Type", "application/json")
         .header("Cookie", format!("{}={}", cookie.name(), cookie.value()))
         .body(serde_json::to_string(&password_change_data).unwrap())
-        .send()
-        .await
-        .expect("Unable to send request.");
-
-    // TODO we need to change the password back, as it is required in other places
-    let _ = client
-        .put(format!("{address}/api/admin/change_password"))
-        .header("Content-Type", "application/json")
-        .header("Cookie", format!("{}={}", cookie.name(), cookie.value()))
-        .body(
-            serde_json::to_string(&PasswordChangeData {
-                old_password: "new_password".to_string(),
-                new_password: "xoh7Ongui4oo".to_string(),
-            })
-            .unwrap(),
-        )
         .send()
         .await
         .expect("Unable to send request.");

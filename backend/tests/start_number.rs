@@ -1,8 +1,10 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
 use pace::constants::DENYLIST_START_NUMBERS;
-use pace::get_connection_pool;
 use pace::models::start_number::next_start_number;
+
+mod helpers;
+use crate::helpers::TestDatabase;
 
 // For testing only
 fn restart_start_number(conn: &mut PgConnection) {
@@ -17,10 +19,9 @@ fn restart_start_number(conn: &mut PgConnection) {
 fn next_start_number_does_not_generate_duplicates_or_deny_listed_start_numbers() {
     use std::collections::HashSet;
 
-    let conn = &mut get_connection_pool()
-        .expect("Unable to get connection pool.")
-        .get()
-        .expect("Unable to get connection.");
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let conn = &mut database.get_connection();
     restart_start_number(conn);
     let mut generated = HashSet::new();
 

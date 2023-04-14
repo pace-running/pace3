@@ -7,26 +7,20 @@ use pace::handlers::runners::{
 use pace::models::runner::create_verification_code;
 
 mod helpers;
+use crate::helpers::{extract_json_values, TestApp};
 
 #[actix_web::test]
-async fn create_runner_should_be_successful_if_only_participant_info_is_provided() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+async fn create_runner_should_be_successful_if_only_participant_info_is_provided<'a>() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
 
     let participant = InfoBuilder::minimal_default().build();
-    let input_data = Json(participant);
 
-    let actual_response = client
-        .post(format!("{address}/api/runners"))
-        .header("Content-Type", "application/json")
-        .body(serde_json::to_string(&input_data).unwrap())
-        .send()
-        .await
-        .expect("Unable to send request.");
+    let actual_response = test_app.create_runner(participant).await;
 
     assert_eq!(actual_response.status(), StatusCode::OK);
 
-    let response_json = helpers::extract_json_values(actual_response).await;
+    let response_json = extract_json_values(actual_response).await;
     assert_eq!(
         "Data received",
         response_json.get("success_message").unwrap()
@@ -35,19 +29,12 @@ async fn create_runner_should_be_successful_if_only_participant_info_is_provided
 
 #[actix_web::test]
 async fn create_runner_should_be_successful_if_participant_and_shipping_info_are_provided() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
 
     let participant = InfoBuilder::default_info().build();
-    let input_data = Json(participant);
 
-    let actual_response = client
-        .post(format!("{address}/api/runners"))
-        .header("Content-Type", "application/json")
-        .body(serde_json::to_string(&input_data).unwrap())
-        .send()
-        .await
-        .expect("Unable to send request.");
+    let actual_response = test_app.create_runner(participant).await;
 
     assert_eq!(actual_response.status(), StatusCode::OK);
 
@@ -60,30 +47,25 @@ async fn create_runner_should_be_successful_if_participant_and_shipping_info_are
 
 #[actix_web::test]
 async fn create_runner_should_fail_if_participant_info_is_incomplete() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
 
     let participant = InfoBuilder::default_info().with_house_number("").build();
-    let input_data = Json(participant);
 
-    let actual_response = client
-        .post(format!("{address}/api/runners"))
-        .header("Content-Type", "application/json")
-        .body(serde_json::to_string(&input_data).unwrap())
-        .send()
-        .await
-        .expect("Unable to send request.");
+    let actual_response = test_app.create_runner(participant).await;
 
     assert_eq!(actual_response.status(), StatusCode::BAD_REQUEST);
 
-    let response_json = helpers::extract_json_values(actual_response).await;
+    let response_json = crate::helpers::extract_json_values(actual_response).await;
     assert_eq!("Bad data", response_json.get("error_message").unwrap())
 }
 
 #[actix_web::test]
 async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verification_code() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     // test setup
 
@@ -158,8 +140,10 @@ async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verifica
 
 #[actix_web::test]
 async fn get_runner_should_fail_if_wrong_verification_code_is_send() {
-    let address = helpers::create_app().await;
-    let client = reqwest::Client::new();
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let address = test_app.get_address();
+    let client = test_app.get_client();
 
     // test setup
 

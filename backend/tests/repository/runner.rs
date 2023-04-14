@@ -1,13 +1,16 @@
 use diesel::{QueryDsl, RunQueryDsl};
 use pace::core::repository::RunnerRepository;
-use pace::get_connection_pool;
 use pace::models::runner::{NewRunner, Runner};
 use pace::repository::PostgresRunnerRepository;
 use pace::schema::runners;
 
+use crate::helpers::TestDatabase;
+
 #[test]
 fn insert_runner_should_store_runner_in_db_if_no_constraints_are_violated() {
-    let pool = get_connection_pool().expect("Unable to get connection pool.");
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
 
     let new_runner = NewRunner {
@@ -36,7 +39,9 @@ fn insert_runner_should_store_runner_in_db_if_no_constraints_are_violated() {
 
 #[test]
 fn find_runner_by_id_should_return_none_if_given_id_is_not_present() {
-    let pool = get_connection_pool().expect("Unable to get connection pool.");
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
 
     let result = runner_repository.find_runner_by_id(9000);
@@ -45,7 +50,9 @@ fn find_runner_by_id_should_return_none_if_given_id_is_not_present() {
 
 #[test]
 fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
-    let pool = get_connection_pool().expect("Unable to get connection pool.");
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
     let runner_in_db: Runner = diesel::insert_into(runners::table)
         .values(&NewRunner {
