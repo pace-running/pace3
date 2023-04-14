@@ -9,6 +9,7 @@ import { getThemeVar } from '../utility/theme';
 const Home: NextPage = () => {
   // const router = useRouter();
   const eventName = getThemeVar('event_name');
+  const eventDescription = getThemeVar('event_description');
   return (
     <BaseLayout pageTitle={eventName}>
       <section>
@@ -28,15 +29,9 @@ const Home: NextPage = () => {
             <h3 style={{ fontSize: '50px', color: '#3a2b20' }}> HINTERGRUND </h3>
           </div>
           <div className='horizontal'></div>
+          <br />
           <div>
-            <p>
-              {' '}
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-              ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-              fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-              mollit anim id est laborum.
-            </p>
+            <p> {eventDescription}</p>
           </div>
         </Container>
       </section>

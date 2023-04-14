@@ -4,6 +4,15 @@ import userEvent from '@testing-library/user-event';
 
 import Join from '../../pages/join';
 import React from 'react';
+import { getThemeVar } from '../../utility/theme';
+
+jest.mock('../../utility/theme', () => ({
+  getThemeVar: jest.fn(key => {
+    if (key === 'event_name') return 'Lauf gegen Rechts';
+    if (key === 'is_registration_open') return 'true';
+    if (key === 'enable_tshirts') return 'true';
+  })
+}));
 
 jest.setTimeout(30000); // Added higher timeout so the pipeline tests do not fail because of timeouts
 
@@ -36,7 +45,7 @@ describe('testing of the registration page', () => {
     test('loads and displays join page', () => {
       render(<Join />);
 
-      expect(screen.getAllByText('[event_name]')).toHaveLength(2);
+      expect(screen.getAllByText('Lauf gegen Rechts')).toHaveLength(2);
       expect(screen.getByRole('heading', { name: 'Anmeldung' })).toHaveTextContent('Anmeldung');
       expect(screen.getAllByRole('heading')[1]).toHaveTextContent('Fan T-Shirt');
     });
@@ -290,6 +299,29 @@ describe('testing of the registration page', () => {
     test('link to privacy notice', () => {
       render(<Join />);
       expect(screen.getByRole('link', { name: 'Datenschutzbestimmungen' })).toHaveAttribute('href', '/privacy_notice');
+    });
+
+    test('closed registration displays dedicated page', () => {
+      getThemeVar.mockImplementation(key => {
+        if (key === 'event_name') return 'Lauf gegen Rechts';
+        if (key === 'is_registration_open') return 'false';
+        if (key === 'enable_tshirts') return 'true';
+        if (key === 'closed_registration_message') return 'test message';
+      });
+      render(<Join />);
+      expect(screen.getByText('Anmeldung geschlossen!')).toBeInTheDocument();
+      expect(screen.getByText('test message')).toBeInTheDocument();
+      expect(screen.queryByText('Mit * markierte Felder müssen ausgefüllt werden.')).not.toBeInTheDocument();
+    });
+
+    test('tshirts can be disabled via theme', () => {
+      getThemeVar.mockImplementation(key => {
+        if (key === 'event_name') return 'Lauf gegen Rechts';
+        if (key === 'is_registration_open') return 'true';
+        if (key === 'enable_tshirts') return 'false';
+      });
+      render(<Join />);
+      expect(screen.queryByText('Fan T-Shirt')).not.toBeInTheDocument();
     });
   });
 });
