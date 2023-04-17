@@ -48,6 +48,15 @@ const Admin: NextPage = () => {
         />
         &nbsp;&nbsp;&nbsp;
         <Button
+          name={'btn-change-theme'}
+          label={'Seite konfigurieren'}
+          type={'button'}
+          onClick={() => {
+            router.push('/admin/changeTheme');
+          }}
+        />
+        &nbsp;&nbsp;&nbsp;
+        <Button
           name={'btn-change_password'}
           label={'Passwort ändern'}
           type={'button'}

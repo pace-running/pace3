@@ -233,6 +233,16 @@ describe('admin main page', () => {
     expect(router.push).toHaveBeenCalledWith('/admin/login');
   });
 
+  test('clicking the chenge theme button redirects to the theme page ', async () => {
+    fetchFilteredRunners.mockResolvedValue(apiResponse);
+    await act(async () => render(<Admin />));
+    router.push = jest.fn();
+    const button = screen.getByRole('button', { name: 'Seite konfigurieren' });
+
+    await userEvent.click(button);
+    expect(router.push).toHaveBeenCalledWith('/admin/changeTheme');
+  });
+
   describe('pagination works as intended', () => {
     beforeEach(async () => {
       apiResponse.data.stats_number = 200;
