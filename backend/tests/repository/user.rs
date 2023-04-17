@@ -14,7 +14,7 @@ fn find_user_by_username_should_return_user_with_given_username_if_present_in_db
         r#"
 INSERT INTO users(username,password_hash,role)
 VALUES(
-  'admin',
+  'testimctest',
   '$argon2i$v=19$m=4096,t=3,p=1$eUdkUHNOSTBLOXkyTmRpaw$G657jZT/Gk+Ipb4fFL/Ly9fh0Sv10YM7zwYvD2UiFTc',
   'admin'
 )"#,
@@ -25,9 +25,9 @@ VALUES(
     let user_repository = PostgresUserRepository::new(pool.clone());
 
     let result = user_repository
-        .find_user_by_username("admin".to_string())
+        .find_user_by_username("testimctest".to_string())
         .expect("Unable to find user.");
-    assert_eq!(result.id, 1)
+    assert_eq!(result.id, 2)
 }
 
 #[test]
