@@ -18,3 +18,8 @@ pub async fn get_theme(db_pool: web::Data<DbPool>) -> Result<HttpResponse, Error
         .content_type("text/json")
         .body(serde_json::to_string(&m).unwrap()))
 }
+
+pub async fn update_theme() -> Result<HttpResponse, Error> {
+    // TODO: Add implementation
+    Ok(HttpResponse::Ok().into())
+}

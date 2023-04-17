@@ -5,9 +5,14 @@ import { ChangeThemeFormValues, ChangeThemeSchema } from '../../utility/changeTh
 import TextInput from '../../components/TextInput';
 import Checkbox from '../../components/Checkbox';
 import Button from '../../components/Button';
+import { updateTheme } from '../../apis/api';
+import router from 'next/router';
 
 const ChangeTheme: NextPage = () => {
-  const submitForm = () => {};
+  const submitForm = (values: ChangeThemeFormValues) => {
+    updateTheme(values);
+    router.push('/admin');
+  };
 
   const { handleChange, setFieldValue, values, handleSubmit, errors, isValid } = useFormik<ChangeThemeFormValues>({
     initialValues: {
@@ -23,8 +28,17 @@ const ChangeTheme: NextPage = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className='container' style={{ maxWidth: '800px' }}>
+      <div style={{ margin: '50px' }}>
         <h1>Seite konfigurieren</h1>
+
+        <Button
+          name={'back-btn-admin'}
+          label={'Zurück zum Adminbereich'}
+          type={'button'}
+          onClick={() => {
+            router.push('/admin');
+          }}
+        />
 
         <TextInput
           type={'text'}

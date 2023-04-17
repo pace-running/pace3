@@ -1,8 +1,15 @@
 import axios, { AxiosPromise } from 'axios';
 import { ThemeVars } from '../utility/theme';
+import { ChangeThemeFormValues } from '../utility/changeThemeSchema';
 
 export async function fetchTheme(): Promise<AxiosPromise<ThemeVars>> {
   return axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/theme`, {});
+}
+
+export async function updateTheme(data: ChangeThemeFormValues) {
+  return await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/theme`, data, {
+    headers: { 'content-type': 'application/json' }
+  });
 }
 
 export async function submitJoinInfo(data: InfoRequestData) {

@@ -30,6 +30,10 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .route(web::post().to(admin::parse_payment_csv))
                     .route(web::get().to(admin::get_rejected_transactions)),
             )
-            .service(web::resource("/api/theme").route(web::get().to(theme::get_theme))),
+            .service(
+                web::resource("/api/theme")
+                    .route(web::get().to(theme::get_theme))
+                    .route(web::put().to(theme::update_theme)),
+            ),
     );
 }
