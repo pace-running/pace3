@@ -34,8 +34,8 @@ async fn update_theme_should_be_successful_with_valid_data() {
         event_title: "test title".to_string(),
         event_description: "description".to_string(),
         closed_registration_message: "registration is closed".to_string(),
-        is_registration_open: "false".to_string(),
-        tshirts_enabled: "true".to_string(),
+        is_registration_open: false,
+        tshirts_enabled: true,
     };
 
     let response = test_app.update_theme(data).await;

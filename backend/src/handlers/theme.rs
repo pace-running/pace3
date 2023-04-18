@@ -9,12 +9,13 @@ use diesel::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all ="camelCase")]
 pub struct ThemeData {
     pub event_title: String,
     pub event_description: String,
     pub closed_registration_message: String,
-    pub is_registration_open: String,
-    pub tshirts_enabled: String,
+    pub is_registration_open: bool,
+    pub tshirts_enabled: bool,
 }
 impl TryFrom<ThemeData> for Theme {
     type Error = anyhow::Error;
@@ -23,8 +24,8 @@ impl TryFrom<ThemeData> for Theme {
             value.event_title,
             value.event_description,
             value.closed_registration_message,
-            value.is_registration_open,
-            value.tshirts_enabled,
+            value.is_registration_open.to_string(),
+            value.tshirts_enabled.to_string(),
         )
     }
 }
@@ -67,8 +68,8 @@ mod tests {
             event_title: "test title".to_string(),
             event_description: "test description".to_string(),
             closed_registration_message: "registration is closed!".to_string(),
-            is_registration_open: "true".to_string(),
-            tshirts_enabled: "false".to_string(),
+            is_registration_open: true,
+            tshirts_enabled: false,
         };
         let mut theme_service = MockThemeService::new();
         theme_service
@@ -91,8 +92,8 @@ mod tests {
             event_title: "test title".to_string(),
             event_description: "test description".to_string(),
             closed_registration_message: "registration is closed!".to_string(),
-            is_registration_open: "true".to_string(),
-            tshirts_enabled: "false".to_string(),
+            is_registration_open: true,
+            tshirts_enabled: false,
         };
         let mut theme_service = MockThemeService::new();
         theme_service
