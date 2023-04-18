@@ -2,6 +2,7 @@ use actix_web::web::Json;
 use diesel::r2d2::ConnectionManager;
 use diesel::{pg::Pg, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use pace::handlers::theme::ThemeData;
 use r2d2::{Pool, PooledConnection};
 use reqwest::{Client, Response};
 use serde_json::Map;
@@ -129,6 +130,16 @@ impl<'a> TestApp<'a> {
             .post(format!("{}/api/runners", self.address))
             .header("Content-Type", "application/json")
             .body(serde_json::to_string(&Json(participant)).unwrap())
+            .send()
+            .await
+            .expect("Unable to send request.")
+    }
+
+    pub async fn update_theme(&self, theme_data: ThemeData) -> Response {
+        self.client
+            .put(format!("{}/api/theme", self.address))
+            .header("Content-Type", "application/json")
+            .body(serde_json::to_string(&Json(theme_data)).unwrap())
             .send()
             .await
             .expect("Unable to send request.")

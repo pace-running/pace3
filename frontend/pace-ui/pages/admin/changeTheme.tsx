@@ -30,7 +30,6 @@ const ChangeTheme: NextPage = () => {
     <form onSubmit={handleSubmit}>
       <div style={{ margin: '50px' }}>
         <h1>Seite konfigurieren</h1>
-
         <Button
           name={'back-btn-admin'}
           label={'Zurück zum Adminbereich'}
@@ -39,6 +38,8 @@ const ChangeTheme: NextPage = () => {
             router.push('/admin');
           }}
         />
+        <br />
+        <br />
 
         <TextInput
           type={'text'}

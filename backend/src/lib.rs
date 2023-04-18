@@ -8,6 +8,7 @@ use models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use r2d2::PooledConnection;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
+use repository::PostgresThemeRepository;
 
 use self::models::runner::Runner;
 use self::models::shipping::{NewShipping, Shipping};
@@ -23,7 +24,10 @@ pub mod schema;
 pub mod services;
 
 use crate::app_config::routes;
-use crate::core::service::{DefaultRunnerService, DefaultUserService, RunnerService, UserService};
+use crate::core::service::{
+    DefaultRunnerService, DefaultThemeService, DefaultUserService, RunnerService, ThemeService,
+    UserService,
+};
 use crate::repository::{PostgresRunnerRepository, PostgresUserRepository};
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
@@ -169,6 +173,10 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
         let user_repository = PostgresUserRepository::new(db_pool.clone());
         let user_service: Arc<dyn UserService> = Arc::new(DefaultUserService::new(user_repository));
 
+        let theme_repository = PostgresThemeRepository::new(db_pool.clone());
+        let theme_service: Arc<dyn ThemeService> =
+            Arc::new(DefaultThemeService::new(theme_repository));
+
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
                 .cookie_secure(has_https())
@@ -196,6 +204,7 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
             .app_data(web::Data::new(db_pool.clone()))
             .app_data(web::Data::from(runner_service))
             .app_data(web::Data::from(user_service))
+            .app_data(web::Data::from(theme_service))
     })
     .listen(listener)?
     .run();
