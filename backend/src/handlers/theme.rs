@@ -9,7 +9,7 @@ use diesel::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all ="camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct ThemeData {
     pub event_title: String,
     pub event_description: String,
@@ -24,8 +24,8 @@ impl TryFrom<ThemeData> for Theme {
             value.event_title,
             value.event_description,
             value.closed_registration_message,
-            value.is_registration_open.to_string(),
-            value.tshirts_enabled.to_string(),
+            value.is_registration_open,
+            value.tshirts_enabled,
         )
     }
 }

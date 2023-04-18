@@ -40,8 +40,8 @@ mod tests {
             "test title".to_string(),
             "test description".to_string(),
             "registration is closed!".to_string(),
-            "true".to_string(),
-            "false".to_string(),
+            true,
+            false,
         )
         .unwrap();
 

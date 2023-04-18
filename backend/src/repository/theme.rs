@@ -35,11 +35,11 @@ impl ThemeRepository for PostgresThemeRepository {
                 .execute(conn)?;
 
             diesel::update(theme_table.find("is_registration_open"))
-                .set(event_value.eq(theme.is_registration_open()))
+                .set(event_value.eq(theme.is_registration_open().to_string()))
                 .execute(conn)?;
 
             diesel::update(theme_table.find("enable_tshirts"))
-                .set(event_value.eq(theme.tshirts_enabled()))
+                .set(event_value.eq(theme.tshirts_enabled().to_string()))
                 .execute(conn)?;
 
             Ok(())
