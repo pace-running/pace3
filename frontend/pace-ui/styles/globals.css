@@ -4187,17 +4187,17 @@ select.stack:focus+select {
 }
 .text-on-image {
     position: absolute;
-    right: 80%;
-    left: 30%;
-    bottom: 25%;
+    right: 95%;
+    left: 6%;
+    bottom: 10%;
     display:inline-block;
 }
 .vertical {
-    border-left: 12px solid darkred;
-    height: 250px;
+    border-left: 1vw solid darkred;
+    height: 13vw;
     position:absolute;
-    left: 25%;
-    bottom: 25%;
+    left: 3%;
+    bottom: 10%;
     display:inline-block;
 }
 

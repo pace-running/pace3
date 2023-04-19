@@ -16,11 +16,11 @@ const Home: NextPage = () => {
         <Container className='flex-row'>
           <div className='head-text'>
             <div className='head-image'>
-              <Image src='/banner-alternative.jpg' height={608} width={800} />
+              <Image src='/title_image.jpeg' height={910} width={2570} alt='Foto vom Lauf gegen Rechts 2022'/>
             </div>
             <div className='vertical'></div>
             <div className='text-on-image'>
-              <h3 style={{ fontSize: '50px' }}> placeholder image and text </h3>
+              <h3 style={{ fontSize: '2.5vw', color: 'white' }}> {eventName}</h3>
             </div>
           </div>
         </Container>
