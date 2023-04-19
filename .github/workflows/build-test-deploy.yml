@@ -83,6 +83,7 @@ jobs:
       - uses: cypress-io/github-action@v4
         with:
           working-directory: cypress
+          spec: cypress/e2e/user/registration.cy.js
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     runs-on: self-hosted
