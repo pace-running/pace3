@@ -27,6 +27,12 @@ pub struct QueryInfo {
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
+
+pub struct DeleteRejectedTransactionsData {
+    ids: Vec<i32>,
+}
+
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct FullRunnerDetails {
     runner_id: String,
     firstname: String,
@@ -572,6 +578,25 @@ pub async fn get_rejected_transactions(
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&transaction_list).unwrap()))
+}
+
+pub async fn delete_rejected_transactions(
+    _: Identity,
+    ids: web::Json<Vec<i32>>,
+    db_pool: web::Data<DbPool>,
+    // admin_service: web::Data<dyn AdminService>,
+) -> anyhow::Result<HttpResponse, Error> {
+    let id_list = ids.into_inner();
+    use crate::schema::rejected_transactions::dsl::*;
+    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
+
+    for id_to_delete in id_list {
+        diesel::delete(rejected_transactions.filter(id.eq(id_to_delete)))
+            .execute(connection)
+            .expect(&format!("Unable to delete transaction {}", id_to_delete));
+    }
+
+    Ok(HttpResponse::Ok().into())
 }
 
 #[cfg(test)]

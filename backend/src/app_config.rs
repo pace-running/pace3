@@ -31,6 +31,10 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .route(web::get().to(admin::get_rejected_transactions)),
             )
             .service(
+                web::resource("/api/admin/finance/delete")
+                    .route(web::put().to(admin::delete_rejected_transactions)),
+            )
+            .service(
                 web::resource("/api/theme")
                     .route(web::get().to(theme::get_theme))
                     .route(web::put().to(theme::update_theme)),

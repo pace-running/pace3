@@ -168,19 +168,23 @@ const Finance: NextPage = () => {
           }}
         />
         <Modal name={'confirmDeletionModal'} onClose={() => setShowDeletionModal(false)} open={showDeletionModal}>
-          <h4>Sind Sie sicher, dass Sie die ausgewählten Transaktionen löschen möchten?</h4>
-          <div>
+          <h4>Sind Sie sicher, dass Sie die {checkboxStates.size} ausgewählten Transaktionen löschen möchten?</h4>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px', marginBottom: '40px' }}>
             <Button
               name={'btn-confirm-deletion'}
               label={'Ja, löschen'}
               type={'button'}
+              disabled={checkboxStates.size === 0}
               onClick={() => {
                 deleteFaultyTransactions(Array.from(checkboxStates));
-                setTransactionsLoaded(false);
                 setCheckboxStates(new Set<number>());
                 setShowDeletionModal(false);
+                setTimeout(() => {
+                  setTransactionsLoaded(false);
+                }, 100);
               }}
             />
+            <div style={{ padding: '15px' }} />
             <Button
               name={'btn-cancel-deletion'}
               label={'Zurück'}

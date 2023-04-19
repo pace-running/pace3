@@ -16,7 +16,7 @@ const Home: NextPage = () => {
         <Container className='flex-row'>
           <div className='head-text'>
             <div className='head-image'>
-              <Image src='/title_image.jpeg' height={910} width={2570} alt='Foto vom Lauf gegen Rechts 2022'/>
+              <Image src='/title_image.jpeg' height={910} width={2570} alt='Foto vom Lauf gegen Rechts 2022' />
             </div>
             <div className='vertical'></div>
             <div className='text-on-image'>
