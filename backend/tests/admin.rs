@@ -3,8 +3,8 @@ use pace::models::users::{LoginData, PasswordChangeData};
 use pace::{insert_rejected_transaction, models::rejected_transaction::NewRejectedTransaction};
 use std::collections::HashMap;
 
-mod helpers;
-use crate::helpers::{TestApp, TestDatabase};
+pub mod helpers;
+pub use helpers::{TestApp, TestDatabase};
 
 #[test]
 fn put_rejected_transaction_into_database() {
@@ -263,7 +263,6 @@ async fn delete_rejected_transactions_should_fail_if_user_is_unauthorized() {
     let docker = testcontainers::clients::Cli::default();
     let test_app = TestApp::new(&docker).await;
 
-    let ids = "[1, 2]";
     let result = test_app
         .delete_rejected_transactions("[1, 2]".to_string(), None)
         .await;
@@ -293,7 +292,6 @@ async fn delete_rejected_transactions_should_be_successful_if_authenticated() {
 
     let cookie = test_app.get_admin_cookie().await;
 
-    let ids = "[1, 2]";
     let result = test_app
         .delete_rejected_transactions("[1, 2]".to_string(), Some(cookie))
         .await;

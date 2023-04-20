@@ -6,8 +6,8 @@ use pace::handlers::runners::{
 };
 use pace::models::runner::create_verification_code;
 
-mod helpers;
-use crate::helpers::{extract_json_values, TestApp};
+pub mod helpers;
+pub use crate::helpers::{extract_json_values, TestApp};
 
 #[actix_web::test]
 async fn create_runner_should_be_successful_if_only_participant_info_is_provided<'a>() {

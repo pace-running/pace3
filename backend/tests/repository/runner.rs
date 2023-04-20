@@ -4,7 +4,7 @@ use pace::models::runner::{NewRunner, Runner};
 use pace::repository::PostgresRunnerRepository;
 use pace::schema::runners;
 
-use crate::helpers::TestDatabase;
+pub use crate::helpers::TestDatabase;
 
 #[test]
 fn insert_runner_should_store_runner_in_db_if_no_constraints_are_violated() {

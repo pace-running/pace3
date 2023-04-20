@@ -4,7 +4,6 @@ use diesel::{pg::Pg, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use pace::handlers::theme::ThemeData;
 use r2d2::{Pool, PooledConnection};
-use reqwest::cookie::Cookie;
 use reqwest::{Client, Response};
 use serde_json::Map;
 use std::env;

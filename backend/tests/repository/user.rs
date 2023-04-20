@@ -1,9 +1,8 @@
 use diesel::RunQueryDsl;
 use pace::core::repository::UserRepository;
-use pace::models::users::User;
 use pace::repository::PostgresUserRepository;
 
-use crate::helpers::TestDatabase;
+pub use crate::helpers::TestDatabase;
 
 #[test]
 fn find_user_by_username_should_return_user_with_given_username_if_present_in_db() {

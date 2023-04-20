@@ -1,7 +1,8 @@
 use pace::handlers::theme::ThemeData;
 use reqwest::StatusCode;
-mod helpers;
-use crate::helpers::{extract_json_values, TestApp};
+
+pub mod helpers;
+pub use crate::helpers::{extract_json_values, TestApp};
 
 #[actix_web::test]
 async fn get_theme_should_return_theme_settings() {

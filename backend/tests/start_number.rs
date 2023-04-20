@@ -3,8 +3,8 @@ use diesel::PgConnection;
 use pace::constants::DENYLIST_START_NUMBERS;
 use pace::models::start_number::next_start_number;
 
-mod helpers;
-use crate::helpers::TestDatabase;
+pub mod helpers;
+pub use crate::helpers::TestDatabase;
 
 // For testing only
 fn restart_start_number(conn: &mut PgConnection) {

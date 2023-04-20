@@ -1,7 +1,8 @@
-use crate::helpers::TestDatabase;
 use diesel::RunQueryDsl;
 use pace::core::repository::PaymentRepository;
 use pace::repository::PostgresPaymentRepository;
+
+pub use crate::helpers::TestDatabase;
 
 #[test]
 fn deleted_rejected_transactions_by_ids_should_delete_all_relevant_entries() {
