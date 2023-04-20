@@ -4,6 +4,7 @@ use diesel::{pg::Pg, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use pace::handlers::theme::ThemeData;
 use r2d2::{Pool, PooledConnection};
+use reqwest::cookie::Cookie;
 use reqwest::{Client, Response};
 use serde_json::Map;
 use std::env;
@@ -14,6 +15,7 @@ use testcontainers::images::postgres::Postgres;
 use testcontainers::Container;
 
 use pace::models::info::Info;
+use pace::models::users::LoginData;
 use pace::{get_connection_pool, run};
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
@@ -125,6 +127,30 @@ impl<'a> TestApp<'a> {
         format!("http://127.0.0.1:{}", port)
     }
 
+    pub async fn get_admin_cookie(&self) -> String {
+        let login_response = self
+            .client
+            .post(format!("{}/api/admin/login", self.address))
+            .header("Content-Type", "application/json")
+            .body(
+                serde_json::to_string(&LoginData {
+                    username: "admin".to_string(),
+                    password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
+                })
+                .unwrap(),
+            )
+            .send()
+            .await
+            .expect("Unable to send request.");
+
+        let cookie = login_response
+            .cookies()
+            .next()
+            .expect("Unable to get cookie");
+
+        format!("{}={}", cookie.name(), cookie.value())
+    }
+
     pub async fn create_runner(&self, participant: Info) -> Response {
         self.client
             .post(format!("{}/api/runners", self.address))
@@ -135,11 +161,18 @@ impl<'a> TestApp<'a> {
             .expect("Unable to send request.")
     }
 
-    pub async fn update_theme(&self, theme_data: ThemeData) -> Response {
-        self.client
+    pub async fn update_theme(&self, theme_data: ThemeData, cookie: Option<String>) -> Response {
+        let mut request_builder = self
+            .client
             .put(format!("{}/api/theme", self.address))
             .header("Content-Type", "application/json")
-            .body(serde_json::to_string(&Json(theme_data)).unwrap())
+            .body(serde_json::to_string(&Json(theme_data)).unwrap());
+
+        if cookie.is_some() {
+            request_builder = request_builder.header("Cookie", cookie.unwrap());
+        }
+
+        request_builder
             .send()
             .await
             .expect("Unable to send request.")

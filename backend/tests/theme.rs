@@ -38,6 +38,27 @@ async fn update_theme_should_be_successful_with_valid_data() {
         tshirts_enabled: true,
     };
 
-    let response = test_app.update_theme(data).await;
+    let admin_cookie = test_app.get_admin_cookie().await;
+
+    let response = test_app.update_theme(data, Some(admin_cookie)).await;
     assert_eq!(response.status(), actix_web::http::StatusCode::OK.as_u16());
+}
+
+#[actix_web::test]
+async fn update_theme_should_fail_without_login() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+    let data = ThemeData {
+        event_title: "test title".to_string(),
+        event_description: "description".to_string(),
+        closed_registration_message: "registration is closed".to_string(),
+        is_registration_open: false,
+        tshirts_enabled: true,
+    };
+
+    let response = test_app.update_theme(data, None).await;
+    assert_eq!(
+        response.status(),
+        actix_web::http::StatusCode::UNAUTHORIZED.as_u16()
+    );
 }

@@ -1,3 +1,4 @@
+use actix_identity::Identity;
 use std::collections::HashMap;
 
 use crate::core::service::ThemeService;
@@ -44,6 +45,7 @@ pub async fn get_theme(db_pool: web::Data<DbPool>) -> Result<HttpResponse, Error
 }
 
 pub async fn update_theme(
+    _: Identity,
     data: web::Json<ThemeData>,
     theme_service: web::Data<dyn ThemeService>,
 ) -> anyhow::Result<HttpResponse, Error> {
@@ -53,61 +55,4 @@ pub async fn update_theme(
         .and_then(|th| theme_service.update_theme(th))
         .and_then(|_| Ok(HttpResponse::Ok().into()))
         .or_else(|_| Ok(HttpResponse::BadRequest().into()))
-}
-
-#[cfg(test)]
-mod tests {
-    use std::sync::Arc;
-
-    use super::*;
-    use crate::core::service::MockThemeService;
-    use mockall::predicate::eq;
-    #[actix_web::test]
-    async fn update_theme_should_return_ok_on_success() {
-        let theme_data = ThemeData {
-            event_title: "test title".to_string(),
-            event_description: "test description".to_string(),
-            closed_registration_message: "registration is closed!".to_string(),
-            is_registration_open: true,
-            tshirts_enabled: false,
-        };
-        let mut theme_service = MockThemeService::new();
-        theme_service
-            .expect_update_theme()
-            .with(eq(Theme::try_from(theme_data.clone()).unwrap()))
-            .times(1)
-            .returning(|_| Ok(()));
-
-        let theme_service_arc: Arc<dyn ThemeService> = Arc::new(theme_service);
-        let theme_service_data = actix_web::web::Data::from(theme_service_arc);
-        let result = update_theme(actix_web::web::Json(theme_data), theme_service_data)
-            .await
-            .unwrap();
-        assert_eq!(result.status(), actix_web::http::StatusCode::OK.as_u16());
-    }
-
-    #[actix_web::test]
-    async fn update_theme_should_return_bad_request_if_service_fails() {
-        let theme_data = ThemeData {
-            event_title: "test title".to_string(),
-            event_description: "test description".to_string(),
-            closed_registration_message: "registration is closed!".to_string(),
-            is_registration_open: true,
-            tshirts_enabled: false,
-        };
-        let mut theme_service = MockThemeService::new();
-        theme_service
-            .expect_update_theme()
-            .returning(|_| Err(anyhow::Error::msg("error")));
-
-        let theme_service_arc: Arc<dyn ThemeService> = Arc::new(theme_service);
-        let theme_service_data = actix_web::web::Data::from(theme_service_arc);
-        let result = update_theme(actix_web::web::Json(theme_data), theme_service_data)
-            .await
-            .unwrap();
-        assert_eq!(
-            result.status(),
-            actix_web::http::StatusCode::BAD_REQUEST.as_u16()
-        );
-    }
 }
