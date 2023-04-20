@@ -178,12 +178,37 @@ impl<'a> TestApp<'a> {
             .expect("Unable to send request.")
     }
 
+    pub async fn delete_rejected_transactions(
+        &self,
+        body: String,
+        cookie: Option<String>,
+    ) -> Response {
+        let mut request_builder = self
+            .client
+            .put(format!("{}/api/admin/finance/delete", self.address))
+            .header("Content-Type", "application/json")
+            .body(body);
+
+        if cookie.is_some() {
+            request_builder = request_builder.header("Cookie", cookie.unwrap());
+        }
+
+        request_builder
+            .send()
+            .await
+            .expect("Unable to send request.")
+    }
+
     pub fn get_client(&self) -> &Client {
         &self.client
     }
 
     pub fn get_address(&self) -> &str {
         &self.address
+    }
+
+    pub fn get_connection(&self) -> PooledConnection<ConnectionManager<PgConnection>> {
+        self._database.get_connection()
     }
 }
 

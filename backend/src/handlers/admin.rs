@@ -1,4 +1,4 @@
-use crate::core::service::{RunnerService, UserService};
+use crate::core::service::{PaymentService, RunnerService, UserService};
 use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
@@ -18,18 +18,13 @@ use diesel::r2d2::ConnectionManager;
 use futures_util::stream::StreamExt as _;
 use r2d2::PooledConnection;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct QueryInfo {
     page_number: i32,
     search_category: String,
     search_keyword: String,
-}
-
-#[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
-
-pub struct DeleteRejectedTransactionsData {
-    ids: Vec<i32>,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -583,20 +578,18 @@ pub async fn get_rejected_transactions(
 pub async fn delete_rejected_transactions(
     _: Identity,
     ids: web::Json<Vec<i32>>,
-    db_pool: web::Data<DbPool>,
-    // admin_service: web::Data<dyn AdminService>,
+    payment_service: web::Data<dyn PaymentService>,
 ) -> anyhow::Result<HttpResponse, Error> {
     let id_list = ids.into_inner();
-    use crate::schema::rejected_transactions::dsl::*;
-    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
 
-    for id_to_delete in id_list {
-        diesel::delete(rejected_transactions.filter(id.eq(id_to_delete)))
-            .execute(connection)
-            .expect(&format!("Unable to delete transaction {}", id_to_delete));
-    }
+    let number_of_deleted_rejected_transactions =
+        payment_service.delete_rejected_transactions(id_list);
 
-    Ok(HttpResponse::Ok().into())
+    let response_body_values = HashMap::from([(
+        "deletedRejectedTransactions",
+        number_of_deleted_rejected_transactions,
+    )]);
+    Ok(HttpResponse::Ok().json(response_body_values).into())
 }
 
 #[cfg(test)]

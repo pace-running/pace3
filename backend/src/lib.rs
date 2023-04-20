@@ -25,10 +25,12 @@ pub mod services;
 
 use crate::app_config::routes;
 use crate::core::service::{
-    DefaultRunnerService, DefaultThemeService, DefaultUserService, RunnerService, ThemeService,
-    UserService,
+    DefaultPaymentService, DefaultRunnerService, DefaultThemeService, DefaultUserService,
+    PaymentService, RunnerService, ThemeService, UserService,
 };
-use crate::repository::{PostgresRunnerRepository, PostgresUserRepository};
+use crate::repository::{
+    PostgresPaymentRepository, PostgresRunnerRepository, PostgresUserRepository,
+};
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::storage::CookieSessionStore;
@@ -177,6 +179,10 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
         let theme_service: Arc<dyn ThemeService> =
             Arc::new(DefaultThemeService::new(theme_repository));
 
+        let payment_repository = PostgresPaymentRepository::new(db_pool.clone());
+        let payment_service: Arc<dyn PaymentService> =
+            Arc::new(DefaultPaymentService::new(payment_repository));
+
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
                 .cookie_secure(has_https())
@@ -202,6 +208,7 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
             .wrap(cors)
             .configure(routes)
             .app_data(web::Data::new(db_pool.clone()))
+            .app_data(web::Data::from(payment_service))
             .app_data(web::Data::from(runner_service))
             .app_data(web::Data::from(user_service))
             .app_data(web::Data::from(theme_service))

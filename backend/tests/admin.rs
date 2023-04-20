@@ -1,5 +1,7 @@
+use diesel::RunQueryDsl;
 use pace::models::users::{LoginData, PasswordChangeData};
 use pace::{insert_rejected_transaction, models::rejected_transaction::NewRejectedTransaction};
+use std::collections::HashMap;
 
 mod helpers;
 use crate::helpers::{TestApp, TestDatabase};
@@ -254,4 +256,50 @@ async fn change_password_should_be_successful_if_new_and_old_passwords_are_valid
         .expect("Unable to send request.");
 
     assert_eq!(actual_response.status(), actix_web::http::StatusCode::OK);
+}
+
+#[actix_web::test]
+async fn delete_rejected_transactions_should_fail_if_user_is_unauthorized() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let ids = "[1, 2]";
+    let result = test_app
+        .delete_rejected_transactions("[1, 2]".to_string(), None)
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::UNAUTHORIZED);
+}
+
+#[actix_web::test]
+async fn delete_rejected_transactions_should_be_successful_if_authenticated() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let mut connection = test_app.get_connection();
+
+    let _ = diesel::sql_query(
+        r#"
+    INSERT INTO rejected_transactions (runner_ids, date_of_payment,
+                                       reasons_for_payment, payment_amount,
+                                       expected_amount, currency, payer_name, iban)
+    VALUES ('73', '2023-01-01', 'LGR-RANDO', '1', '20', 'EUR', 'Peter',
+            'DE20 1342 6474 521 45'),
+           ('42', '2023-01-01', 'LGR-EMPTY', '2', '10', 'EUR', 'Petra',
+            'DE20 2342 5474 523 11');"#,
+    )
+    .execute(&mut connection)
+    .unwrap();
+
+    let cookie = test_app.get_admin_cookie().await;
+
+    let ids = "[1, 2]";
+    let result = test_app
+        .delete_rejected_transactions("[1, 2]".to_string(), Some(cookie))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+
+    let values = result.json::<HashMap<String, usize>>().await.unwrap();
+    assert_eq!(&2, values.get("deletedRejectedTransactions").unwrap())
 }
