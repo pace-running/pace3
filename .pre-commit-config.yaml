@@ -8,7 +8,6 @@ repos:
         entry: cargo fmt
         language: system
         types: [ rust ]
-        files: backend/.+\.rs$
         args: [ "--manifest-path", "backend/Cargo.toml", "--" ]
 
       - id: cargo-check
@@ -17,7 +16,6 @@ repos:
         entry: cargo check
         language: system
         types: [ rust ]
-        files: backend/.+\.rs$
         pass_filenames: false
         args: [ "--manifest-path", "backend/Cargo.toml" ]
 
@@ -28,7 +26,6 @@ repos:
         language: system
         args: [ "--manifest-path", "backend/Cargo.toml", "--", "-D", "warnings" ]
         types: [ rust ]
-        files: backend/.+\.rs$
         pass_filenames: false
 
       - id: talisman-precommit
