@@ -8,7 +8,7 @@ RUN mkdir -p /usr/src
 WORKDIR /usr/src
 
 # set api url
-RUN echo "API_URL=https://pace3.lauf-gegen-rechts.de" >> .env.local
+RUN echo 'API_URL=""' >> .env.local
 
 # copy source files
 COPY . /usr/src
