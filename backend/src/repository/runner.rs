@@ -47,12 +47,10 @@ impl<'insert> diesel::Insertable<schema::runners::table> for &'insert NewNewRunn
     fn values(self) -> Self::Values {
         (
             schema::runners::start_number.eq::<i64>((*self.start_number()).into()),
-            self.firstname()
-                .map(|x| schema::runners::firstname.eq(x.clone())),
-            self.lastname()
-                .map(|x| schema::runners::lastname.eq(x.clone())),
-            self.team().map(|x| schema::runners::team.eq(x.clone())),
-            self.email().map(|x| schema::runners::email.eq(x.clone())),
+            self.firstname().map(|x| schema::runners::firstname.eq(x)),
+            self.lastname().map(|x| schema::runners::lastname.eq(x)),
+            self.team().map(|x| schema::runners::team.eq(x)),
+            self.email().map(|x| schema::runners::email.eq(x)),
             schema::runners::starting_point.eq(self.starting_point()),
             schema::runners::running_level.eq(self.running_level()),
             schema::runners::donation.eq(self.donation()),
@@ -71,10 +69,10 @@ impl RunnerRepository for PostgresRunnerRepository {
             .get()
             .expect("Unable to get connection.");
 
-        let result = diesel::insert_into(schema::runners::table)
+        diesel::insert_into(schema::runners::table)
             .values(&new_runner)
             .get_result(&mut connection)
-            .map_err(|e| anyhow::Error::from(e))
+            .map_err(anyhow::Error::from)
             .and_then(|runner: Runner| {
                 let runner_id = runner.id;
                 new_runner.shipping_data().as_ref().map_or_else(
@@ -97,23 +95,11 @@ impl RunnerRepository for PostgresRunnerRepository {
                                     .eq(DeliveryStatus::PROCESSED.as_ref()),
                             ))
                             .execute(&mut connection)
-                            .map_err(|e| anyhow::Error::from(e))
+                            .map_err(anyhow::Error::from)
                             .map(|_| runner.clone())
                     },
                 )
-            });
-
-        result
-
-        /*
-        if result.is_ok() && new_runner.shipping_data().is_some() {
-            let _ = diesel::insert_into(schema::runners::table)
-                .values(new_runner.shipping_data().unwrap())
-                .get_result(&mut connection)
-                .map_err(|e| anyhow::Error::from(e));
-        }
-
-        result*/
+            })
     }
 
     fn get_next_start_number(&self) -> StartNumber {
@@ -131,8 +117,8 @@ impl RunnerRepository for PostgresRunnerRepository {
 
             let start_number = StartNumber::try_from(candidate.value);
 
-            if start_number.is_ok() {
-                return start_number.unwrap();
+            if let Ok(result) = start_number {
+                return result;
             }
         }
     }

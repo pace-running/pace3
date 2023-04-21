@@ -589,7 +589,7 @@ pub async fn delete_rejected_transactions(
         "deletedRejectedTransactions",
         number_of_deleted_rejected_transactions,
     )]);
-    Ok(HttpResponse::Ok().json(response_body_values).into())
+    Ok(HttpResponse::Ok().json(response_body_values))
 }
 
 #[cfg(test)]

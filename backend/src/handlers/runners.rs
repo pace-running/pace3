@@ -111,10 +111,12 @@ impl From<ShippingInfo> for Option<ShippingData> {
             return None;
         }
 
+        /* TODO: use this after verifying that it won't break the frontend
         let address_extra = match value.address_extra.as_str() {
-            // "" => None,
+            "" => None,
             _ => Some(value.address_extra),
         };
+         */
 
         Some(ShippingData {
             t_shirt_model: value.tshirt_model,
@@ -124,7 +126,7 @@ impl From<ShippingInfo> for Option<ShippingData> {
             lastname: value.address_lastname,
             street_name: value.street_name,
             house_number: value.house_number,
-            address_extra,
+            address_extra: Some(value.address_extra),
             postal_code: value.postal_code,
             city: value.city,
         })

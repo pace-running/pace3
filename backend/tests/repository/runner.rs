@@ -95,7 +95,7 @@ fn get_next_start_number_does_not_return_deny_listed_values() {
     let cli = testcontainers::clients::Cli::default();
     let database = TestDatabase::with_migrations(&cli);
     let pool = database.get_connection_pool();
-    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let runner_repository = PostgresRunnerRepository::new(pool);
 
     let start_numbers: HashSet<i64> = (0..*StartNumber::DENYLIST.last().unwrap())
         .map(|_| runner_repository.get_next_start_number())
@@ -110,7 +110,7 @@ async fn get_next_start_number_does_not_produce_duplicates() {
     let cli = testcontainers::clients::Cli::default();
     let database = TestDatabase::with_migrations(&cli);
     let pool = database.get_connection_pool();
-    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let runner_repository = PostgresRunnerRepository::new(pool);
 
     let start_numbers: HashSet<i64> = (0..*StartNumber::DENYLIST.last().unwrap())
         .map(|_| runner_repository.get_next_start_number())
@@ -126,7 +126,7 @@ fn find_runner_by_id_should_return_none_if_given_id_is_not_present() {
     let cli = testcontainers::clients::Cli::default();
     let database = TestDatabase::with_migrations(&cli);
     let pool = database.get_connection_pool();
-    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let runner_repository = PostgresRunnerRepository::new(pool);
 
     let result = runner_repository.find_runner_by_id(9000);
     assert_eq!(result, None)

@@ -25,13 +25,13 @@ impl<RR: RunnerRepository> DefaultRunnerService<RR> {
     fn get_t_shirt_cost_for_shipping_data(&self, shipping_data: &ShippingData) -> &'static str {
         use crate::EU_COUNTRIES;
 
-        return if shipping_data.country == "Deutschland" {
+        if shipping_data.country == "Deutschland" {
             "15"
         } else if EU_COUNTRIES.contains(&shipping_data.country.as_str()) {
             "17"
         } else {
             "20"
-        };
+        }
     }
 
     fn generate_verification_code(&self) -> VerificationCode {

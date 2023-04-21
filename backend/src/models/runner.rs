@@ -45,7 +45,7 @@ impl ShippingData {
         &self.house_number
     }
     pub fn address_extra(&self) -> Option<&str> {
-        self.address_extra.as_ref().map(|v| v.as_str())
+        self.address_extra.as_deref()
     }
     pub fn postal_code(&self) -> &str {
         &self.postal_code
@@ -114,16 +114,16 @@ impl NewNewRunner {
         &self.start_number
     }
     pub fn firstname(&self) -> Option<&str> {
-        self.firstname.as_ref().map(|v| v.as_str())
+        self.firstname.as_deref()
     }
     pub fn lastname(&self) -> Option<&str> {
-        self.lastname.as_ref().map(|v| v.as_str())
+        self.lastname.as_deref()
     }
     pub fn team(&self) -> Option<&str> {
-        self.team.as_ref().map(|v| v.as_str())
+        self.team.as_deref()
     }
     pub fn email(&self) -> Option<&str> {
-        self.email.as_ref().map(|v| v.as_str())
+        self.email.as_deref()
     }
     pub fn starting_point(&self) -> &str {
         &self.starting_point

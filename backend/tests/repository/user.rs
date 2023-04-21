@@ -21,7 +21,7 @@ VALUES(
     .execute(&mut pool.get().expect("Unable to get connection."))
     .expect("No value in result");
 
-    let user_repository = PostgresUserRepository::new(pool.clone());
+    let user_repository = PostgresUserRepository::new(pool);
 
     let result = user_repository
         .find_user_by_username("testimctest".to_string())
@@ -46,13 +46,12 @@ VALUES(
     .execute(&mut pool.get().expect("Unable to get connection."))
     .expect("No value in result");
 
-    let user_repository = PostgresUserRepository::new(pool.clone());
+    let user_repository = PostgresUserRepository::new(pool);
 
-    let result = user_repository
-        .set_password("testi_mctest".to_string(), "new_password".to_string())
-        .expect("Unable to change password.");
+    let result =
+        user_repository.set_password("testi_mctest".to_string(), "new_password".to_string()); // talisman-ignore-line
 
-    assert_eq!(result, ())
+    assert!(result.is_ok())
 }
 
 #[test]
@@ -61,7 +60,7 @@ fn set_password_should_return_error_if_username_was_not_found() {
     let database = TestDatabase::with_migrations(&cli);
     let pool = database.get_connection_pool();
 
-    let user_repository = PostgresUserRepository::new(pool.clone());
+    let user_repository = PostgresUserRepository::new(pool);
 
     let result =
         user_repository.set_password("does_not_exist".to_string(), "new_password".to_string());

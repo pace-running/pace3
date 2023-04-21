@@ -118,7 +118,7 @@ pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
         .into()
 }
 
-pub const EU_COUNTRIES: [&'static str; 26] = [
+pub const EU_COUNTRIES: [&str; 26] = [
     "Belgien",
     "Bulgarien",
     "Dänemark",
