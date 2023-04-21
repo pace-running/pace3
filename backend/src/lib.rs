@@ -192,6 +192,7 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
             .allowed_origin_fn(|origin, _req_head| {
                 origin.as_bytes().ends_with(b"localhost:3000")
                     || origin.as_bytes().ends_with(b"localhost:8089")
+                    || origin.as_bytes().ends_with(b"stadtpark-marathon.de")
                     || origin.as_bytes().ends_with(b"lauf-gegen-rechts.de")
             })
             .allowed_methods(vec!["GET", "POST", "PUT"])
