@@ -205,8 +205,8 @@ fn apply_search_filter(old_list: &Vec<Runner>, cat: String, key: String) -> Vec<
         list.retain(|r| {
             let full_name = format!(
                 "{} {}",
-                r.firstname.clone().unwrap_or("".to_string()),
-                r.lastname.clone().unwrap_or("".to_string())
+                r.firstname.clone().unwrap_or_default(),
+                r.lastname.clone().unwrap_or_default()
             );
             full_name.contains(&key)
         });
