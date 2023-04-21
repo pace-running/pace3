@@ -52,6 +52,7 @@ pub async fn update_theme(
     let theme_data = data.into_inner();
     theme_data
         .try_into()
-        .and_then(|th| theme_service.update_theme(th)).map(|_| HttpResponse::Ok().into())
+        .and_then(|th| theme_service.update_theme(th))
+        .map(|_| HttpResponse::Ok().into())
         .or_else(|_| Ok(HttpResponse::BadRequest().into()))
 }
