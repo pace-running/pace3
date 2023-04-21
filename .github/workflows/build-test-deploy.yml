@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-backend:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
       - name: Run backend linting and testing
@@ -26,7 +26,7 @@ jobs:
         run: cd frontend/pace-ui && npm install && ./run quality_check
   build:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ test-backend, test-frontend ]
     steps:
       - uses: actions/checkout@v3
