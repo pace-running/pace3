@@ -115,39 +115,40 @@ pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
     sql_query("SELECT nextval('runner_start_number_seq') AS start_number")
         .get_result::<StartNumber>(conn)
         .expect("Error getting start number")
-        .start_number
+        .into()
 }
 
+pub const EU_COUNTRIES: [&'static str; 26] = [
+    "Belgien",
+    "Bulgarien",
+    "Dänemark",
+    "Estland",
+    "Finnland",
+    "Frankreich",
+    "Griechenland",
+    "Irland",
+    "Italien",
+    "Kroatien",
+    "Lettland",
+    "Litauen",
+    "Luxemburg",
+    "Malta",
+    "Niederlande",
+    "Österreich",
+    "Polen",
+    "Portugal",
+    "Rumänien",
+    "Schweden",
+    "Slowakei",
+    "Slowenien",
+    "Spanien",
+    "Tschechische Republik",
+    "Ungarn",
+    "Zypern",
+];
+
 pub fn is_eu_country(country: &str) -> bool {
-    let eu_countries = [
-        "Belgien",
-        "Bulgarien",
-        "Dänemark",
-        "Estland",
-        "Finnland",
-        "Frankreich",
-        "Griechenland",
-        "Irland",
-        "Italien",
-        "Kroatien",
-        "Lettland",
-        "Litauen",
-        "Luxemburg",
-        "Malta",
-        "Niederlande",
-        "Österreich",
-        "Polen",
-        "Portugal",
-        "Rumänien",
-        "Schweden",
-        "Slowakei",
-        "Slowenien",
-        "Spanien",
-        "Tschechische Republik",
-        "Ungarn",
-        "Zypern",
-    ];
-    eu_countries.contains(&country)
+    EU_COUNTRIES.contains(&country)
 }
 
 pub fn hash_password(password: String) -> String {

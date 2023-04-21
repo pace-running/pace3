@@ -6,7 +6,7 @@ use strum_macros::AsRefStr;
 
 #[derive(AsRefStr)]
 #[allow(dead_code, clippy::upper_case_acronyms)]
-enum DeliveryStatus {
+pub enum DeliveryStatus {
     #[strum(serialize = "In Bearbeitung")]
     PROCESSED,
     #[strum(serialize = "Versendet")]

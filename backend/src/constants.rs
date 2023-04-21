@@ -1,10 +1,1 @@
-pub const DENYLIST_START_NUMBERS: [i64; 20] = [
-    18, 28, 33, 45, 74, 84, 88, 444, 191, 192, 198, 420, 1312, 1717, 1887, 1910, 1919, 1933, 1488,
-    1681,
-];
-
-pub const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-pub const REASON_FOR_PAYMENT_LENGTH: usize = 5;
-
 pub const VERIFICATION_CODE_LENGTH: usize = 64;

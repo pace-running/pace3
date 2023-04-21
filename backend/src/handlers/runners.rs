@@ -5,12 +5,10 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::core::service::RunnerService;
-use crate::models::info::Info;
-use crate::models::runner::NewRunner;
-use crate::models::shipping::NewShipping;
-use crate::models::{runner, start_number};
+use crate::models::info::{Info, ShippingInfo};
+use crate::models::runner::{RunnerRegistrationData, ShippingData};
 use crate::services::email::send_registration_email;
-use crate::{insert_shipping, is_eu_country, retrieve_shipping_by_runner_id, DbPool};
+use crate::{retrieve_shipping_by_runner_id, DbPool};
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {
@@ -75,6 +73,64 @@ pub struct ResponseBody<T> {
 
 pub type ResponseWithBody = ResponseBody<Response>;
 
+impl From<Info> for RunnerRegistrationData {
+    fn from(value: Info) -> Self {
+        let firstname = match value.runner_info.firstname.as_str() {
+            "" => None,
+            _ => Some(value.runner_info.firstname),
+        };
+        let lastname = match value.runner_info.lastname.as_str() {
+            "" => None,
+            _ => Some(value.runner_info.lastname),
+        };
+        let team = match value.runner_info.team.as_str() {
+            "" => None,
+            _ => Some(value.runner_info.team),
+        };
+        let email = match value.runner_info.email.as_str() {
+            "" => None,
+            _ => Some(value.runner_info.email),
+        };
+
+        RunnerRegistrationData {
+            firstname,
+            lastname,
+            team,
+            email,
+            starting_point: value.runner_info.starting_point,
+            running_level: value.runner_info.running_level,
+            donation: value.runner_info.donation,
+            shipping_data: value.shipping_info.into(),
+        }
+    }
+}
+
+impl From<ShippingInfo> for Option<ShippingData> {
+    fn from(value: ShippingInfo) -> Self {
+        if value.tshirt_toggle != "on" {
+            return None;
+        }
+
+        let address_extra = match value.address_extra.as_str() {
+            // "" => None,
+            _ => Some(value.address_extra),
+        };
+
+        Some(ShippingData {
+            t_shirt_model: value.tshirt_model,
+            t_shirt_size: value.tshirt_size,
+            country: value.country,
+            firstname: value.address_firstname,
+            lastname: value.address_lastname,
+            street_name: value.street_name,
+            house_number: value.house_number,
+            address_extra,
+            postal_code: value.postal_code,
+            city: value.city,
+        })
+    }
+}
+
 pub fn has_bad_data(form: &Info) -> bool {
     let donation: u16 = form
         .runner_info
@@ -106,7 +162,6 @@ pub fn has_bad_data(form: &Info) -> bool {
 
 pub async fn create_runner(
     form: Json<Info>,
-    db_pool: web::Data<DbPool>,
     runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
@@ -126,35 +181,11 @@ pub async fn create_runner(
             },
         }));
     }
-    let conn = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    let runner_start_number = start_number::next_start_number(conn);
-    let reason_for_payment = runner::create_random_payment();
-    let verification_code = runner::create_verification_code();
-    let tshirt_cost;
-    if info.shipping_info.tshirt_toggle == "on" {
-        if info.shipping_info.country == "Deutschland" {
-            tshirt_cost = "15";
-        } else if is_eu_country(&info.shipping_info.country) {
-            tshirt_cost = "17";
-        } else {
-            tshirt_cost = "20";
-        }
-    } else {
-        tshirt_cost = "0";
-    }
-    // Write data into data base
-    let new_runner = NewRunner::from((
-        &info,
-        runner_start_number,
-        reason_for_payment.as_str(),
-        verification_code.as_str(),
-        tshirt_cost,
-    ));
-    let returned_runner = runner_service.add_runner(new_runner);
-    if info.shipping_info.tshirt_toggle == "on" {
-        let new_shipping = NewShipping::from((&info, returned_runner.id));
-        insert_shipping(conn, new_shipping);
-    }
+    let runner_registration_data = RunnerRegistrationData::from(info);
+    let returned_runner = runner_service
+        .register_runner(runner_registration_data)
+        .map_err(error::ErrorInternalServerError)?;
+
     let email_value = returned_runner.email.unwrap();
     let email_provided = Some(email_value.ne(""));
     if let Some(true) = email_provided {
@@ -164,7 +195,7 @@ pub async fn create_runner(
             email_value,
             returned_runner.donation.clone(),
             returned_runner.reason_for_payment.clone(),
-            verification_code.clone(),
+            returned_runner.verification_code.clone(),
             returned_runner.tshirt_cost.clone(),
         );
     }
