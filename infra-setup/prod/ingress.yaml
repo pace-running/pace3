@@ -21,7 +21,26 @@ spec:
                 name: pace3
                 port:
                   number: 3000
+
+    - host: stadtpark-marathon.de
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: pace3
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pace3
+                port:
+                  number: 3000
   tls:
     - secretName: pace3-tls
       hosts:
+        - stadtpark-marathon.de
         - www.stadtpark-marathon.de
