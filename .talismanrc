@@ -1,4 +1,6 @@
 fileignoreconfig:
+- filename: infra-setup/base/backup.yaml
+  checksum: 1446b8e9e61a8fc56b30342eb18eee2381153b09cce8ea36b88469cc006402f4
 - filename: backend/src/handlers/admin.rs
   checksum: f757ad6d1e385f07743f546bb547f5b66c98516e8c5ae315408971197322bb4a
 - filename: backend/tests/repository/user.rs

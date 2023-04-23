@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-db
+spec:
+  schedule: "5 0 * * *"
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+            - name: regcred
+          volumes:
+            - name: backup-data
+              persistentVolumeClaim:
+                claimName: backup-pvc
+          containers:
+            - name: backup-db
+              image: postgres:12
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: backup-data
+                  mountPath: /data/
+              env:
+               - name: PGPASSWORD
+                 valueFrom:
+                   secretKeyRef:
+                     name: prod-pace-postgresql
+                     key: postgres-password
+              command:
+                - /bin/sh
+                - -c
+                - pg_dump -d pace -h prod-pace-postgresql -U postgres > /data/$(date +%y-%m-%d)_dump.sql
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+spec:
+  resources:
+    requests:
+      storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
