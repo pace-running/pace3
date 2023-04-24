@@ -96,6 +96,7 @@ impl From<Info> for RunnerRegistrationData {
             firstname,
             lastname,
             team,
+            bsv_participant: value.runner_info.bsv_participant,
             email,
             starting_point: value.runner_info.starting_point,
             running_level: value.runner_info.running_level,

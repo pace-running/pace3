@@ -38,6 +38,7 @@ diesel::table! {
         verification_code -> Varchar,
         payment_confirmation_mail_sent -> Bool,
         tshirt_cost -> Varchar,
+        bsv_participant -> Bool,
     }
 }
 

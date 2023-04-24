@@ -10,6 +10,7 @@ impl InfoBuilder {
             firstname: "Hans".to_string(),
             lastname: "Meyer".to_string(),
             team: "FC St. Pauli".to_string(),
+            bsv_participant: false,
             email: "test@example.com".to_string(),
             repeat: "test@example.com".to_string(),
             starting_point: "other".to_string(),
@@ -65,6 +66,11 @@ impl InfoBuilder {
 
     pub fn with_team(&mut self, team: &str) -> &mut Self {
         self.info.runner_info.team = team.to_string();
+        self
+    }
+
+    pub fn with_bsv_participant(&mut self, bsv_participant: bool) -> &mut Self {
+        self.info.runner_info.bsv_participant = bsv_participant;
         self
     }
 

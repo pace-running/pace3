@@ -7,6 +7,7 @@ pub struct RunnerInfo {
     pub lastname: String,
     pub team: String,
     pub email: String,
+    pub bsv_participant: bool,
     pub repeat: String,
     pub starting_point: String,
     pub running_level: String,

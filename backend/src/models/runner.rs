@@ -60,6 +60,7 @@ pub struct RunnerRegistrationData {
     pub firstname: Option<String>,
     pub lastname: Option<String>,
     pub team: Option<String>,
+    pub bsv_participant: bool,
     pub email: Option<String>,
     pub starting_point: String,
     pub running_level: String,
@@ -76,6 +77,7 @@ pub struct NewRunner {
     firstname: Option<String>,
     lastname: Option<String>,
     team: Option<String>,
+    bsv_participant: bool,
     email: Option<String>,
     starting_point: String,
     running_level: String,
@@ -99,6 +101,7 @@ impl NewRunner {
             firstname: runner_registration_data.firstname,
             lastname: runner_registration_data.lastname,
             team: runner_registration_data.team,
+            bsv_participant: runner_registration_data.bsv_participant,
             email: runner_registration_data.email,
             starting_point: runner_registration_data.starting_point,
             running_level: runner_registration_data.running_level,
@@ -121,6 +124,9 @@ impl NewRunner {
     }
     pub fn team(&self) -> Option<&str> {
         self.team.as_deref()
+    }
+    pub fn bsv_participant(&self) -> &bool {
+        &self.bsv_participant
     }
     pub fn email(&self) -> Option<&str> {
         self.email.as_deref()
@@ -164,6 +170,7 @@ pub struct Runner {
     pub verification_code: String,
     pub payment_confirmation_mail_sent: bool,
     pub tshirt_cost: String,
+    pub bsv_participant: bool,
 }
 
 pub fn create_verification_code() -> String {
