@@ -107,9 +107,14 @@ pub async fn check_password(
     if login_data.username.is_empty() {
         return Ok(forbidden(None));
     }
-    let user = user_service
-        .find_user_by_username(login_data.username.to_string())
-        .unwrap_or_else(|| panic!("Unable to find user {}", login_data.username));
+    let user_result = user_service.find_user_by_username(login_data.username.to_string());
+
+    if user_result.is_none() {
+        return Ok(forbidden(None));
+    }
+
+    let user = user_result.unwrap();
+
     if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
