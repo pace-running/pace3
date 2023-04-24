@@ -15,7 +15,7 @@ services:
     volumes:
       - ./db-init/init-user-db.sql:/docker-entrypoint-initdb.d/init-user-db.sql
     healthcheck:
-      test: "pg_isready -U postgres"
+      test: "pg_isready -U pace3_user -d pace3"
       interval: "10s"
       timeout: "3s"
       start_period: "180s"
