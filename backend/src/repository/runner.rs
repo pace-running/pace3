@@ -1,6 +1,6 @@
 use crate::core::repository::{RunnerId, RunnerRepository};
 use crate::models::payment::PaymentReference;
-use crate::models::runner::{NewNewRunner, Runner};
+use crate::models::runner::{NewRunner, Runner};
 use crate::models::start_number::StartNumber;
 use crate::schema;
 use crate::schema::runners::dsl::runners;
@@ -29,7 +29,7 @@ struct StartNumberCandidate {
     value: i64,
 }
 
-impl<'insert> diesel::Insertable<schema::runners::table> for &'insert NewNewRunner {
+impl<'insert> diesel::Insertable<schema::runners::table> for &'insert NewRunner {
     type Values = <(
         diesel::dsl::Eq<schema::runners::start_number, i64>,
         Option<diesel::dsl::Eq<schema::runners::firstname, &'insert str>>,
@@ -63,7 +63,7 @@ impl<'insert> diesel::Insertable<schema::runners::table> for &'insert NewNewRunn
 }
 
 impl RunnerRepository for PostgresRunnerRepository {
-    fn insert_new_runner(&self, new_runner: NewNewRunner) -> anyhow::Result<Runner> {
+    fn insert_new_runner(&self, new_runner: NewRunner) -> anyhow::Result<Runner> {
         let mut connection = self
             .connection_pool
             .get()

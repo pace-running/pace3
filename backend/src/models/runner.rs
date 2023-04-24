@@ -71,7 +71,7 @@ pub type PaymentStatus = bool;
 pub type VerificationCode = String;
 pub type TShirtCost = String;
 
-pub struct NewNewRunner {
+pub struct NewRunner {
     start_number: StartNumber,
     firstname: Option<String>,
     lastname: Option<String>,
@@ -86,7 +86,7 @@ pub struct NewNewRunner {
     shipping_data: Option<ShippingData>,
 }
 
-impl NewNewRunner {
+impl NewRunner {
     pub fn new(
         runner_registration_data: RunnerRegistrationData,
         start_number: StartNumber,

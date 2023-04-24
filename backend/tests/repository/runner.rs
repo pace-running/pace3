@@ -1,7 +1,7 @@
 use diesel::{prelude::*, QueryDsl, RunQueryDsl};
 use pace::core::repository::RunnerRepository;
 use pace::models::runner::{
-    NewNewRunner, PaymentReference, Runner, RunnerRegistrationData, ShippingData,
+    NewRunner, PaymentReference, Runner, RunnerRegistrationData, ShippingData,
 };
 use pace::models::shipping::Shipping;
 use pace::models::start_number::StartNumber;
@@ -18,7 +18,7 @@ fn insert_new_runner_adds_runner_to_table() {
     let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
 
-    let new_runner = NewNewRunner::new(
+    let new_runner = NewRunner::new(
         RunnerRegistrationData {
             firstname: Option::from("Testi".to_string()),
             lastname: Option::from("McTest".to_string()),
@@ -52,7 +52,7 @@ fn insert_new_runner_adds_shipping_data_to_table() {
     let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
 
-    let new_runner = NewNewRunner::new(
+    let new_runner = NewRunner::new(
         RunnerRegistrationData {
             firstname: Option::from("Testi".to_string()),
             lastname: Option::from("McTest".to_string()),
@@ -138,7 +138,7 @@ fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
     let database = TestDatabase::with_migrations(&cli);
     let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
-    let new_runner = NewNewRunner::new(
+    let new_runner = NewRunner::new(
         RunnerRegistrationData {
             firstname: Option::from("Testi".to_string()),
             lastname: Option::from("McTest".to_string()),

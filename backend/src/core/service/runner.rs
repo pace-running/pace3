@@ -1,6 +1,6 @@
 use crate::core::repository::{RunnerId, RunnerRepository};
 use crate::models::runner::{
-    NewNewRunner, Runner, RunnerRegistrationData, ShippingData, VerificationCode,
+    NewRunner, Runner, RunnerRegistrationData, ShippingData, VerificationCode,
 };
 
 pub trait RunnerService {
@@ -56,7 +56,7 @@ impl<RR: RunnerRepository> RunnerService for DefaultRunnerService<RR> {
             .as_ref()
             .map_or("0", |sd| self.get_t_shirt_cost_for_shipping_data(sd));
 
-        let new_runner = NewNewRunner::new(
+        let new_runner = NewRunner::new(
             runner_registration_data,
             start_number,
             payment_reference,
