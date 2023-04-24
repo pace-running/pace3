@@ -12,6 +12,7 @@ const mapJoinFormDataToRequestData = (formData: JoinFormValues) => ({
   firstname: formData.firstname ?? '',
   lastname: formData.lastname ?? '',
   team: formData.team ?? '',
+  bsv_participant: formData.bsv_participant ?? false,
   email: formData.email ?? '',
   repeat: formData.repeated_email ?? '',
   starting_point: formData.starting_point ?? '',
@@ -101,6 +102,7 @@ const SummaryPage: NextPage = () => {
             </p>
           )}
           {formData?.team && <p>Team: {formData?.team}</p>}
+          {formData?.bsv_participant && <p>Wir starten als Betriebssport (BSV) Team</p>}
           {formData?.email && <p>E-Mail: {formData?.email}</p>}
 
           {formData?.starting_point === 'hamburg' ? <p>Startort: Hamburg</p> : <p>Startort: Woanders</p>}

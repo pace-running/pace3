@@ -31,6 +31,7 @@ export const JoinFormSchema = Yup.object().shape({
     .min(5, 'Die Spende muss mindestens 5€ betragen!')
     .required('Bitte geben Sie einen Spendenbetrag an!')
     .integer('Bitte geben Sie einen ganzzahligen Betrag an!'),
+  bsv_participant: Yup.boolean(),
 
   tshirt_toggle: Yup.boolean(),
   tshirt_model: Yup.string().when('tshirt_toggle', {
@@ -74,6 +75,7 @@ export type JoinFormValues = {
   running_level?: string;
   donation: number;
   tshirt_cost: number;
+  bsv_participant: boolean;
 
   tshirt_toggle: boolean;
   tshirt_model?: string;

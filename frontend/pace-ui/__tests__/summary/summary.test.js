@@ -11,6 +11,7 @@ describe('testing the summary page', () => {
       firstname: 'Fname',
       lastname: 'Lname',
       team: 'Team 1',
+      bsv_participant: true,
       email: 'email@example.com',
       repeated_email: 'email@example.com',
       starting_point: 'hamburg',
@@ -41,6 +42,7 @@ describe('testing the summary page', () => {
       expect(screen.getByText('Fname', { exact: false }));
       expect(screen.getByText('Lname', { exact: false }));
       expect(screen.getByText('Team 1', { exact: false }));
+      expect(screen.getByText('Wir starten als Betriebssport (BSV) Team', { exact: false }));
       expect(screen.getByText('email@example.com', { exact: false }));
       expect(screen.getByText('Startort: Hamburg'));
       expect(screen.getByText('Laufniveau: Ich laufe häufig und ambitioniert.'));
@@ -55,6 +57,7 @@ describe('testing the summary page', () => {
       firstname: 'Fname',
       lastname: 'Lname',
       team: 'Team 1',
+      bsv_participant: true,
       email: 'email@example.com',
       repeated_email: 'email@example.com',
       starting_point: 'other',

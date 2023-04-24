@@ -3,6 +3,7 @@ interface InfoRequestData {
   firstname: string;
   lastname: string;
   team: string;
+  bsv_participant: boolean;
   email: string;
   repeat: string;
   starting_point: string;

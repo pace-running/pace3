@@ -52,6 +52,7 @@ const Join: NextPage = () => {
       starting_point: '',
       running_level: '',
       donation: 10,
+      bsv_participant: false,
       tshirt_model: '',
       tshirt_size: '',
       country: '',
@@ -125,6 +126,14 @@ const Join: NextPage = () => {
               onChange={handleChange}
               name={'team'}
               label={'Team Name (erscheint auf der Startnummer)'}
+            />
+            <Checkbox
+              name={'bsv_participant'}
+              label={'Wir starten als Betriebssport (BSV) Team'}
+              check={values.bsv_participant}
+              onChange={() => {
+                setFieldValue('bsv_participant', !values.bsv_participant);
+              }}
             />
             <TextInput
               type={'email'}

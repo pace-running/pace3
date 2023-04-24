@@ -85,6 +85,13 @@ describe('testing of the registration page', () => {
       });
     });
 
+    test('checkbox for BSV participation is there and unchecked', () => {
+      render(<Join />);
+      const bsvCheckBox = screen.getByRole('checkbox', { name: 'Wir starten als Betriebssport (BSV) Team' });
+      expect(bsvCheckBox).toBeInTheDocument();
+      expect(bsvCheckBox).not.toBeChecked();
+    });
+
     test('dropdown menu should display obligatory options', () => {
       render(<Join />);
 
