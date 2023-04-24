@@ -10,8 +10,6 @@ spec:
     spec:
       template:
         spec:
-          imagePullSecrets:
-            - name: regcred
           volumes:
             - name: backup-data
               persistentVolumeClaim:
@@ -27,7 +25,7 @@ spec:
                - name: PGPASSWORD
                  valueFrom:
                    secretKeyRef:
-                     name: prod-pace-postgresql
+                     name: pace3-postgresql
                      key: postgres-password
               command:
                 - /bin/sh
