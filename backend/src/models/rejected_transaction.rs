@@ -62,7 +62,7 @@ pub fn find_duplicates(
     let mut duplicate_found = false;
 
     for found_transaction in transaction_list {
-        if transaction.id == found_transaction.id
+        if transaction.id != found_transaction.id
             && transaction.runner_ids == found_transaction.runner_ids
             && transaction.date_of_payment == found_transaction.date_of_payment
             && transaction.reasons_for_payment == found_transaction.reasons_for_payment

@@ -116,6 +116,10 @@ const Finance: NextPage = () => {
         ))}
       <br />
       <h3>Zu überprüfende Transaktionen</h3>
+      <p>
+        <span style={{ color: 'lightyellow', backgroundColor: 'lightgray' }}>&#9632;</span> Gelbe Zeilen sind mögliche
+        Duplikate.
+      </p>
       <div>
         <table id='rejectedPaymentsTable' style={{ overflow: 'scroll' }}>
           <thead>
@@ -136,7 +140,14 @@ const Finance: NextPage = () => {
             {rejectedPayments &&
               rejectedPayments.map((transaction, key) => {
                 return (
-                  <tr key={key}>
+                  <tr
+                    key={key}
+                    style={
+                      transaction.possible_duplicate
+                        ? { backgroundColor: 'lightyellow', borderTop: '1px dotted gray' }
+                        : { borderTop: '1px dotted gray' }
+                    }
+                  >
                     <td>
                       <Checkbox
                         name={`checkbox-${transaction.id}`}

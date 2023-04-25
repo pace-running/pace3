@@ -131,7 +131,7 @@ describe('test the finance page', () => {
           payer_name: 'Test McTesty',
           iban: 'DE57500105175574174785',
           entry_added_at: '2023-04-09 12:58:43.776202',
-          possible_duplicate: false
+          possible_duplicate: true
         }
       ]
     };
@@ -164,6 +164,8 @@ describe('test the finance page', () => {
 
     expect(headers[9]).toHaveTextContent('Zeitpunkt des Einlesens');
     expect(firstRowCells[9]).toHaveTextContent('09.04.2023 14:58:43');
+
+    expect(getComputedStyle(firstRow).backgroundColor).toBe('lightyellow');
   });
 
   describe('deleting faulty transactions', () => {

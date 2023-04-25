@@ -1,7 +1,6 @@
 use crate::core::service::{PaymentService, RunnerService, UserService};
 use crate::models::rejected_transaction::{
     find_duplicates, NewRejectedTransaction, RejectedTransaction,
-    RejectedTransactionWithPotentialDuplicates,
 };
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
