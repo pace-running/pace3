@@ -114,4 +114,6 @@ interface RejectedTransaction {
   date_of_payment: string;
   payer_name: string;
   iban: string;
+  entry_added_at: string;
+  possible_duplicate: string;
 }

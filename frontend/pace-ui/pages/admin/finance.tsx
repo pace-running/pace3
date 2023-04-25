@@ -60,6 +60,14 @@ const Finance: NextPage = () => {
       setError('Bitte wähle zunächst eine Datei aus!');
     }
   };
+  const transformDate = (oldDate: string) => {
+    //converts from UTC to CET
+    const date = new Date(oldDate);
+    return `${('0' + date.getDate()).slice(-2)}.${('0' + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()} ${(
+      '0' +
+      (date.getHours() + 2)
+    ).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+  };
 
   return (
     <div style={{ margin: '3rem', paddingBottom: '5rem' }}>
@@ -121,6 +129,7 @@ const Finance: NextPage = () => {
               <th>Währung</th>
               <th>Name</th>
               <th>IBAN</th>
+              <th>Zeitpunkt des Einlesens</th>
             </tr>
           </thead>
           <tbody>
@@ -153,6 +162,7 @@ const Finance: NextPage = () => {
                     <td>{transaction.currency}</td>
                     <td>{transaction.payer_name}</td>
                     <td>{transaction.iban}</td>
+                    <td>{transformDate(transaction.entry_added_at)}</td>
                   </tr>
                 );
               })}

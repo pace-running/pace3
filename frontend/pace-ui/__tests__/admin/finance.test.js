@@ -129,7 +129,9 @@ describe('test the finance page', () => {
           currency: 'EUR',
           date_of_payment: '26.01.2023',
           payer_name: 'Test McTesty',
-          iban: 'DE57500105175574174785'
+          iban: 'DE57500105175574174785',
+          entry_added_at: '2023-04-09 12:58:43.776202',
+          possible_duplicate: false
         }
       ]
     };
@@ -159,6 +161,9 @@ describe('test the finance page', () => {
 
     expect(headers[8]).toHaveTextContent('IBAN');
     expect(firstRowCells[8]).toHaveTextContent('DE57500105175574174785');
+
+    expect(headers[9]).toHaveTextContent('Zeitpunkt des Einlesens');
+    expect(firstRowCells[9]).toHaveTextContent('09.04.2023 14:58:43');
   });
 
   describe('deleting faulty transactions', () => {
