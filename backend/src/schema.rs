@@ -19,6 +19,7 @@ diesel::table! {
         currency -> Varchar,
         payer_name -> Varchar,
         iban -> Varchar,
+        entry_added_at -> Timestamptz,
     }
 }
 

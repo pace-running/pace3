@@ -1,5 +1,8 @@
 use crate::core::service::{PaymentService, RunnerService, UserService};
-use crate::models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
+use crate::models::rejected_transaction::{
+    find_duplicates, NewRejectedTransaction, RejectedTransaction,
+    RejectedTransactionWithPotentialDuplicates,
+};
 use crate::models::runner::{create_verification_code, Runner};
 use crate::models::shipping::NewShipping;
 use crate::models::users::{ErrorResponse, LoginData, LoginResponse, PasswordChangeData};
@@ -85,11 +88,11 @@ pub struct FullRunnerInfo {
     shipping_details: Option<ShippingDetails>,
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct RejectedTransactionsResponse {
-    transaction_list: Vec<RejectedTransaction>,
-    inner_response: Response,
-}
+// #[derive(Deserialize, Serialize)]
+// pub struct RejectedTransactionsResponse {
+//     transaction_list: Vec<RejectedTransaction>,
+//     inner_response: Response,
+// }
 
 #[derive(Deserialize, Serialize)]
 pub struct RunnerListResponse {
@@ -575,9 +578,14 @@ pub async fn get_rejected_transactions(
             .unwrap()
     });
 
+    let mut new_transaction_list = Vec::new();
+    for transaction in transaction_list {
+        new_transaction_list.push(find_duplicates(transaction, db_pool.clone()));
+    }
+
     Ok(HttpResponse::Ok()
         .content_type("text/json")
-        .body(serde_json::to_string(&transaction_list).unwrap()))
+        .body(serde_json::to_string(&new_transaction_list).unwrap()))
 }
 
 pub async fn delete_rejected_transactions(
