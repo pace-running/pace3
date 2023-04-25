@@ -79,6 +79,7 @@ interface FullRunnerData {
   firstname: string;
   lastname: string;
   team: string;
+  bsv_participant: boolean;
   email: string;
   starting_point: string;
   running_level: string;

@@ -43,6 +43,7 @@ const Edit: NextPage = () => {
     firstname: formData.firstname ?? runnerData?.firstname ?? '',
     lastname: formData.lastname ?? runnerData?.lastname ?? '',
     team: formData.team ?? runnerData?.team ?? '',
+    bsv_participant: formData.bsv_participant ?? runnerData?.bsv_participant ?? false,
     email: formData.email ?? runnerData?.email ?? '',
     starting_point: formData.starting_point ?? runnerData?.starting_point ?? '',
     running_level: formData.running_level ?? runnerData?.running_level ?? '',
@@ -80,11 +81,11 @@ const Edit: NextPage = () => {
   });
 
   return (
-    <div>
+    <div style={{ margin: '50px' }}>
       <h1>Edit Runner:</h1>
       {isPageFound && (
         <form onSubmit={handleSubmit}>
-          <div className='container' style={{ maxWidth: '800px' }}>
+          <div>
             <TextInput
               type={'text'}
               value={values.firstname}
@@ -112,6 +113,14 @@ const Edit: NextPage = () => {
               name={'team'}
               label={'Team Name (erscheint auf der Startnummer)'}
               placeholder={runnerData?.team}
+            />
+            <Checkbox
+              name={'bsv_participant'}
+              label={'Wir starten als Betriebssport (BSV) Team'}
+              check={values.bsv_participant ?? false}
+              onChange={() => {
+                setFieldValue('bsv_participant', !values.bsv_participant);
+              }}
             />
             <TextInput
               type={'email'}

@@ -8,6 +8,7 @@ export const EditRunnerSchema = Yup.object().shape({
     .min(2, 'Nachname muss mindestens zwei Zeichen enthalten!')
     .max(50, 'Nachname darf maximal 50 Zeichen enthalten!'),
   team: Yup.string(),
+  bsv_participant: Yup.boolean(),
   email: Yup.string().email(),
   starting_point: Yup.string().required('Bitte wählen Sie eine Option aus!'),
   running_level: Yup.string().required('Bitte wählen Sie eine Option aus!'),
@@ -67,6 +68,7 @@ export type EditRunnerValues = {
   lastname?: string;
   team?: string;
   email?: string;
+  bsv_participant?: boolean;
   starting_point?: string;
   running_level?: string;
   donation?: number;

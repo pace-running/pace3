@@ -34,6 +34,7 @@ describe('test edit page', () => {
       firstname: 'Testy',
       lastname: 'McTest',
       team: 'FC St. Pauli II',
+      bsv_participant: 'true',
       email: 'test5@example.com',
       starting_point: 'other',
       running_level: 'sometimes',
@@ -85,6 +86,7 @@ describe('test edit page', () => {
     await userEvent.type(screen.getByRole('spinbutton', { name: 'Ich möchte spenden (mindestens 5€)' }), '0');
     await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Von wo wirst du laufen? *' }), 'other');
     await userEvent.click(screen.getByRole('switch', { name: 'Ich möchte ein T-Shirt' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Wir starten als Betriebssport (BSV) Team' }));
     await userEvent.click(screen.getByRole('button', { name: 'Änderungen bestätigen' }));
 
     expect(mockPush).toHaveBeenCalledWith('/admin');
@@ -92,6 +94,7 @@ describe('test edit page', () => {
       address_extra: '',
       address_firstname: 'Testy',
       address_lastname: 'McTest',
+      bsv_participant: false,
       city: 'testing city',
       country: 'Deutschland',
       delivery_status: 'In Bearbeitung',
