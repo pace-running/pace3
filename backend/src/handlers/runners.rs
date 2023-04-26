@@ -189,7 +189,8 @@ pub async fn create_runner(
         .register_runner(runner_registration_data)
         .map_err(error::ErrorInternalServerError)?;
 
-    if let Some(_email_address) = &returned_runner.email {
+    let has_provided_email_address = returned_runner.email.is_some();
+    if has_provided_email_address {
         let _ = email_service.send_registration_confirmation(returned_runner.clone());
     }
 
@@ -200,7 +201,7 @@ pub async fn create_runner(
         tshirt_cost: Some(returned_runner.tshirt_cost),
         reason_for_payment: Some(returned_runner.reason_for_payment),
         verification_code: Some(returned_runner.verification_code),
-        email_provided: returned_runner.email.map(|_| true),
+        email_provided: Some(has_provided_email_address),
         inner_response: Response {
             success_message: Some("Data received".to_string()),
             error_message: None,
