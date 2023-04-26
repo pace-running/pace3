@@ -189,7 +189,7 @@ pub async fn create_runner(
         .register_runner(runner_registration_data)
         .map_err(error::ErrorInternalServerError)?;
 
-    let email_value = returned_runner.email.unwrap_or_else(|| "".to_string());
+    let email_value = returned_runner.email.unwrap_or_default();
     let email_provided = Some(email_value.ne(""));
     if let Some(true) = email_provided {
         send_registration_email(

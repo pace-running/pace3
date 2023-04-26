@@ -8,16 +8,152 @@ use reqwest::{Client, Response};
 use serde_json::Map;
 use std::env;
 use std::error::Error;
+use std::io::{Cursor, Write};
 use std::net::TcpListener;
+use std::sync::{Arc, Mutex};
 use testcontainers::clients::Cli;
 use testcontainers::images::postgres::Postgres;
 use testcontainers::Container;
 
+use pace::core::service::EmailConfiguration;
 use pace::models::info::Info;
 use pace::models::users::LoginData;
 use pace::{get_connection_pool, run};
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+
+mockall::lazy_static! {
+    pub static ref TEMPLATES: tera::Tera = {
+        let templates = match tera::Tera::new("templates/**/*") {
+            Ok(t) => t,
+            Err(_e) => std::process::exit(1),
+        };
+        templates
+    };
+
+    static ref CERTIFICATE_PATHS: (&'static str, &'static str) = {
+        use rcgen::generate_simple_self_signed;
+
+        let subject_alt_names = vec!["localhost".to_string()];
+        let cert = generate_simple_self_signed(subject_alt_names).unwrap();
+        let pem_serialized = cert.serialize_pem().unwrap();
+        std::fs::create_dir_all("tests/.cert/").unwrap();
+        let cert_path = "tests/.cert/cert.pem";
+        std::fs::write(cert_path, &pem_serialized.as_bytes()).unwrap();
+        let key_path = "tests/.cert/key.pem"; // talisman-ignore-line; this is a self-signed cert key used for testing only
+        std::fs::write(key_path, &cert.serialize_private_key_pem().as_bytes()).unwrap(); // talisman-ignore-line; this is a self-signed cert key used for testing only
+
+        (cert_path, key_path)
+    };
+}
+
+#[derive(Clone)]
+struct TestHandler {
+    mails: Arc<Mutex<Vec<String>>>,
+    cursor: Arc<Mutex<Cursor<Vec<u8>>>>,
+}
+
+impl mailin_embedded::Handler for TestHandler {
+    fn helo(
+        &mut self,
+        _ip: std::net::IpAddr,
+        _domain: &str,
+    ) -> mailin_embedded::response::Response {
+        mailin_embedded::response::OK
+    }
+
+    fn mail(
+        &mut self,
+        _ip: std::net::IpAddr,
+        _domain: &str,
+        from: &str,
+    ) -> mailin_embedded::response::Response {
+        dbg!(from);
+        self.mails.lock().unwrap().push(from.to_string());
+        mailin_embedded::response::OK
+    }
+
+    fn data(&mut self, buf: &[u8]) -> std::io::Result<()> {
+        self.cursor.lock().unwrap().write(buf).map(|_| ())
+    }
+
+    fn auth_plain(
+        &mut self,
+        _authorization_id: &str,
+        _authentication_id: &str,
+        _password: &str,
+    ) -> mailin_embedded::response::Response {
+        mailin_embedded::response::AUTH_OK
+    }
+}
+
+pub struct TestEmailServer {
+    email_configuration: EmailConfiguration,
+    handler: TestHandler,
+}
+
+impl TestEmailServer {
+    pub fn new() -> anyhow::Result<Self> {
+        let handler = TestHandler {
+            mails: Arc::new(Mutex::new(vec![])),
+            cursor: Arc::new(Mutex::new(Cursor::new(vec![]))),
+        };
+
+        let handler_clone = handler.clone();
+        let socket = TcpListener::bind("localhost:0").unwrap();
+        let addr = socket.local_addr().unwrap();
+        let _ = std::thread::spawn(move || {
+            let mut server = mailin_embedded::Server::new(handler_clone);
+
+            server
+                .with_name(addr.to_string())
+                .with_auth(mailin_embedded::AuthMechanism::Plain)
+                .with_ssl(mailin_embedded::SslConfig::SelfSigned {
+                    cert_path: CERTIFICATE_PATHS.0.to_string(),
+                    key_path: CERTIFICATE_PATHS.1.to_string(), // talisman-ignore-line; this is a self-signed cert key used for testing only
+                })
+                .unwrap()
+                .with_tcp_listener(socket);
+            server.serve().unwrap();
+        });
+
+        let email_configuration = EmailConfiguration::new(
+            "email@example.com".to_string(),
+            None,
+            "localhost".to_string(),
+            Some(addr.port()),
+            "foo".to_string(),
+            "bar".to_string(),
+            Some(CERTIFICATE_PATHS.0.to_string()),
+        );
+
+        Ok(Self {
+            email_configuration,
+            handler,
+        })
+    }
+
+    pub fn get_configuration(&self) -> EmailConfiguration {
+        self.email_configuration.clone()
+    }
+
+    pub fn get_last_mail_address(&self) -> Option<String> {
+        self.handler
+            .mails
+            .lock()
+            .unwrap()
+            .last()
+            .map(|v| v.to_string())
+    }
+
+    pub fn get_last_mail_data(&self) -> Option<String> {
+        Some(
+            std::str::from_utf8(self.handler.cursor.lock().unwrap().get_ref())
+                .map(|v| v.to_string())
+                .unwrap(),
+        )
+    }
+}
 
 pub struct TestDatabase<'a> {
     _database: Container<'a, Postgres>,
