@@ -1,11 +1,10 @@
-use crate::core::service::{PaymentService, RunnerService, UserService};
+use crate::core::service::{EmailService, PaymentService, RunnerService, UserService};
 use crate::models::rejected_transaction::{
     find_duplicates, NewRejectedTransaction, RejectedTransaction,
 };
-use crate::models::runner::{create_verification_code, Runner};
+use crate::models::runner::Runner;
 use crate::models::shipping::NewShipping;
 use crate::models::users::{ErrorResponse, LoginData, LoginResponse, PasswordChangeData};
-use crate::services::email::send_payment_confirmation;
 use crate::{
     insert_rejected_transaction, insert_shipping, is_eu_country,
     retrieve_donation_by_reason_for_payment, retrieve_shipping_by_runner_id, DbPool,
@@ -86,12 +85,6 @@ pub struct FullRunnerInfo {
     #[serde(flatten)]
     shipping_details: Option<ShippingDetails>,
 }
-
-// #[derive(Deserialize, Serialize)]
-// pub struct RejectedTransactionsResponse {
-//     transaction_list: Vec<RejectedTransaction>,
-//     inner_response: Response,
-// }
 
 #[derive(Deserialize, Serialize)]
 pub struct RunnerListResponse {
@@ -234,10 +227,16 @@ pub async fn modify_payment_status(
     r_id: web::Path<i32>,
     target_status: Json<bool>,
     db_pool: web::Data<DbPool>,
+    email_service: web::Data<dyn EmailService>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = r_id.into_inner();
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    let result = change_payment_status(connection, runner_id, target_status.into_inner());
+    let result = change_payment_status(
+        connection,
+        runner_id,
+        target_status.into_inner(),
+        &email_service,
+    );
     Ok(HttpResponse::Ok()
         .content_type("text/json")
         .body(serde_json::to_string(&result).unwrap()))
@@ -393,6 +392,7 @@ pub async fn parse_payment_csv(
     _: Identity,
     mut raw_data: web::Payload,
     db_pool: web::Data<DbPool>,
+    email_service: web::Data<dyn EmailService>,
 ) -> Result<HttpResponse, Error> {
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let mut bytes_mut = web::BytesMut::new();
@@ -412,8 +412,11 @@ pub async fn parse_payment_csv(
     let mut rejected = 0;
     for record in reader.byte_records() {
         let record = record.unwrap_or_default();
-        let record_response =
-            register_payment(&String::from_utf8_lossy(record.as_slice()), connection);
+        let record_response = register_payment(
+            &String::from_utf8_lossy(record.as_slice()),
+            connection,
+            &email_service,
+        );
         if record_response == "accepted" {
             accepted += 1;
         } else if record_response == "rejected" {
@@ -428,6 +431,7 @@ pub async fn parse_payment_csv(
 fn register_payment(
     row: &str,
     connection: &mut PooledConnection<ConnectionManager<PgConnection>>,
+    email_service: &web::Data<dyn EmailService>,
 ) -> String {
     let entries = row.split(';').collect::<Vec<_>>();
 
@@ -471,7 +475,12 @@ fn register_payment(
     }
     if budget >= 0 {
         for id in successful_ids {
-            change_payment_status(connection, id.trim().parse::<i32>().unwrap(), true);
+            change_payment_status(
+                connection,
+                id.trim().parse::<i32>().unwrap(),
+                true,
+                email_service,
+            );
         }
         "accepted".to_string()
     } else {
@@ -526,37 +535,25 @@ pub fn change_payment_status(
     conn: &mut PgConnection,
     runner_id: i32,
     target_status: bool,
+    email_service: &web::Data<dyn EmailService>,
 ) -> Runner {
     use crate::schema::runners::dsl::*;
 
-    let result = diesel::update(runners.find(runner_id))
+    let runner = diesel::update(runners.find(runner_id))
         .set(payment_status.eq(target_status))
         .get_result::<Runner>(conn)
         .unwrap();
-    let email_value = result.email.as_ref().unwrap();
+    let email_value = runner.email.as_ref().unwrap();
     let is_email_provided = email_value.ne("");
-    let is_paid = result.payment_status;
-    let mail_not_sent_yet = !result.payment_confirmation_mail_sent;
+    let is_paid = runner.payment_status;
+    let mail_not_sent_yet = !runner.payment_confirmation_mail_sent;
     if is_paid && is_email_provided && mail_not_sent_yet {
-        send_payment_confirmation_email(&result);
+        let _email_result = email_service.send_payment_confirmation(runner.clone());
         let _ = diesel::update(runners.find(runner_id))
             .set(payment_confirmation_mail_sent.eq(true))
             .get_result::<Runner>(conn);
     }
-    result
-}
-
-fn send_payment_confirmation_email(runner: &Runner) -> bool {
-    let email_value = runner.email.as_ref().unwrap();
-    let verification_code = create_verification_code();
-    send_payment_confirmation(
-        runner.id.to_string(),
-        runner.start_number.to_string(),
-        email_value.to_string(),
-        runner.donation.to_string(),
-        verification_code,
-        runner.tshirt_cost.to_string(),
-    )
+    runner
 }
 
 pub async fn get_rejected_transactions(

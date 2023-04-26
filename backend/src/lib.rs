@@ -21,7 +21,6 @@ pub mod handlers;
 pub mod models;
 pub mod repository;
 pub mod schema;
-pub mod services;
 
 use crate::app_config::routes;
 use crate::core::service::{
