@@ -4,10 +4,9 @@ use actix_web::{error, web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::core::service::RunnerService;
+use crate::core::service::{EmailService, RunnerService};
 use crate::models::info::{Info, ShippingInfo};
 use crate::models::runner::{RunnerRegistrationData, ShippingData};
-use crate::services::email::send_registration_email;
 use crate::{retrieve_shipping_by_runner_id, DbPool};
 
 #[derive(Deserialize)]
@@ -166,6 +165,7 @@ pub fn has_bad_data(form: &Info) -> bool {
 pub async fn create_runner(
     form: Json<Info>,
     runner_service: web::Data<dyn RunnerService>,
+    email_service: web::Data<dyn EmailService>,
 ) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
@@ -189,18 +189,8 @@ pub async fn create_runner(
         .register_runner(runner_registration_data)
         .map_err(error::ErrorInternalServerError)?;
 
-    let email_value = returned_runner.email.unwrap_or_default();
-    let email_provided = Some(email_value.ne(""));
-    if let Some(true) = email_provided {
-        send_registration_email(
-            returned_runner.id.to_string(),
-            returned_runner.start_number.to_string(),
-            email_value,
-            returned_runner.donation.clone(),
-            returned_runner.reason_for_payment.clone(),
-            returned_runner.verification_code.clone(),
-            returned_runner.tshirt_cost.clone(),
-        );
+    if let Some(_email_address) = &returned_runner.email {
+        let _ = email_service.send_registration_confirmation(returned_runner.clone());
     }
 
     Ok(HttpResponse::Ok().json(ResponseWithBody {
@@ -210,7 +200,7 @@ pub async fn create_runner(
         tshirt_cost: Some(returned_runner.tshirt_cost),
         reason_for_payment: Some(returned_runner.reason_for_payment),
         verification_code: Some(returned_runner.verification_code),
-        email_provided,
+        email_provided: returned_runner.email.map(|_| true),
         inner_response: Response {
             success_message: Some("Data received".to_string()),
             error_message: None,

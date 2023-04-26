@@ -26,6 +26,7 @@ pub mod services;
 use crate::app_config::routes;
 use crate::core::service::{
     DefaultPaymentService, DefaultRunnerService, DefaultThemeService, DefaultUserService,
+    EmailConfiguration, EmailService, LettreTeraEmailService, NonfunctionalEmailService,
     PaymentService, RunnerService, ThemeService, UserService,
 };
 use crate::repository::{
@@ -40,6 +41,7 @@ use actix_web::dev::Server;
 use actix_web::{http, web, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
 use diesel::r2d2::ConnectionManager;
+use lazy_static::lazy_static;
 use std::net::TcpListener;
 use std::sync::Arc;
 
@@ -162,6 +164,15 @@ pub fn hash_password(password: String) -> String {
     argon2::hash_encoded(password.as_bytes(), salt.as_bytes(), &config).unwrap()
 }
 
+lazy_static! {
+    static ref TEMPLATES: tera::Tera = {
+        match tera::Tera::new("templates/**/*") {
+            Ok(t) => t,
+            Err(_e) => std::process::exit(1),
+        }
+    };
+}
+
 pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Error> {
     let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
@@ -169,6 +180,16 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
         .build()
         .unwrap();
     let server = HttpServer::new(move || {
+        let email_configuration = EmailConfiguration::from_env();
+        let email_service: Arc<dyn EmailService> = if let Ok(configuration) = email_configuration {
+            Arc::new({
+                LettreTeraEmailService::new(configuration, &TEMPLATES, None)
+                    .expect("Unable to instantiate EmailService")
+            })
+        } else {
+            Arc::new(NonfunctionalEmailService {})
+        };
+
         let runner_repository = PostgresRunnerRepository::new(db_pool.clone());
         let runner_service: Arc<dyn RunnerService> =
             Arc::new(DefaultRunnerService::new(runner_repository));
@@ -214,6 +235,7 @@ pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Er
             .app_data(web::Data::from(runner_service))
             .app_data(web::Data::from(user_service))
             .app_data(web::Data::from(theme_service))
+            .app_data(web::Data::from(email_service))
     })
     .listen(listener)?
     .run();

@@ -31,31 +31,6 @@ struct EmailConfiguration {
     url_host: String,
 }
 
-pub fn send_registration_email(
-    runner_id: String,
-    start_number: String,
-    receiver_email: String,
-    donation: String,
-    reason_for_payment: String,
-    verification_code: String,
-    tshirt_cost: String,
-) -> bool {
-    let email_details = EmailDetails {
-        receiver_email,
-        template_name: "registration_mail.html",
-        subject: "Lauf gegen Rechts - Deine Anmeldung",
-        email_info: EmailInfo {
-            runner_id,
-            start_number,
-            donation: (donation.parse::<i32>().unwrap() + tshirt_cost.parse::<i32>().unwrap())
-                .to_string(),
-            reason_for_payment,
-            verification_code,
-        },
-    };
-    send_email_with_subject(email_details)
-}
-
 pub fn send_payment_confirmation(
     runner_id: String,
     start_number: String,
