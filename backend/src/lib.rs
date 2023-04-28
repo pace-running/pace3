@@ -172,15 +172,21 @@ lazy_static! {
     };
 }
 
-pub fn run(listener: TcpListener, db_pool: DbPool) -> Result<Server, std::io::Error> {
+pub fn run(
+    listener: TcpListener,
+    db_pool: DbPool,
+    email_configuration: Option<EmailConfiguration>,
+) -> Result<Server, std::io::Error> {
     let secret_key = Key::from(session_key().as_ref());
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
         .build()
         .unwrap();
     let server = HttpServer::new(move || {
-        let email_configuration = EmailConfiguration::from_env();
-        let email_service: Arc<dyn EmailService> = if let Ok(configuration) = email_configuration {
+        let email_service: Arc<dyn EmailService> = if let Some(configuration) = email_configuration
+            .clone()
+            .or_else(|| EmailConfiguration::from_env().ok())
+        {
             Arc::new({
                 LettreTeraEmailService::new(configuration, &TEMPLATES, None)
                     .expect("Unable to instantiate EmailService")

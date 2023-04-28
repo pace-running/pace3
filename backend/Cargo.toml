@@ -50,3 +50,4 @@ mailin-embedded = { version = "0.8", features = ["ossl"] }
 rcgen = "0.10"
 openssl = "0.10"
 pem = "2.0.1"
+num_cpus = "1.15.0"

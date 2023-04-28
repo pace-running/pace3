@@ -10,7 +10,7 @@ pub mod helpers;
 pub use crate::helpers::{extract_json_values, TestApp};
 
 #[actix_web::test]
-async fn create_runner_should_be_successful_if_only_participant_info_is_provided<'a>() {
+async fn create_runner_should_be_successful_if_only_participant_info_is_provided() {
     let docker = testcontainers::clients::Cli::default();
     let test_app = TestApp::new(&docker).await;
 
@@ -25,6 +25,29 @@ async fn create_runner_should_be_successful_if_only_participant_info_is_provided
         "Data received",
         response_json.get("success_message").unwrap()
     )
+}
+
+#[actix_web::test]
+async fn create_runner_should_send_an_email_if_the_runner_provided_an_email_address() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let participant = InfoBuilder::minimal_default()
+        .with_email("runner@example.com")
+        .with_repeat("runner@example.com")
+        .build();
+
+    let actual_response = test_app.create_runner(participant).await;
+
+    assert_eq!(actual_response.status(), StatusCode::OK);
+    assert_eq!(
+        test_app
+            .get_email_server()
+            .unwrap()
+            .get_last_recipient_email_addresses()
+            .get(0),
+        Some(&"runner@example.com".to_string())
+    );
 }
 
 #[actix_web::test]

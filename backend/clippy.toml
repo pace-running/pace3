@@ -1,0 +1,3 @@
+disallowed-methods = [
+    { path = "std::env::set_var", reason = "should be considered unsafe: https://github.com/rust-lang/rust/issues/90308" },
+]

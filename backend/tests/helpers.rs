@@ -11,6 +11,7 @@ use std::error::Error;
 use std::io::{Cursor, Write};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
+use std::thread::JoinHandle;
 use testcontainers::clients::Cli;
 use testcontainers::images::postgres::Postgres;
 use testcontainers::Container;
@@ -49,8 +50,19 @@ mockall::lazy_static! {
 
 #[derive(Clone)]
 struct TestHandler {
-    mails: Arc<Mutex<Vec<String>>>,
+    sender_mails: Arc<Mutex<Vec<String>>>,
+    recipient_mails: Arc<Mutex<Vec<Vec<String>>>>,
     cursor: Arc<Mutex<Cursor<Vec<u8>>>>,
+}
+
+impl TestHandler {
+    fn new() -> Self {
+        Self {
+            sender_mails: Arc::new(Mutex::new(vec![])),
+            recipient_mails: Arc::new(Mutex::new(vec![])),
+            cursor: Arc::new(Mutex::new(Cursor::new(vec![]))),
+        }
+    }
 }
 
 impl mailin_embedded::Handler for TestHandler {
@@ -69,7 +81,22 @@ impl mailin_embedded::Handler for TestHandler {
         from: &str,
     ) -> mailin_embedded::response::Response {
         dbg!(from);
-        self.mails.lock().unwrap().push(from.to_string());
+        self.sender_mails.lock().unwrap().push(from.to_string());
+        mailin_embedded::response::OK
+    }
+
+    fn data_start(
+        &mut self,
+        _domain: &str,
+        _from: &str,
+        _is8bit: bool,
+        to: &[String],
+    ) -> mailin_embedded::Response {
+        self.recipient_mails
+            .lock()
+            .unwrap()
+            .push(to.iter().map(|v| v.to_string()).collect());
+
         mailin_embedded::response::OK
     }
 
@@ -90,36 +117,38 @@ impl mailin_embedded::Handler for TestHandler {
 pub struct TestEmailServer {
     email_configuration: EmailConfiguration,
     handler: TestHandler,
+    pub server_join_handle: JoinHandle<()>,
 }
 
 impl TestEmailServer {
-    pub fn new() -> anyhow::Result<Self> {
-        let handler = TestHandler {
-            mails: Arc::new(Mutex::new(vec![])),
-            cursor: Arc::new(Mutex::new(Cursor::new(vec![]))),
-        };
+    pub fn new(number_of_threads: Option<u32>) -> anyhow::Result<Self> {
+        let handler = TestHandler::new();
 
         let handler_clone = handler.clone();
         let socket = TcpListener::bind("localhost:0").unwrap();
         let addr = socket.local_addr().unwrap();
-        let _ = std::thread::spawn(move || {
+        let server_join_handle = std::thread::spawn(move || {
             let mut server = mailin_embedded::Server::new(handler_clone);
 
             server
-                .with_name(addr.to_string())
+                .with_name("localhost")
                 .with_auth(mailin_embedded::AuthMechanism::Plain)
                 .with_ssl(mailin_embedded::SslConfig::SelfSigned {
                     cert_path: CERTIFICATE_PATHS.0.to_string(),
                     key_path: CERTIFICATE_PATHS.1.to_string(), // talisman-ignore-line; this is a self-signed cert key used for testing only
                 })
                 .unwrap()
+                // we need to use more threads than the actix_web application to prevent blocking
+                .with_num_threads(
+                    number_of_threads.unwrap_or_else(|| (num_cpus::get_physical() + 1) as u32),
+                )
                 .with_tcp_listener(socket);
             server.serve().unwrap();
         });
 
         let email_configuration = EmailConfiguration::new(
             "email@example.com".to_string(),
-            None,
+            Some("Display Name".to_string()),
             "localhost".to_string(),
             Some(addr.port()),
             "foo".to_string(),
@@ -130,6 +159,7 @@ impl TestEmailServer {
         Ok(Self {
             email_configuration,
             handler,
+            server_join_handle,
         })
     }
 
@@ -137,13 +167,23 @@ impl TestEmailServer {
         self.email_configuration.clone()
     }
 
-    pub fn get_last_mail_address(&self) -> Option<String> {
+    pub fn get_last_sender_email_address(&self) -> Option<String> {
         self.handler
-            .mails
+            .sender_mails
             .lock()
             .unwrap()
             .last()
             .map(|v| v.to_string())
+    }
+
+    pub fn get_last_recipient_email_addresses(&self) -> Vec<String> {
+        self.handler
+            .recipient_mails
+            .lock()
+            .unwrap()
+            .last()
+            .map(|v| v.clone())
+            .unwrap_or_else(|| Vec::new())
     }
 
     pub fn get_last_mail_data(&self) -> Option<String> {
@@ -225,37 +265,46 @@ impl<'a> TestDatabase<'a> {
 }
 
 pub struct TestApp<'a> {
-    _database: TestDatabase<'a>,
+    database: TestDatabase<'a>,
     client: Client,
     address: String,
+    email_server: Option<TestEmailServer>,
 }
 
 impl<'a> TestApp<'a> {
     pub async fn new(docker: &'a Cli) -> TestApp<'a> {
         let database = TestDatabase::with_migrations(docker);
+
+        let email_server = TestEmailServer::new(None).expect("Unable to start test email server");
+
         let client = Client::new();
-        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("Unable to bind random port.");
+        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("Unable to bind random port");
         let port = listener.local_addr().unwrap().port();
         let address = format!("http://127.0.0.1:{}", port);
 
-        let server =
-            run(listener, database.connection_pool.clone()).expect("Unable to bind address");
+        let server = run(
+            listener,
+            database.connection_pool.clone(),
+            Some(email_server.email_configuration.clone()),
+        )
+        .expect("Unable to bind address");
 
         let _ = tokio::spawn(server);
 
         Self {
-            _database: database,
+            database,
             client,
             address,
+            email_server: Some(email_server),
         }
     }
 
     pub async fn create_app(&self) -> String {
-        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("Unable to bind random port.");
+        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("Unable to bind random port");
         let port = listener.local_addr().unwrap().port();
 
-        let server =
-            run(listener, self._database.connection_pool.clone()).expect("Unable to bind address");
+        let server = run(listener, self.database.connection_pool.clone(), None)
+            .expect("Unable to bind address");
 
         let _ = tokio::spawn(server);
 
@@ -343,7 +392,11 @@ impl<'a> TestApp<'a> {
     }
 
     pub fn get_connection(&self) -> PooledConnection<ConnectionManager<PgConnection>> {
-        self._database.get_connection()
+        self.database.get_connection()
+    }
+
+    pub fn get_email_server(&self) -> Option<&TestEmailServer> {
+        self.email_server.as_ref()
     }
 }
 
