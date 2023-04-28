@@ -16,7 +16,7 @@ spec:
                 claimName: backup-pvc
           containers:
             - name: backup-db
-              image: postgres:12
+              image: postgres:14
               imagePullPolicy: IfNotPresent
               volumeMounts:
                 - name: backup-data
