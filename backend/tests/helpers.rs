@@ -211,16 +211,12 @@ impl<'a> TestDatabase<'a> {
         let pg_db = "postgres";
         let pg_user = "postgres";
         let pg_password = "postgres"; // talisman-ignore-line
-        env::set_var("POSTGRES_DB", pg_db);
-        env::set_var("POSTGRES_USER", pg_user);
-        env::set_var("POSTGRES_PASSWORD", pg_password); // talisman-ignore-line
         let database: Container<'a, Postgres> = docker.run(image);
         let pg_port = database.get_host_port_ipv4(5432);
-        env::set_var(
-            "DATABASE_URL",
-            format!("postgres://{pg_user}:{pg_password}@127.0.0.1:{pg_port}/{pg_db}"), // talisman-ignore-line
-        );
-        let connection_pool = get_connection_pool().expect("Could not initialize connection pool");
+        let database_connection_string =
+            format!("postgres://{pg_user}:{pg_password}@127.0.0.1:{pg_port}/{pg_db}"); // talisman-ignore-line
+        let connection_pool = get_connection_pool(Some(database_connection_string))
+            .expect("Could not initialize connection pool");
         (database, connection_pool)
     }
 

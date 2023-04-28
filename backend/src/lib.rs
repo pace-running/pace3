@@ -47,10 +47,10 @@ use std::sync::Arc;
 type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
-pub fn get_connection_pool() -> Result<DbPool, r2d2::Error> {
+pub fn get_connection_pool(database_url: Option<String>) -> Result<DbPool, r2d2::Error> {
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = database_url.unwrap_or_else(|| env::var("DATABASE_URL").expect("Database connection string neither provided via parameter `database_url` nor via env variable `DATABASE_URL`"));
     let connection_manager = ConnectionManager::<PgConnection>::new(database_url);
     // TODO: store in lazy loaded singleton
     r2d2::Pool::builder().build(connection_manager)
