@@ -202,14 +202,20 @@ describe('admin main page', () => {
     await userEvent.type(screen.getByRole('textbox', { name: 'Suchbegriff' }), 'example');
     await userEvent.click(screen.getByRole('button', { name: 'Suche starten' }));
 
-    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'email', 'example');
+    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'email', 'example', false);
 
     await userEvent.click(screen.getByRole('radio', { name: 'Startnummer' }));
     await userEvent.clear(screen.getByRole('textbox', { name: 'Suchbegriff' }));
     await userEvent.type(screen.getByRole('textbox', { name: 'Suchbegriff' }), '111');
     await userEvent.click(screen.getByRole('button', { name: 'Suche starten' }));
 
-    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'start_number', '111');
+    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'start_number', '111', false);
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Name' }));
+    await userEvent.clear(screen.getByRole('textbox', { name: 'Suchbegriff' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Nur BSV-Teilnehmer anzeigen (nach Team sortiert)' }));
+
+    expect(fetchFilteredRunners).toHaveBeenCalledWith(1, 'name', '', true);
   });
 
   test('clicking Change Password Button changes the page', async () => {
@@ -233,7 +239,7 @@ describe('admin main page', () => {
     expect(router.push).toHaveBeenCalledWith('/admin/login');
   });
 
-  test('clicking the chenge theme button redirects to the theme page ', async () => {
+  test('clicking the change theme button redirects to the theme page ', async () => {
     fetchFilteredRunners.mockResolvedValue(apiResponse);
     await act(async () => render(<Admin />));
     router.push = jest.fn();
@@ -252,7 +258,7 @@ describe('admin main page', () => {
 
     test('page forward button', async () => {
       await userEvent.click(screen.getByRole('button', { name: '➡️' }));
-      expect(fetchFilteredRunners).toHaveBeenCalledWith(2, 'name', '');
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(2, 'name', '', false);
     });
 
     test('goto page function and page backward button', async () => {
@@ -261,11 +267,11 @@ describe('admin main page', () => {
       await userEvent.type(pageInputField, '10');
       await userEvent.click(screen.getByRole('button', { name: 'Gehe zu Seite' }));
 
-      expect(fetchFilteredRunners).toHaveBeenCalledWith(10, 'name', '');
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(10, 'name', '', false);
       expect(screen.getByText('10/14'));
 
       await userEvent.click(screen.getByRole('button', { name: '⬅' }));
-      expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '');
+      expect(fetchFilteredRunners).toHaveBeenCalledWith(9, 'name', '', false);
     });
   });
 });

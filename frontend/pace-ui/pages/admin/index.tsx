@@ -4,12 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { changePaymentStatus, fetchFilteredRunners, logOutUser } from '../../apis/api';
 import Button from '../../components/Button';
 import LoadingScreen from '../../components/LoadingScreen';
+import Checkbox from '../../components/Checkbox';
 
 const Admin: NextPage = () => {
   const [runnerList, setRunnerList] = useState<RunnerResponseData[]>();
   const [runnersLoaded, setRunnersLoaded] = useState(false);
   const [searchCategory, setSearchCategory] = useState('name');
   const [searchPrompt, setSearchPrompt] = useState('');
+  const [showOnlyBsv, setShowOnlyBsv] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSelectorContent, setPageSelectorContent] = useState(1);
   const [stats, setStats] = useState([0, 0, 0]);
@@ -19,7 +21,9 @@ const Admin: NextPage = () => {
   useEffect(() => {
     const fetchRunners = async () => {
       if (!runnersLoaded) {
-        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt).catch(() => {});
+        const response = await fetchFilteredRunners(currentPage, searchCategory, searchPrompt, showOnlyBsv).catch(
+          () => {}
+        );
         if (response?.status === 200) {
           // set contents with response data
           setRunnerList(response.data.runner_list);
@@ -157,6 +161,16 @@ const Admin: NextPage = () => {
               />
             </span>
           </div>
+          <br />
+          <Checkbox
+            name={'checkbox-show-bsv'}
+            label={'Nur BSV-Teilnehmer anzeigen (nach Team sortiert)'}
+            check={showOnlyBsv}
+            onChange={() => {
+              setShowOnlyBsv(!showOnlyBsv);
+              setRunnersLoaded(false);
+            }}
+          />
         </div>
         <h2>Registrierte Teilnehmende:</h2>
         <div>

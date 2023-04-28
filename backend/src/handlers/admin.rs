@@ -26,6 +26,7 @@ pub struct QueryInfo {
     page_number: i32,
     search_category: String,
     search_keyword: String,
+    show_only_bsv: bool,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -34,6 +35,7 @@ pub struct FullRunnerDetails {
     firstname: String,
     lastname: String,
     team: String,
+    bsv_participant: bool,
     email: String,
     starting_point: String,
     running_level: String,
@@ -167,9 +169,14 @@ pub async fn show_runners(
     let page_number = query_info.page_number;
     let search_cat = query_info.search_category;
     let search_keyword = query_info.search_keyword;
+    let show_only_bsv = query_info.show_only_bsv;
 
     let database_result = runners.load::<Runner>(connection).unwrap();
     let mut filtered_result = apply_search_filter(&database_result, search_cat, search_keyword);
+
+    if show_only_bsv {
+        filtered_result.retain(|r| r.bsv_participant);
+    }
 
     let stats_number = filtered_result.len();
     let mut stats_hamburg = 0;
@@ -185,6 +192,9 @@ pub async fn show_runners(
         stats_number.try_into().unwrap(),
     );
     filtered_result.sort_by(|a, b| a.id.partial_cmp(&b.id).unwrap());
+    if show_only_bsv {
+        filtered_result.sort_by(|a, b| a.team.cmp(&b.team));
+    }
 
     let response = RunnerListResponse {
         runner_list: filtered_result
@@ -267,6 +277,7 @@ pub async fn get_full_runner(
         firstname: retrieved_runner.firstname.unwrap_or_default(),
         lastname: retrieved_runner.lastname.unwrap_or_default(),
         team: retrieved_runner.team.unwrap_or_default(),
+        bsv_participant: retrieved_runner.bsv_participant,
         email: retrieved_runner.email.unwrap_or_default(),
         starting_point: retrieved_runner.starting_point,
         running_level: retrieved_runner.running_level,
@@ -344,6 +355,7 @@ pub async fn edit_runner(
             firstname.eq(runner_details.firstname),
             lastname.eq(runner_details.lastname),
             team.eq(runner_details.team),
+            bsv_participant.eq(runner_details.bsv_participant),
             email.eq(runner_details.email),
             starting_point.eq(runner_details.starting_point),
             running_level.eq(runner_details.running_level),
