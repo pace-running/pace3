@@ -4,7 +4,13 @@ mod runner;
 mod theme;
 mod user;
 
-pub use email::*;
+pub use email::EmailConfiguration;
+pub use email::EmailService;
+pub use email::LettreConfiguration;
+pub use email::LettreTeraEmailService;
+#[cfg(test)]
+pub use email::MockEmailService;
+pub use email::NonfunctionalEmailService;
 pub use payment::DefaultPaymentService;
 pub use payment::PaymentService;
 pub use runner::DefaultRunnerService;

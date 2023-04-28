@@ -4,7 +4,7 @@ use actix_web::{error, web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::core::service::{EmailService, RunnerService};
+use crate::core::service::RunnerService;
 use crate::models::info::{Info, ShippingInfo};
 use crate::models::runner::{RunnerRegistrationData, ShippingData};
 use crate::{retrieve_shipping_by_runner_id, DbPool};
@@ -165,7 +165,6 @@ pub fn has_bad_data(form: &Info) -> bool {
 pub async fn create_runner(
     form: Json<Info>,
     runner_service: web::Data<dyn RunnerService>,
-    email_service: web::Data<dyn EmailService>,
 ) -> Result<HttpResponse, Error> {
     let info = form.into_inner();
     if has_bad_data(&info) {
@@ -190,9 +189,6 @@ pub async fn create_runner(
         .map_err(error::ErrorInternalServerError)?;
 
     let has_provided_email_address = returned_runner.email.is_some();
-    if has_provided_email_address {
-        let _ = email_service.send_registration_confirmation(returned_runner.clone());
-    }
 
     Ok(HttpResponse::Ok().json(ResponseWithBody {
         runner_id: Some(returned_runner.id.to_string()),

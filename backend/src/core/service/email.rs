@@ -1,8 +1,11 @@
 use crate::models::runner::Runner;
 use lettre::transport::smtp::client::{Certificate, Tls, TlsParametersBuilder};
 use log::warn;
+#[cfg(test)]
+use mockall::automock;
 use std::env::VarError;
 
+#[cfg_attr(test, automock)]
 pub trait EmailService {
     fn send_registration_confirmation(&self, runner: Runner) -> anyhow::Result<()>;
     fn send_payment_confirmation(&self, runner: Runner) -> anyhow::Result<()>;

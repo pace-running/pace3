@@ -196,8 +196,10 @@ pub fn run(
         };
 
         let runner_repository = PostgresRunnerRepository::new(db_pool.clone());
-        let runner_service: Arc<dyn RunnerService> =
-            Arc::new(DefaultRunnerService::new(runner_repository));
+        let runner_service: Arc<dyn RunnerService> = Arc::new(DefaultRunnerService::new(
+            runner_repository,
+            email_service.clone(),
+        ));
 
         let user_repository = PostgresUserRepository::new(db_pool.clone());
         let user_service: Arc<dyn UserService> = Arc::new(DefaultUserService::new(user_repository));

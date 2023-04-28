@@ -1,7 +1,9 @@
 use crate::core::repository::{RunnerId, RunnerRepository};
+use crate::core::service::EmailService;
 use crate::models::runner::{
     NewRunner, Runner, RunnerRegistrationData, ShippingData, VerificationCode,
 };
+use std::sync::Arc;
 
 pub trait RunnerService {
     fn register_runner(
@@ -11,15 +13,19 @@ pub trait RunnerService {
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner>;
 }
 
-pub struct DefaultRunnerService<RR: RunnerRepository> {
+pub struct DefaultRunnerService<RR: RunnerRepository, ES: EmailService + ?Sized> {
     runner_repository: RR,
+    email_service: Arc<ES>,
 }
 
-impl<RR: RunnerRepository> DefaultRunnerService<RR> {
+impl<RR: RunnerRepository, ES: EmailService + ?Sized> DefaultRunnerService<RR, ES> {
     const VERIFICATION_CODE_LENGTH: usize = 64;
 
-    pub fn new(runner_repository: RR) -> Self {
-        DefaultRunnerService { runner_repository }
+    pub fn new(runner_repository: RR, email_service: Arc<ES>) -> Self {
+        DefaultRunnerService {
+            runner_repository,
+            email_service,
+        }
     }
 
     fn get_t_shirt_cost_for_shipping_data(&self, shipping_data: &ShippingData) -> &'static str {
@@ -42,7 +48,9 @@ impl<RR: RunnerRepository> DefaultRunnerService<RR> {
     }
 }
 
-impl<RR: RunnerRepository> RunnerService for DefaultRunnerService<RR> {
+impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
+    for DefaultRunnerService<RR, ES>
+{
     fn register_runner(
         &self,
         runner_registration_data: RunnerRegistrationData,
@@ -65,7 +73,15 @@ impl<RR: RunnerRepository> RunnerService for DefaultRunnerService<RR> {
         )
         .unwrap();
 
-        self.runner_repository.insert_new_runner(new_runner)
+        self.runner_repository
+            .insert_new_runner(new_runner)
+            .and_then(|r| {
+                if r.email.is_some() {
+                    self.email_service
+                        .send_registration_confirmation(r.clone())?;
+                }
+                Ok(r)
+            })
     }
 
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner> {
@@ -77,6 +93,7 @@ impl<RR: RunnerRepository> RunnerService for DefaultRunnerService<RR> {
 mod tests {
     use super::*;
     use crate::core::repository::MockRunnerRepository;
+    use crate::core::service::MockEmailService;
     use crate::models::runner::PaymentReference;
     use mockall::predicate::*;
 
@@ -111,6 +128,11 @@ mod tests {
             donation: "".to_string(),
             shipping_data: None,
         };
+
+        let mut email_service = MockEmailService::new();
+        email_service
+            .expect_send_registration_confirmation()
+            .times(0);
 
         let mut runner_repository = MockRunnerRepository::new();
 
@@ -147,12 +169,79 @@ mod tests {
                 })
             });
 
-        let runner_service = DefaultRunnerService::new(runner_repository);
+        let runner_service = DefaultRunnerService::new(runner_repository, Arc::new(email_service));
         let result = runner_service
             .register_runner(unregistered_runner)
             .expect("Unable to register runner");
 
         assert_eq!(result.start_number, 73i64)
+    }
+
+    #[test]
+    fn register_runner_should_send_registration_confirmation_if_email_address_is_provided() {
+        let unregistered_runner = RunnerRegistrationData {
+            firstname: None,
+            lastname: None,
+            team: None,
+            bsv_participant: false,
+            email: Some("runner@whatever.com".to_string()),
+            starting_point: "".to_string(),
+            running_level: "".to_string(),
+            donation: "".to_string(),
+            shipping_data: None,
+        };
+
+        let start_number = 73i64;
+
+        let runner = Runner {
+            id: 0,
+            start_number,
+            firstname: None,
+            lastname: None,
+            team: None,
+            bsv_participant: false,
+            email: Some("runner@whatever.com".to_string()),
+            starting_point: "".to_string(),
+            running_level: "".to_string(),
+            donation: "".to_string(),
+            reason_for_payment: "".to_string(),
+            payment_status: false,
+            verification_code: "".to_string(),
+            payment_confirmation_mail_sent: false,
+            tshirt_cost: "".to_string(),
+        };
+
+        let mut email_service = MockEmailService::new();
+
+        email_service
+            .expect_send_registration_confirmation()
+            .with(eq(runner.clone()))
+            .times(1)
+            .returning(|_r| Ok(()));
+
+        let mut runner_repository = MockRunnerRepository::new();
+
+        runner_repository
+            .expect_get_next_start_number()
+            .times(1)
+            .returning(move || start_number.try_into().unwrap());
+
+        runner_repository
+            .expect_generate_unique_payment_reference()
+            .times(1)
+            .returning(|| PaymentReference::random());
+
+        runner_repository
+            .expect_insert_new_runner()
+            .times(1)
+            .returning(move |_nr| Ok(runner.clone()));
+
+        let runner_service = DefaultRunnerService::new(runner_repository, Arc::new(email_service));
+        let result = runner_service
+            .register_runner(unregistered_runner)
+            .expect("Unable to register runner");
+
+        assert_eq!(result.start_number, start_number)
     }
 
     #[test]
@@ -164,7 +253,10 @@ mod tests {
             .times(1)
             .returning(|_r| Some(EXAMPLE_RUNNER));
 
-        let runner_service = DefaultRunnerService::new(runner_repository);
+        let mock_email_service = MockEmailService::new();
+
+        let runner_service =
+            DefaultRunnerService::new(runner_repository, Arc::new(mock_email_service));
         let result = runner_service.find_runner_by_id(EXAMPLE_RUNNER.id);
 
         assert_eq!(result, Some(EXAMPLE_RUNNER))
