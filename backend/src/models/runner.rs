@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use crate::constants::VERIFICATION_CODE_LENGTH;
 
 pub use crate::models::donation::Donation;
-use crate::models::info::Info;
+use crate::models::info::{Info, ShippingInfo};
 pub use crate::models::payment::PaymentReference;
 use crate::models::start_number::StartNumber;
 use crate::validation::{Validate, ValidateFrom, ValidationError};
@@ -56,6 +56,34 @@ impl ShippingData {
     }
     pub fn city(&self) -> &str {
         &self.city
+    }
+}
+
+impl From<ShippingInfo> for Option<ShippingData> {
+    fn from(value: ShippingInfo) -> Self {
+        if value.tshirt_toggle != "on" {
+            return None;
+        }
+
+        /* TODO: use this after verifying that it won't break the frontend
+        let address_extra = match value.address_extra.as_str() {
+            "" => None,
+            _ => Some(value.address_extra),
+        };
+         */
+
+        Some(ShippingData {
+            t_shirt_model: value.tshirt_model,
+            t_shirt_size: value.tshirt_size,
+            country: value.country,
+            firstname: value.address_firstname,
+            lastname: value.address_lastname,
+            street_name: value.street_name,
+            house_number: value.house_number,
+            address_extra: Some(value.address_extra),
+            postal_code: value.postal_code,
+            city: value.city,
+        })
     }
 }
 
@@ -124,6 +152,48 @@ impl RunnerRegistrationData {
     }
     pub fn shipping_data(&self) -> Option<&ShippingData> {
         self.shipping_data.as_ref()
+    }
+}
+
+impl ValidateFrom<Info> for RunnerRegistrationData {
+    fn validate_from(value: Info) -> std::result::Result<Self, ValidationError> {
+        let info = value.validate()?;
+
+        let donation = Donation::try_from(info.runner_info.donation).map_err(|e| {
+            ValidationError::new(
+                "runner_info",
+                HashMap::from([("donation", vec![e.to_string()])]),
+            )
+        })?;
+
+        let firstname = match info.runner_info.firstname.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.firstname),
+        };
+        let lastname = match info.runner_info.lastname.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.lastname),
+        };
+        let team = match info.runner_info.team.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.team),
+        };
+        let email = match info.runner_info.email.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.email),
+        };
+
+        Ok(RunnerRegistrationData::new(
+            firstname,
+            lastname,
+            team,
+            info.runner_info.bsv_participant,
+            email,
+            info.runner_info.starting_point,
+            info.runner_info.running_level,
+            donation,
+            info.shipping_info.into(),
+        ))
     }
 }
 
@@ -250,47 +320,5 @@ mod tests {
         assert_eq!(verification_code_1.len(), VERIFICATION_CODE_LENGTH);
         assert_eq!(verification_code_2.len(), VERIFICATION_CODE_LENGTH);
         assert_ne!(verification_code_1, verification_code_2)
-    }
-}
-
-impl ValidateFrom<Info> for RunnerRegistrationData {
-    fn validate_from(value: Info) -> std::result::Result<Self, ValidationError> {
-        let info = value.validate()?;
-
-        let donation = Donation::try_from(info.runner_info.donation).map_err(|e| {
-            ValidationError::new(
-                "runner_info",
-                HashMap::from([("donation", vec![e.to_string()])]),
-            )
-        })?;
-
-        let firstname = match info.runner_info.firstname.as_str() {
-            "" => None,
-            _ => Some(info.runner_info.firstname),
-        };
-        let lastname = match info.runner_info.lastname.as_str() {
-            "" => None,
-            _ => Some(info.runner_info.lastname),
-        };
-        let team = match info.runner_info.team.as_str() {
-            "" => None,
-            _ => Some(info.runner_info.team),
-        };
-        let email = match info.runner_info.email.as_str() {
-            "" => None,
-            _ => Some(info.runner_info.email),
-        };
-
-        Ok(RunnerRegistrationData::new(
-            firstname,
-            lastname,
-            team,
-            info.runner_info.bsv_participant,
-            email,
-            info.runner_info.starting_point,
-            info.runner_info.running_level,
-            donation,
-            info.shipping_info.into(),
-        ))
     }
 }

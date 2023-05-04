@@ -1,6 +1,5 @@
 use crate::core::service::RunnerService;
-use crate::models::info::{Info, ShippingInfo};
-use crate::models::runner::{RunnerRegistrationData, ShippingData};
+use crate::models::info::Info;
 use crate::validation::ValidateInto;
 use crate::{retrieve_shipping_by_runner_id, DbPool};
 use actix_web::http::StatusCode;
@@ -72,39 +71,11 @@ pub struct ResponseBody<T> {
 
 pub type ResponseWithBody = ResponseBody<Response>;
 
-impl From<ShippingInfo> for Option<ShippingData> {
-    fn from(value: ShippingInfo) -> Self {
-        if value.tshirt_toggle != "on" {
-            return None;
-        }
-
-        /* TODO: use this after verifying that it won't break the frontend
-        let address_extra = match value.address_extra.as_str() {
-            "" => None,
-            _ => Some(value.address_extra),
-        };
-         */
-
-        Some(ShippingData {
-            t_shirt_model: value.tshirt_model,
-            t_shirt_size: value.tshirt_size,
-            country: value.country,
-            firstname: value.address_firstname,
-            lastname: value.address_lastname,
-            street_name: value.street_name,
-            house_number: value.house_number,
-            address_extra: Some(value.address_extra),
-            postal_code: value.postal_code,
-            city: value.city,
-        })
-    }
-}
-
 pub async fn create_runner(
     form: Json<Info>,
     runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
-    let runner_registration_data: RunnerRegistrationData = form
+    let runner_registration_data = form
         .validate_into()
         .map_err(crate::handlers::error::ClientError::ValidationError)?;
     let returned_runner = runner_service
