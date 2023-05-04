@@ -17,7 +17,6 @@ const Header: React.FC = () => {
             <span style={{ fontWeight: 'bold', fontSize: 24 }}> {eventName}</span>
           </span>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls='basic-navbar-nav' />
         <Nav className='me-auto' style={{ position: 'absolute', right: '5%' }}>
           <Nav.Link
             href='/join'
