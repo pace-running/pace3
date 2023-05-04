@@ -6,7 +6,6 @@ use pace::handlers::theme::ThemeData;
 use r2d2::{Pool, PooledConnection};
 use reqwest::{Client, Response};
 use serde_json::Map;
-use std::env;
 use std::error::Error;
 use std::io::{Cursor, Write};
 use std::net::TcpListener;

@@ -1,5 +1,6 @@
 use diesel::{prelude::*, QueryDsl, RunQueryDsl};
 use pace::core::repository::RunnerRepository;
+use pace::models::donation::Donation;
 use pace::models::runner::{
     NewRunner, PaymentReference, Runner, RunnerRegistrationData, ShippingData,
 };
@@ -19,17 +20,17 @@ fn insert_new_runner_adds_runner_to_table() {
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
 
     let new_runner = NewRunner::new(
-        RunnerRegistrationData {
-            firstname: Option::from("Testi".to_string()),
-            lastname: Option::from("McTest".to_string()),
-            team: None,
-            bsv_participant: false,
-            email: None,
-            starting_point: "hamburg".to_string(),
-            running_level: "9000".to_string(),
-            donation: "1,000,000 dollar".to_string(),
-            shipping_data: None,
-        },
+        RunnerRegistrationData::new(
+            Option::from("Testi".to_string()),
+            Option::from("McTest".to_string()),
+            None,
+            false,
+            None,
+            "hamburg".to_string(),
+            "9000".to_string(),
+            Donation::try_from(5).unwrap(),
+            None,
+        ),
         StartNumber::new(73).unwrap(),
         PaymentReference::random(),
         "foo".to_string(),
@@ -54,16 +55,16 @@ fn insert_new_runner_adds_shipping_data_to_table() {
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
 
     let new_runner = NewRunner::new(
-        RunnerRegistrationData {
-            firstname: Option::from("Testi".to_string()),
-            lastname: Option::from("McTest".to_string()),
-            team: None,
-            bsv_participant: false,
-            email: None,
-            starting_point: "hamburg".to_string(),
-            running_level: "9000".to_string(),
-            donation: "1,000,000 dollar".to_string(),
-            shipping_data: Some(ShippingData {
+        RunnerRegistrationData::new(
+            Option::from("Testi".to_string()),
+            Option::from("McTest".to_string()),
+            None,
+            false,
+            None,
+            "hamburg".to_string(),
+            "9000".to_string(),
+            Donation::try_from(5).unwrap(),
+            Some(ShippingData {
                 t_shirt_model: "".to_string(),
                 t_shirt_size: "".to_string(),
                 country: "".to_string(),
@@ -75,7 +76,7 @@ fn insert_new_runner_adds_shipping_data_to_table() {
                 postal_code: "".to_string(),
                 city: "".to_string(),
             }),
-        },
+        ),
         StartNumber::new(73).unwrap(),
         PaymentReference::random(),
         "foo".to_string(),
@@ -141,16 +142,16 @@ fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
     let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
     let new_runner = NewRunner::new(
-        RunnerRegistrationData {
-            firstname: Option::from("Testi".to_string()),
-            lastname: Option::from("McTest".to_string()),
-            team: None,
-            bsv_participant: false,
-            email: None,
-            starting_point: "hamburg".to_string(),
-            running_level: "9000".to_string(),
-            donation: "1,000,000 dollar".to_string(),
-            shipping_data: Some(ShippingData {
+        RunnerRegistrationData::new(
+            Option::from("Testi".to_string()),
+            Option::from("McTest".to_string()),
+            None,
+            false,
+            None,
+            "hamburg".to_string(),
+            "9000".to_string(),
+            Donation::try_from(5).unwrap(),
+            Some(ShippingData {
                 t_shirt_model: "".to_string(),
                 t_shirt_size: "".to_string(),
                 country: "".to_string(),
@@ -162,7 +163,7 @@ fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
                 postal_code: "".to_string(),
                 city: "".to_string(),
             }),
-        },
+        ),
         StartNumber::new(73).unwrap(),
         PaymentReference::random(),
         "foo".to_string(),

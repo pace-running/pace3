@@ -1,13 +1,13 @@
+use crate::core::service::RunnerService;
+use crate::models::info::{Info, ShippingInfo};
+use crate::models::runner::{RunnerRegistrationData, ShippingData};
+use crate::validation::ValidateInto;
+use crate::{retrieve_shipping_by_runner_id, DbPool};
 use actix_web::http::StatusCode;
 use actix_web::web::Json;
 use actix_web::{error, web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
-
-use crate::core::service::RunnerService;
-use crate::models::info::{Info, ShippingInfo};
-use crate::models::runner::{RunnerRegistrationData, ShippingData};
-use crate::{retrieve_shipping_by_runner_id, DbPool};
 
 #[derive(Deserialize)]
 pub struct TokenRequestData {
@@ -72,39 +72,6 @@ pub struct ResponseBody<T> {
 
 pub type ResponseWithBody = ResponseBody<Response>;
 
-impl From<Info> for RunnerRegistrationData {
-    fn from(value: Info) -> Self {
-        let firstname = match value.runner_info.firstname.as_str() {
-            "" => None,
-            _ => Some(value.runner_info.firstname),
-        };
-        let lastname = match value.runner_info.lastname.as_str() {
-            "" => None,
-            _ => Some(value.runner_info.lastname),
-        };
-        let team = match value.runner_info.team.as_str() {
-            "" => None,
-            _ => Some(value.runner_info.team),
-        };
-        let email = match value.runner_info.email.as_str() {
-            "" => None,
-            _ => Some(value.runner_info.email),
-        };
-
-        RunnerRegistrationData {
-            firstname,
-            lastname,
-            team,
-            bsv_participant: value.runner_info.bsv_participant,
-            email,
-            starting_point: value.runner_info.starting_point,
-            running_level: value.runner_info.running_level,
-            donation: value.runner_info.donation,
-            shipping_data: value.shipping_info.into(),
-        }
-    }
-}
-
 impl From<ShippingInfo> for Option<ShippingData> {
     fn from(value: ShippingInfo) -> Self {
         if value.tshirt_toggle != "on" {
@@ -133,60 +100,16 @@ impl From<ShippingInfo> for Option<ShippingData> {
     }
 }
 
-pub fn has_bad_data(form: &Info) -> bool {
-    let donation: u16 = form
-        .runner_info
-        .donation
-        .trim()
-        .parse::<u16>()
-        .expect("Unable to parse donation value to number");
-    if form.shipping_info.tshirt_toggle == "on"
-        && (form.shipping_info.country.is_empty()
-            || form.shipping_info.address_firstname.is_empty()
-            || form.shipping_info.address_lastname.is_empty()
-            || form.shipping_info.street_name.is_empty()
-            || form.shipping_info.house_number.is_empty()
-            || form.shipping_info.postal_code.is_empty()
-            || form.shipping_info.city.is_empty()
-            || form.shipping_info.tshirt_model == "null"
-            || form.shipping_info.tshirt_size == "null")
-    {
-        println!("Not all required fields  for shipping are there");
-        return true;
-        // let postal_code: i32 = form.postal_code.trim().parse::<i32>().expect("Unable to parse postal code value to number");
-    }
-    (form.runner_info.email != form.runner_info.repeat)
-        || (form.runner_info.confirm != "on")
-        || (form.runner_info.starting_point == "null")
-        || (form.runner_info.running_level == "null")
-        || (donation < 5)
-}
-
 pub async fn create_runner(
     form: Json<Info>,
     runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
-    let info = form.into_inner();
-    if has_bad_data(&info) {
-        return Ok(HttpResponse::BadRequest().json(ResponseWithBody {
-            runner_id: None,
-            start_number: None,
-            donation: None,
-            tshirt_cost: None,
-            reason_for_payment: None,
-            verification_code: None,
-            email_provided: None,
-            inner_response: Response {
-                success_message: None,
-                error_message: Some("Bad data".to_string()),
-                status_code: StatusCode::BAD_REQUEST.as_u16(),
-            },
-        }));
-    }
-    let runner_registration_data = RunnerRegistrationData::from(info);
+    let runner_registration_data: RunnerRegistrationData = form
+        .validate_into()
+        .map_err(crate::handlers::error::ClientError::ValidationError)?;
     let returned_runner = runner_service
         .register_runner(runner_registration_data)
-        .map_err(error::ErrorInternalServerError)?;
+        .map_err(crate::handlers::error::InternalError::from)?;
 
     let has_provided_email_address = returned_runner.email.is_some();
 

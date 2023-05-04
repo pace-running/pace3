@@ -1,3 +1,4 @@
+pub mod donation;
 pub mod event;
 pub mod info;
 pub mod payment;

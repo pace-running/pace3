@@ -2,11 +2,15 @@ use diesel::prelude::*;
 use rand::distributions::{Alphanumeric, DistString};
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
 
 use crate::constants::VERIFICATION_CODE_LENGTH;
 
+pub use crate::models::donation::Donation;
+use crate::models::info::Info;
 pub use crate::models::payment::PaymentReference;
 use crate::models::start_number::StartNumber;
+use crate::validation::{Validate, ValidateFrom, ValidationError};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct ShippingData {
@@ -57,15 +61,70 @@ impl ShippingData {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct RunnerRegistrationData {
-    pub firstname: Option<String>,
-    pub lastname: Option<String>,
-    pub team: Option<String>,
-    pub bsv_participant: bool,
-    pub email: Option<String>,
-    pub starting_point: String,
-    pub running_level: String,
-    pub donation: String,
-    pub shipping_data: Option<ShippingData>,
+    firstname: Option<String>,
+    lastname: Option<String>,
+    team: Option<String>,
+    bsv_participant: bool,
+    email: Option<String>,
+    starting_point: String,
+    running_level: String,
+    donation: Donation,
+    shipping_data: Option<ShippingData>,
+}
+
+impl RunnerRegistrationData {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        firstname: Option<String>,
+        lastname: Option<String>,
+        team: Option<String>,
+        bsv_participant: bool,
+        email: Option<String>,
+        starting_point: String,
+        running_level: String,
+        donation: Donation,
+        shipping_data: Option<ShippingData>,
+    ) -> Self {
+        Self {
+            firstname,
+            lastname,
+            team,
+            bsv_participant,
+            email,
+            starting_point,
+            running_level,
+            donation,
+            shipping_data,
+        }
+    }
+
+    pub fn firstname(&self) -> Option<&String> {
+        self.firstname.as_ref()
+    }
+    pub fn lastname(&self) -> Option<&String> {
+        self.lastname.as_ref()
+    }
+    pub fn team(&self) -> Option<&String> {
+        self.team.as_ref()
+    }
+    pub fn bsv_participant(&self) -> bool {
+        self.bsv_participant
+    }
+    pub fn email(&self) -> Option<&String> {
+        self.email.as_ref()
+    }
+    pub fn starting_point(&self) -> &str {
+        &self.starting_point
+    }
+    pub fn running_level(&self) -> &str {
+        &self.running_level
+    }
+    pub fn donation(&self) -> &str {
+        self.donation.as_ref()
+    }
+    pub fn shipping_data(&self) -> Option<&ShippingData> {
+        self.shipping_data.as_ref()
+    }
 }
 
 pub type PaymentStatus = bool;
@@ -81,7 +140,7 @@ pub struct NewRunner {
     email: Option<String>,
     starting_point: String,
     running_level: String,
-    donation: String,
+    donation: Donation,
     payment_reference: PaymentReference,
     verification_code: String,
     t_shirt_cost: String,
@@ -138,7 +197,7 @@ impl NewRunner {
         &self.running_level
     }
     pub fn donation(&self) -> &str {
-        &self.donation
+        self.donation.as_ref()
     }
     pub fn payment_reference(&self) -> &PaymentReference {
         &self.payment_reference
@@ -149,8 +208,8 @@ impl NewRunner {
     pub fn t_shirt_cost(&self) -> &str {
         &self.t_shirt_cost
     }
-    pub fn shipping_data(&self) -> &Option<ShippingData> {
-        &self.shipping_data
+    pub fn shipping_data(&self) -> Option<&ShippingData> {
+        self.shipping_data.as_ref()
     }
 }
 
@@ -183,13 +242,55 @@ mod tests {
 
     use super::*;
 
-    #[actix_web::test]
-    async fn unit_create_verification_code() {
+    #[test]
+    fn unit_create_verification_code() {
         let verification_code_1 = create_verification_code();
         let verification_code_2 = create_verification_code();
 
         assert_eq!(verification_code_1.len(), VERIFICATION_CODE_LENGTH);
         assert_eq!(verification_code_2.len(), VERIFICATION_CODE_LENGTH);
         assert_ne!(verification_code_1, verification_code_2)
+    }
+}
+
+impl ValidateFrom<Info> for RunnerRegistrationData {
+    fn validate_from(value: Info) -> std::result::Result<Self, ValidationError> {
+        let info = value.validate()?;
+
+        let donation = Donation::try_from(info.runner_info.donation).map_err(|e| {
+            ValidationError::new(
+                "runner_info",
+                HashMap::from([("donation", vec![e.to_string()])]),
+            )
+        })?;
+
+        let firstname = match info.runner_info.firstname.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.firstname),
+        };
+        let lastname = match info.runner_info.lastname.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.lastname),
+        };
+        let team = match info.runner_info.team.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.team),
+        };
+        let email = match info.runner_info.email.as_str() {
+            "" => None,
+            _ => Some(info.runner_info.email),
+        };
+
+        Ok(RunnerRegistrationData::new(
+            firstname,
+            lastname,
+            team,
+            info.runner_info.bsv_participant,
+            email,
+            info.runner_info.starting_point,
+            info.runner_info.running_level,
+            donation,
+            info.shipping_info.into(),
+        ))
     }
 }

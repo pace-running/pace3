@@ -77,10 +77,13 @@ async fn create_runner_should_fail_if_participant_info_is_incomplete() {
 
     let actual_response = test_app.create_runner(participant).await;
 
-    assert_eq!(actual_response.status(), StatusCode::BAD_REQUEST);
+    assert_eq!(actual_response.status(), StatusCode::UNPROCESSABLE_ENTITY);
 
     let response_json = crate::helpers::extract_json_values(actual_response).await;
-    assert_eq!("Bad data", response_json.get("error_message").unwrap())
+    assert_eq!(
+        "Validation errors in shipping_info: field `house_number` must not be empty",
+        response_json.get("error_message").unwrap()
+    )
 }
 
 #[actix_web::test]

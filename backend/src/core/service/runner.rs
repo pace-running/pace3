@@ -60,7 +60,7 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
         let verification_code = self.generate_verification_code();
 
         let t_shirt_cost = runner_registration_data
-            .shipping_data
+            .shipping_data()
             .as_ref()
             .map_or("0", |sd| self.get_t_shirt_cost_for_shipping_data(sd));
 
@@ -94,6 +94,7 @@ mod tests {
     use super::*;
     use crate::core::repository::MockRunnerRepository;
     use crate::core::service::MockEmailService;
+    use crate::models::donation::Donation;
     use crate::models::runner::PaymentReference;
     use mockall::predicate::*;
 
@@ -117,17 +118,17 @@ mod tests {
 
     #[test]
     fn register_runner_should_assign_a_starting_number_to_the_runner() {
-        let unregistered_runner = RunnerRegistrationData {
-            firstname: None,
-            lastname: None,
-            team: None,
-            bsv_participant: false,
-            email: None,
-            starting_point: "".to_string(),
-            running_level: "".to_string(),
-            donation: "".to_string(),
-            shipping_data: None,
-        };
+        let unregistered_runner = RunnerRegistrationData::new(
+            None,
+            None,
+            None,
+            false,
+            None,
+            "".to_string(),
+            "".to_string(),
+            Donation::try_from(5).unwrap(),
+            None,
+        );
 
         let mut email_service = MockEmailService::new();
         email_service
@@ -179,17 +180,17 @@ mod tests {
 
     #[test]
     fn register_runner_should_send_registration_confirmation_if_email_address_is_provided() {
-        let unregistered_runner = RunnerRegistrationData {
-            firstname: None,
-            lastname: None,
-            team: None,
-            bsv_participant: false,
-            email: Some("runner@whatever.com".to_string()),
-            starting_point: "".to_string(),
-            running_level: "".to_string(),
-            donation: "".to_string(),
-            shipping_data: None,
-        };
+        let unregistered_runner = RunnerRegistrationData::new(
+            None,
+            None,
+            None,
+            false,
+            Some("runner@whatever.com".to_string()),
+            "".to_string(),
+            "".to_string(),
+            Donation::try_from(5).unwrap(),
+            None,
+        );
 
         let start_number = 73i64;
 
@@ -203,7 +204,7 @@ mod tests {
             email: Some("runner@whatever.com".to_string()),
             starting_point: "".to_string(),
             running_level: "".to_string(),
-            donation: "".to_string(),
+            donation: "5".to_string(),
             reason_for_payment: "".to_string(),
             payment_status: false,
             verification_code: "".to_string(),
