@@ -9,15 +9,17 @@ import { getThemeVar } from '../../utility/theme';
 const Header: React.FC = () => {
   const eventName = getThemeVar('event_name');
   return (
-    <Navbar className='navigation-bar' expand='lg'>
+    <Navbar className='navigation-bar' expand='md'>
       <Container>
-        <Navbar.Brand href='/'>
-          <span className='logo'>
-            <Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} />
-            <span style={{ fontWeight: 'bold', fontSize: 24 }}> {eventName}</span>
-          </span>
-        </Navbar.Brand>
-        <Nav className='me-auto' style={{ position: 'absolute', right: '5%' }}>
+        <Container>
+          <Navbar.Brand href='/'>
+            <span className='logo'>
+              <Image src='/logo.svg' alt='FC St. Pauli Logo' height={100} width={100} />
+              <span style={{ fontWeight: 'bold', fontSize: 24 }}> {eventName}</span>
+            </span>
+          </Navbar.Brand>
+        </Container>
+        <Nav className='m-auto' >
           <Nav.Link
             href='/join'
             id='header-button-registration'

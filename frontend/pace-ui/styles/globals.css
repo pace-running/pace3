@@ -3347,7 +3347,6 @@ nav {
     top: 0;
     left: 0;
     right: 0;
-    height: 9em;
     width: 100%;
     padding: 0 0.6em;
     background: #fff;
@@ -3381,7 +3380,6 @@ nav .brand * {
 }
 
 nav .logo {
-    height: 2em;
     margin-right: 0.3em;
 }
 
@@ -4170,8 +4168,8 @@ select.stack:focus+select {
     font-size: 20px;
     padding: 10px 60px;
     border-radius: 5px;
-    margin: 10px 0px;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .styled-link{
