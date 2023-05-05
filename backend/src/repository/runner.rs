@@ -1,15 +1,14 @@
 use crate::core::repository::{RunnerId, RunnerRepository};
 use crate::models::payment::PaymentReference;
-use crate::models::runner::{NewRunner, Runner};
+use crate::models::runner::{NewRunner, Runner, ShippingData};
 use crate::models::start_number::StartNumber;
 use crate::schema;
-use crate::schema::runners::dsl::runners;
 use diesel::r2d2::ConnectionManager;
 use diesel::sql_types::BigInt;
 use diesel::{OptionalExtension, PgConnection, QueryDsl, RunQueryDsl};
 use r2d2::Pool;
 
-use crate::models::shipping::DeliveryStatus;
+use crate::models::shipping::{DeliveryStatus, Shipping};
 use diesel::prelude::*;
 
 pub struct PostgresRunnerRepository {
@@ -64,6 +63,43 @@ impl<'insert> diesel::Insertable<schema::runners::table> for &'insert NewRunner 
     }
 }
 
+impl<'insert> diesel::Insertable<schema::shippings::table> for &'insert (&ShippingData, &RunnerId) {
+    type Values = <(
+        diesel::dsl::Eq<schema::shippings::tshirt_model, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::tshirt_size, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::country, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::firstname, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::lastname, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::street_name, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::house_number, &'insert str>,
+        Option<diesel::dsl::Eq<schema::shippings::address_extra, &'insert str>>,
+        diesel::dsl::Eq<schema::shippings::postal_code, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::city, &'insert str>,
+        diesel::dsl::Eq<schema::shippings::runner_id, &'insert i32>,
+        diesel::dsl::Eq<schema::shippings::delivery_status, &'insert str>,
+    ) as diesel::Insertable<schema::shippings::table>>::Values;
+
+    fn values(self) -> Self::Values {
+        (
+            schema::shippings::tshirt_model.eq(self.0.t_shirt_model()),
+            schema::shippings::tshirt_size.eq(self.0.t_shirt_size()),
+            schema::shippings::country.eq(self.0.country()),
+            schema::shippings::firstname.eq(self.0.firstname()),
+            schema::shippings::lastname.eq(self.0.lastname()),
+            schema::shippings::street_name.eq(self.0.street_name()),
+            schema::shippings::house_number.eq(self.0.house_number()),
+            self.0
+                .address_extra()
+                .map(|x| schema::shippings::address_extra.eq(x)),
+            schema::shippings::postal_code.eq(self.0.postal_code()),
+            schema::shippings::city.eq(self.0.city()),
+            schema::shippings::runner_id.eq(self.1),
+            schema::shippings::delivery_status.eq(DeliveryStatus::PROCESSED.as_ref()),
+        )
+            .values()
+    }
+}
+
 impl RunnerRepository for PostgresRunnerRepository {
     fn insert_new_runner(&self, new_runner: NewRunner) -> anyhow::Result<Runner> {
         let mut connection = self
@@ -77,25 +113,11 @@ impl RunnerRepository for PostgresRunnerRepository {
             .map_err(anyhow::Error::from)
             .and_then(|runner: Runner| {
                 let runner_id = runner.id;
-                new_runner.shipping_data().as_ref().map_or_else(
+                new_runner.shipping_data().map_or_else(
                     || Ok(runner.clone()),
                     |sd| {
                         diesel::insert_into(schema::shippings::table)
-                            .values((
-                                schema::shippings::tshirt_model.eq(sd.t_shirt_model()),
-                                schema::shippings::tshirt_size.eq(sd.t_shirt_size()),
-                                schema::shippings::country.eq(sd.country()),
-                                schema::shippings::firstname.eq(sd.firstname()),
-                                schema::shippings::lastname.eq(sd.lastname()),
-                                schema::shippings::street_name.eq(sd.street_name()),
-                                schema::shippings::house_number.eq(sd.house_number()),
-                                schema::shippings::address_extra.eq(sd.address_extra()),
-                                schema::shippings::postal_code.eq(sd.postal_code()),
-                                schema::shippings::city.eq(sd.city()),
-                                schema::shippings::runner_id.eq(runner_id),
-                                schema::shippings::delivery_status
-                                    .eq(DeliveryStatus::PROCESSED.as_ref()),
-                            ))
+                            .values(&(sd, &runner_id))
                             .execute(&mut connection)
                             .map_err(anyhow::Error::from)
                             .map(|_| runner.clone())
@@ -133,12 +155,25 @@ impl RunnerRepository for PostgresRunnerRepository {
         let mut connection = self
             .connection_pool
             .get()
-            .expect("Unable to get connection.");
+            .expect("Unable to get connection");
 
-        runners
+        schema::runners::dsl::runners
             .find(id)
             .get_result::<Runner>(&mut connection)
             .optional()
             .expect("Failed to find runner")
+    }
+
+    fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+
+        schema::shippings::dsl::shippings
+            .filter(schema::shippings::dsl::runner_id.eq(runner_id))
+            .get_result::<Shipping>(&mut connection)
+            .optional()
+            .expect("Failed to find shipping")
     }
 }

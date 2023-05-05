@@ -141,9 +141,21 @@ fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
     let database = TestDatabase::with_migrations(&cli);
     let pool = database.get_connection_pool();
     let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let shipping_data = ShippingData {
+        t_shirt_model: "unisex".to_string(),
+        t_shirt_size: "l".to_string(),
+        country: "Deutschland".to_string(),
+        firstname: "Testy".to_string(),
+        lastname: "McTest".to_string(),
+        street_name: "Teststraße".to_string(),
+        house_number: "73".to_string(),
+        address_extra: None,
+        postal_code: "12345".to_string(),
+        city: "Teststadt".to_string(),
+    };
     let new_runner = NewRunner::new(
         RunnerRegistrationData::new(
-            Option::from("Testi".to_string()),
+            Option::from("Testy".to_string()),
             Option::from("McTest".to_string()),
             None,
             false,
@@ -151,18 +163,7 @@ fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
             "hamburg".to_string(),
             "9000".to_string(),
             Donation::try_from(5).unwrap(),
-            Some(ShippingData {
-                t_shirt_model: "".to_string(),
-                t_shirt_size: "".to_string(),
-                country: "".to_string(),
-                firstname: "foo".to_string(),
-                lastname: "".to_string(),
-                street_name: "".to_string(),
-                house_number: "".to_string(),
-                address_extra: None,
-                postal_code: "".to_string(),
-                city: "".to_string(),
-            }),
+            Some(shipping_data.clone()),
         ),
         StartNumber::new(73).unwrap(),
         PaymentReference::random(),
@@ -172,9 +173,76 @@ fn find_runner_by_id_should_return_runner_with_given_id_if_present_in_db() {
     .unwrap();
     let runner_in_db: Runner = diesel::insert_into(runners::table)
         .values(&new_runner)
-        .get_result(&mut pool.get().expect("Unable to get connection."))
-        .expect("Error saving runner");
+        .get_result(&mut pool.get().expect("Unable to get connection"))
+        .expect("Unable to insert runner data");
+
+    let _shipping_in_db: Shipping = diesel::insert_into(shippings::table)
+        .values(&(&shipping_data, &runner_in_db.id))
+        .get_result(&mut pool.get().expect("Unable to get connection"))
+        .expect("Unable to insert shipping data");
 
     let result = runner_repository.find_runner_by_id(runner_in_db.id);
     assert_eq!(result, Some(runner_in_db))
+}
+
+#[test]
+fn find_shipping_by_runner_id_should_return_none_if_given_id_is_not_present() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+    let runner_repository = PostgresRunnerRepository::new(pool);
+
+    let result = runner_repository.find_shipping_by_runner_id(9000);
+    assert_eq!(result, None)
+}
+
+#[test]
+fn find_shipping_by_runner_id_should_return_shipping_with_given_runner_id_if_present_in_db() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let shipping_data = ShippingData {
+        t_shirt_model: "unisex".to_string(),
+        t_shirt_size: "l".to_string(),
+        country: "Deutschland".to_string(),
+        firstname: "Testy".to_string(),
+        lastname: "McTest".to_string(),
+        street_name: "Teststraße".to_string(),
+        house_number: "73".to_string(),
+        address_extra: None,
+        postal_code: "12345".to_string(),
+        city: "Teststadt".to_string(),
+    };
+    let new_runner = NewRunner::new(
+        RunnerRegistrationData::new(
+            Option::from("Testy".to_string()),
+            Option::from("McTest".to_string()),
+            None,
+            false,
+            None,
+            "hamburg".to_string(),
+            "9000".to_string(),
+            Donation::try_from(5).unwrap(),
+            Some(shipping_data.clone()),
+        ),
+        StartNumber::new(73).unwrap(),
+        PaymentReference::random(),
+        "foo".to_string(),
+        "0".to_string(),
+    )
+    .unwrap();
+
+    let runner_in_db: Runner = diesel::insert_into(runners::table)
+        .values(&new_runner)
+        .get_result(&mut pool.get().expect("Unable to get connection."))
+        .expect("Error saving runner");
+
+    let shipping_in_db: Shipping = diesel::insert_into(shippings::table)
+        .values(&(&shipping_data, &runner_in_db.id))
+        .get_result(&mut pool.get().expect("Unable to get connection"))
+        .expect("Unable to insert shipping data");
+
+    let result = runner_repository.find_shipping_by_runner_id(runner_in_db.id);
+    assert_eq!(result, Some(shipping_in_db))
 }

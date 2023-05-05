@@ -3,6 +3,7 @@ use crate::core::service::EmailService;
 use crate::models::runner::{
     NewRunner, Runner, RunnerRegistrationData, ShippingData, VerificationCode,
 };
+use crate::models::shipping::Shipping;
 use std::sync::Arc;
 
 pub trait RunnerService {
@@ -18,6 +19,8 @@ pub trait RunnerService {
         id: RunnerId,
         verification_code: &str,
     ) -> Option<Runner>;
+
+    fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping>;
 }
 
 pub struct DefaultRunnerService<RR: RunnerRepository, ES: EmailService + ?Sized> {
@@ -102,6 +105,10 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
     ) -> Option<Runner> {
         self.find_runner_by_id(id)
             .filter(|r| r.verification_code == verification_code)
+    }
+
+    fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping> {
+        self.runner_repository.find_shipping_by_runner_id(runner_id)
     }
 }
 

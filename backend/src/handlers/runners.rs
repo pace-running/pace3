@@ -1,10 +1,11 @@
 use crate::core::service::RunnerService;
 use crate::models::info::Info;
+use crate::models::runner::Runner;
+use crate::models::shipping::Shipping;
 use crate::validation::ValidateInto;
-use crate::{retrieve_shipping_by_runner_id, DbPool};
 use actix_web::http::StatusCode;
 use actix_web::web::Json;
-use actix_web::{error, web, Error, HttpResponse, Result};
+use actix_web::{web, Error, HttpResponse, Result};
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -34,6 +35,19 @@ pub struct RunnerDetails {
     pub tshirt_cost: String,
 }
 
+impl From<Runner> for RunnerDetails {
+    fn from(runner: Runner) -> Self {
+        Self {
+            runner_id: runner.id.to_string(),
+            start_number: runner.start_number.to_string(),
+            donation: runner.donation,
+            payment: runner.reason_for_payment,
+            is_paid: runner.payment_status,
+            tshirt_cost: runner.tshirt_cost,
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct ShippingDetails {
     pub tshirt_model: String,
@@ -47,6 +61,24 @@ pub struct ShippingDetails {
     pub postal_code: String,
     pub city: String,
     pub delivery_status: String,
+}
+
+impl From<Shipping> for ShippingDetails {
+    fn from(shipping: Shipping) -> Self {
+        Self {
+            tshirt_model: shipping.tshirt_model,
+            tshirt_size: shipping.tshirt_size,
+            country: shipping.country,
+            address_firstname: shipping.firstname,
+            address_lastname: shipping.lastname,
+            street_name: shipping.street_name,
+            house_number: shipping.house_number,
+            address_extra: shipping.address_extra,
+            postal_code: shipping.postal_code,
+            city: shipping.city,
+            delivery_status: shipping.delivery_status,
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -103,56 +135,27 @@ pub async fn create_runner(
 pub async fn get_runner(
     request_data: web::Path<i32>,
     token: web::Query<TokenRequestData>,
-    db_pool: web::Data<DbPool>,
     runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
     let runner_id = request_data.into_inner();
-    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    let retrieved_runner = runner_service
+
+    let runner_details = runner_service
         .find_runner_by_id_and_verification_code(runner_id, &token.verification_code)
+        .map(RunnerDetails::from)
         .ok_or(crate::handlers::error::ClientError::AuthorizationError)?;
 
-    let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
+    let shipping_details = runner_service
+        .find_shipping_by_runner_id(runner_id)
+        .map(ShippingDetails::from);
 
-    let runner_details = Option::from(RunnerDetails {
-        runner_id: retrieved_runner.id.to_string(),
-        start_number: retrieved_runner.start_number.to_string(),
-        donation: retrieved_runner.donation,
-        payment: retrieved_runner.reason_for_payment,
-        is_paid: retrieved_runner.payment_status,
-        tshirt_cost: retrieved_runner.tshirt_cost,
-    });
-
-    let inner_response = Response {
-        success_message: Some("Data received".to_string()),
-        error_message: None,
-        status_code: StatusCode::OK.as_u16(),
-    };
-
-    match retrieved_shipping_result {
-        Ok(shipping) => Ok(HttpResponse::Ok().json(RunnerResponse {
-            runner_details,
-            is_tshirt_booked: true,
-            shipping_details: Option::from(ShippingDetails {
-                tshirt_model: shipping.tshirt_model,
-                tshirt_size: shipping.tshirt_size,
-                country: shipping.country,
-                address_firstname: shipping.firstname,
-                address_lastname: shipping.lastname,
-                street_name: shipping.street_name,
-                house_number: shipping.house_number,
-                address_extra: shipping.address_extra,
-                postal_code: shipping.postal_code,
-                city: shipping.city,
-                delivery_status: shipping.delivery_status,
-            }),
-            inner_response,
-        })),
-        Err(_) => Ok(HttpResponse::Ok().json(RunnerResponse {
-            runner_details,
-            is_tshirt_booked: false,
-            shipping_details: None,
-            inner_response,
-        })),
-    }
+    Ok(HttpResponse::Ok().json(RunnerResponse {
+        runner_details: Some(runner_details),
+        is_tshirt_booked: shipping_details.is_some(),
+        shipping_details,
+        inner_response: Response {
+            success_message: Some("Data received".to_string()),
+            error_message: None,
+            status_code: StatusCode::OK.as_u16(),
+        },
+    }))
 }

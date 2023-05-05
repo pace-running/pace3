@@ -32,7 +32,7 @@ pub struct NewShipping<'a> {
     pub delivery_status: &'a str,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, serde::Serialize, serde::Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct Shipping {
     pub id: i32,
     pub tshirt_model: String,
