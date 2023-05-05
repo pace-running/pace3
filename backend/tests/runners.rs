@@ -212,7 +212,7 @@ async fn get_runner_should_fail_if_wrong_verification_code_is_send() {
     let actual_runner_response: Response = serde_json::from_slice(&bytes).unwrap();
     let expected_runner_response = Response {
         success_message: None,
-        error_message: Some("Code could not be verified".to_string()),
+        error_message: Some("You are not authorized to make this request.".to_string()),
         status_code: StatusCode::FORBIDDEN.as_u16(),
     };
     assert_eq!(expected_runner_response, actual_runner_response);

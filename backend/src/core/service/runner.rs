@@ -10,7 +10,14 @@ pub trait RunnerService {
         &self,
         runner_registration_data: RunnerRegistrationData,
     ) -> anyhow::Result<Runner>;
+
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner>;
+
+    fn find_runner_by_id_and_verification_code(
+        &self,
+        id: RunnerId,
+        verification_code: &str,
+    ) -> Option<Runner>;
 }
 
 pub struct DefaultRunnerService<RR: RunnerRepository, ES: EmailService + ?Sized> {
@@ -86,6 +93,15 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
 
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner> {
         self.runner_repository.find_runner_by_id(id)
+    }
+
+    fn find_runner_by_id_and_verification_code(
+        &self,
+        id: RunnerId,
+        verification_code: &str,
+    ) -> Option<Runner> {
+        self.find_runner_by_id(id)
+            .filter(|r| r.verification_code == verification_code)
     }
 }
 
@@ -261,5 +277,48 @@ mod tests {
         let result = runner_service.find_runner_by_id(EXAMPLE_RUNNER.id);
 
         assert_eq!(result, Some(EXAMPLE_RUNNER))
+    }
+
+    #[test]
+    fn find_runner_by_id_and_verification_code_must_not_return_runner_if_verification_code_does_not_match(
+    ) {
+        let mut runner_repository = MockRunnerRepository::new();
+        runner_repository
+            .expect_find_runner_by_id()
+            .with(eq(EXAMPLE_RUNNER.id))
+            .times(1)
+            .returning(|_r| Some(EXAMPLE_RUNNER));
+
+        let mock_email_service = MockEmailService::new();
+
+        let runner_service =
+            DefaultRunnerService::new(runner_repository, Arc::new(mock_email_service));
+
+        let result = runner_service
+            .find_runner_by_id_and_verification_code(EXAMPLE_RUNNER.id, "not-the-right-value");
+
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    fn find_runner_by_id_and_verification_code_must_return_runner_if_verification_code_matches() {
+        let mut runner_repository = MockRunnerRepository::new();
+        runner_repository
+            .expect_find_runner_by_id()
+            .with(eq(EXAMPLE_RUNNER.id))
+            .times(1)
+            .returning(|_r| Some(EXAMPLE_RUNNER));
+
+        let mock_email_service = MockEmailService::new();
+
+        let runner_service =
+            DefaultRunnerService::new(runner_repository, Arc::new(mock_email_service));
+
+        let result = runner_service.find_runner_by_id_and_verification_code(
+            EXAMPLE_RUNNER.id,
+            &EXAMPLE_RUNNER.verification_code,
+        );
+
+        assert_eq!(result, Some(EXAMPLE_RUNNER));
     }
 }

@@ -109,19 +109,8 @@ pub async fn get_runner(
     let runner_id = request_data.into_inner();
     let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
     let retrieved_runner = runner_service
-        .find_runner_by_id(runner_id)
-        .unwrap_or_else(|| panic!("Unable to find runner with id {runner_id}."));
-
-    if retrieved_runner
-        .verification_code
-        .ne(&token.verification_code)
-    {
-        return Ok(HttpResponse::Forbidden().json(Response {
-            success_message: None,
-            error_message: Some("Code could not be verified".to_string()),
-            status_code: StatusCode::FORBIDDEN.as_u16(),
-        }));
-    }
+        .find_runner_by_id_and_verification_code(runner_id, &token.verification_code)
+        .ok_or(crate::handlers::error::ClientError::AuthorizationError)?;
 
     let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
 

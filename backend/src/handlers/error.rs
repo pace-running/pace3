@@ -38,7 +38,7 @@ impl Display for ClientError {
                     serde_json::json!({
                         "error_type": "Bad Request",
                         "error_message": "Bad data",
-                        "status_code": "400",
+                        "status_code": 400,
                     })
                 )
             }
@@ -49,7 +49,7 @@ impl Display for ClientError {
                     serde_json::json!({
                         "error_type": "Unauthorized",
                         "error_message": "",
-                        "status_code": "401",
+                        "status_code": 401,
                     })
                 )
             }
@@ -60,7 +60,7 @@ impl Display for ClientError {
                     serde_json::json!({
                         "error_type": "Forbidden",
                         "error_message": "You are not authorized to make this request.",
-                        "status_code": "403",
+                        "status_code": 403,
                     })
                 )
             }
@@ -71,7 +71,7 @@ impl Display for ClientError {
                     serde_json::json!({
                         "error_type": "Not Found",
                         "error_message": "The resource you requested doesn't seem to exist.",
-                        "status_code": "404",
+                        "status_code": 404,
                     })
                 )
             }
@@ -86,7 +86,7 @@ impl Display for ClientError {
                             "form": e.form(),
                             "field_errors": e.field_errors(),
                         },
-                        "status_code": "422",
+                        "status_code": 422,
                     })
                 )
             }
@@ -172,7 +172,7 @@ where
         let body = serde_json::json!({
             "error_type": "Internal Server Error",
             "error_message": self.to_string(),
-            "status_code": self.status_code().to_string(),
+            "status_code": self.status_code().as_u16(),
         })
         .to_string();
 
