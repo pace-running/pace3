@@ -4,13 +4,13 @@ use crate::models::rejected_transaction::{
 };
 use crate::models::runner::Runner;
 use crate::models::shipping::NewShipping;
-use crate::models::users::{ErrorResponse, LoginData, LoginResponse, PasswordChangeData};
+use crate::models::users::{LoginData, LoginResponse, PasswordChangeData};
 use crate::{
-    insert_rejected_transaction, insert_shipping, is_eu_country,
+    handlers, insert_rejected_transaction, insert_shipping, is_eu_country,
     retrieve_donation_by_reason_for_payment, retrieve_shipping_by_runner_id, DbPool,
 };
 use actix_identity::Identity;
-use actix_web::http::StatusCode;
+use actix_web::http::{header, StatusCode};
 use actix_web::web::{self, Json};
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
 use chrono::NaiveDate;
@@ -96,64 +96,62 @@ pub struct RunnerListResponse {
     stats_total_donation: i32,
 }
 
-pub async fn check_password(
+pub async fn login(
     request: HttpRequest,
     login_data: Json<LoginData>,
     user_service: web::Data<dyn UserService>,
 ) -> Result<HttpResponse, Error> {
-    if login_data.username.is_empty() {
-        return Ok(forbidden(None));
-    }
-    let user_result = user_service.find_user_by_username(login_data.username.to_string());
-
-    if user_result.is_none() {
-        return Ok(forbidden(None));
-    }
-
-    let user = user_result.unwrap();
+    let user = user_service
+        .find_user_by_username(login_data.username.to_string())
+        .ok_or(handlers::error::ClientError::AuthorizationError)?;
 
     if user.eq(&login_data.into_inner()) {
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Identity::login(&request.extensions(), response.username).unwrap();
         Ok(HttpResponse::Ok()
-            .content_type("application/json")
+            .content_type(header::ContentType::json())
             .body(json))
     } else {
-        Ok(forbidden(None))
+        Err(Error::from(
+            handlers::error::ClientError::AuthorizationError,
+        ))
     }
 }
 
 pub async fn change_password(
-    user_name: Identity,
-    data: Json<PasswordChangeData>,
+    current_user: Identity,
+    change_password_data: Json<PasswordChangeData>, // talisman-ignore-line
     user_service: web::Data<dyn UserService>,
 ) -> Result<HttpResponse, Error> {
-    let username = user_name.id().unwrap();
+    let username = current_user.id().unwrap();
 
-    if username.is_empty() || data.old_password.is_empty() || data.new_password.is_empty() {
-        return Ok(forbidden(None));
+    if change_password_data.old_password.is_empty() || change_password_data.new_password.is_empty()
+    {
+        return Err(Error::from(
+            handlers::error::ClientError::AuthorizationError,
+        ));
     }
     let user = user_service
         .find_user_by_username(username.to_string())
-        .unwrap_or_else(|| panic!("Unable to find user {}", username));
+        .ok_or(handlers::error::ClientError::AuthorizationError)?;
     let login_data = LoginData {
         username: username.clone(),
-        password: data.old_password.to_string(),
+        password: change_password_data.old_password.to_string(), // talisman-ignore-line
     };
     if user.eq(&login_data) {
         user_service
-            .set_password(username, data.new_password.to_string()) // talisman-ignore-line
-            .expect("Unable to change password");
+            .set_password(username, change_password_data.new_password.to_string()) // talisman-ignore-line
+            .map_err(handlers::error::InternalError::from)?;
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Ok(HttpResponse::Ok()
-            .content_type("application/json")
+            .content_type(header::ContentType::json())
             .body(json))
     } else {
-        Ok(forbidden(Some(
-            "Das alte Passwort ist nicht korrekt".to_string(),
-        )))
+        Err(Error::from(
+            handlers::error::ClientError::AuthorizationError,
+        ))
     }
 }
 
@@ -530,17 +528,6 @@ fn filter_rfp(rfp: &str) -> Vec<String> {
 pub async fn logout(user: Identity) -> Result<HttpResponse, Error> {
     user.logout();
     Ok(HttpResponse::NoContent().finish())
-}
-
-fn forbidden(error_message: Option<String>) -> HttpResponse {
-    let response = ErrorResponse {
-        error_message,
-        result: "fail".to_string(),
-    };
-    let json = serde_json::to_string(&response);
-    HttpResponse::Forbidden()
-        .content_type("application/json")
-        .body(json.unwrap())
 }
 
 pub fn change_payment_status(

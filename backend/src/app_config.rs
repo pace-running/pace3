@@ -9,7 +9,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(
                 web::resource("/api/runners/{runner_id}").route(web::get().to(runners::get_runner)),
             )
-            .service(web::resource("/api/admin/login").route(web::post().to(admin::check_password)))
+            .service(web::resource("/api/admin/login").route(web::post().to(admin::login)))
             .service(web::resource("/api/admin/logout").route(web::post().to(admin::logout)))
             .service(
                 web::resource("/api/admin/change_password")
