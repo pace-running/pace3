@@ -1,10 +1,10 @@
 use crate::schema::rejected_transactions;
 use crate::DbPool;
 use actix_web::web;
-use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
+use time::PrimitiveDateTime;
 
 #[derive(Insertable)]
 #[diesel(table_name = rejected_transactions)]
@@ -31,11 +31,10 @@ pub struct RejectedTransaction {
     pub currency: String,
     pub payer_name: String,
     pub iban: String,
-    pub entry_added_at: NaiveDateTime,
+    pub entry_added_at: PrimitiveDateTime,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-
 pub struct RejectedTransactionWithPotentialDuplicates {
     pub id: i32,
     pub runner_ids: String,

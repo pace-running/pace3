@@ -820,11 +820,11 @@ checksum = "4391a22b19c916e50bec4d6140f29bdda3e3bb187223fe6e3ea0b6e4d1021c04"
 dependencies = [
  "bitflags",
  "byteorder",
- "chrono",
  "diesel_derives",
  "itoa",
  "pq-sys",
  "r2d2",
+ "time 0.3.20",
 ]
 
 [[package]]
@@ -1848,7 +1848,6 @@ dependencies = [
  "actix-web",
  "actix-web-prom",
  "anyhow",
- "chrono",
  "csv",
  "diesel",
  "diesel_migrations",
@@ -1875,6 +1874,7 @@ dependencies = [
  "strum_macros",
  "tera",
  "testcontainers",
+ "time 0.3.20",
  "tokio",
 ]
 

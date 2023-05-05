@@ -13,13 +13,13 @@ use actix_identity::Identity;
 use actix_web::http::{header, StatusCode};
 use actix_web::web::{self, Json};
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
-use chrono::NaiveDate;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use futures_util::stream::StreamExt as _;
 use r2d2::PooledConnection;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use time::{Date, Month};
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
 pub struct QueryInfo {
@@ -565,12 +565,19 @@ pub async fn get_rejected_transactions(
         .load::<RejectedTransaction>(connection)
         .unwrap();
     transaction_list.sort_by(|a, b| {
-        NaiveDate::parse_from_str(&b.date_of_payment, "%d.%m.%Y")
-            .unwrap_or_default()
-            .partial_cmp(
-                &NaiveDate::parse_from_str(&a.date_of_payment, "%d.%m.%Y").unwrap_or_default(),
+        Date::parse(
+            &b.date_of_payment,
+            &time::format_description::well_known::Rfc2822,
+        )
+        .unwrap_or_else(|_| Date::from_calendar_date(1970, Month::January, 1).unwrap())
+        .partial_cmp(
+            &Date::parse(
+                &a.date_of_payment,
+                &time::format_description::well_known::Rfc2822,
             )
-            .unwrap()
+            .unwrap_or_else(|_| Date::from_calendar_date(1970, Month::January, 1).unwrap()),
+        )
+        .unwrap()
     });
 
     let mut new_transaction_list = Vec::new();
