@@ -48,8 +48,8 @@ VALUES(
 
     let user_repository = PostgresUserRepository::new(pool);
 
-    let result =
-        user_repository.set_password("testi_mctest".to_string(), "new_password".to_string()); // talisman-ignore-line
+    let result = user_repository
+        .set_password_hash("testi_mctest".to_string(), "new_password_hash".to_string()); // talisman-ignore-line
 
     assert!(result.is_ok())
 }
@@ -62,8 +62,10 @@ fn set_password_should_return_error_if_username_was_not_found() {
 
     let user_repository = PostgresUserRepository::new(pool);
 
-    let result =
-        user_repository.set_password("does_not_exist".to_string(), "new_password".to_string());
+    let result = user_repository.set_password_hash(
+        "does_not_exist".to_string(),
+        "new_password_hash".to_string(), // talisman-ignore-line
+    );
 
     assert!(result.is_err())
 }

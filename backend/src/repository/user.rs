@@ -1,5 +1,4 @@
 use crate::core::repository::UserRepository;
-use crate::hash_password;
 use crate::models::users::User;
 use crate::schema::users::dsl::users;
 use crate::schema::users::{password_hash as schema_password_hash, username as schema_username}; // talisman-ignore-line
@@ -31,21 +30,18 @@ impl UserRepository for PostgresUserRepository {
             .expect("Failed to find user")
     }
 
-    fn set_password(
-        // talisman-ignore-line
+    fn set_password_hash(
         &self,
         username: String,
-        new_password: String,
+        new_password_hash: String, // talisman-ignore-line
     ) -> anyhow::Result<()> {
         let mut connection = self
             .connection_pool
             .get()
             .expect("Unable to get connection.");
 
-        let new_hash = hash_password(new_password);
-
         let affected_rows = diesel::update(users)
-            .set(schema_password_hash.eq(new_hash))
+            .set(schema_password_hash.eq(new_password_hash))
             .filter(schema_username.eq(&username))
             .execute(&mut connection)
             .expect("Unable to update password");

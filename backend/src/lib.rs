@@ -6,8 +6,6 @@ use diesel::result::Error;
 use dotenvy::dotenv;
 use models::rejected_transaction::{NewRejectedTransaction, RejectedTransaction};
 use r2d2::PooledConnection;
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
 use repository::PostgresThemeRepository;
 
 use self::models::runner::Runner;
@@ -151,17 +149,6 @@ pub const EU_COUNTRIES: [&str; 26] = [
 
 pub fn is_eu_country(country: &str) -> bool {
     EU_COUNTRIES.contains(&country)
-}
-
-pub fn hash_password(password: String) -> String {
-    let config = argon2::Config::default();
-    let salt: String = thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(16)
-        .map(char::from)
-        .collect();
-
-    argon2::hash_encoded(password.as_bytes(), salt.as_bytes(), &config).unwrap()
 }
 
 lazy_static! {

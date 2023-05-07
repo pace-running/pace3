@@ -90,7 +90,7 @@ async fn change_password_should_fail_if_new_password_is_empty() {
         .body(
             serde_json::to_string(&LoginData {
                 username: "admin".to_string(),
-                password: "xoh7Ongui4oo".to_string(),
+                password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
             })
             .unwrap(),
         )
@@ -104,7 +104,7 @@ async fn change_password_should_fail_if_new_password_is_empty() {
         .expect("Unable to get cookie");
 
     let password_change_data = PasswordChangeData {
-        old_password: "xoh7Ongui4oo".to_string(),
+        old_password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
         new_password: "".to_string(),
     };
 
@@ -136,7 +136,7 @@ async fn change_password_should_fail_if_old_password_is_empty() {
         .body(
             serde_json::to_string(&LoginData {
                 username: "admin".to_string(),
-                password: "xoh7Ongui4oo".to_string(),
+                password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
             })
             .unwrap(),
         )
@@ -151,7 +151,7 @@ async fn change_password_should_fail_if_old_password_is_empty() {
 
     let password_change_data = PasswordChangeData {
         old_password: "".to_string(),
-        new_password: "new_password".to_string(),
+        new_password: "new_password".to_string(), // talisman-ignore-line
     };
 
     let actual_response = client
@@ -182,7 +182,7 @@ async fn change_password_should_fail_if_old_password_is_invalid() {
         .body(
             serde_json::to_string(&LoginData {
                 username: "admin".to_string(),
-                password: "xoh7Ongui4oo".to_string(),
+                password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
             })
             .unwrap(),
         )
@@ -197,7 +197,7 @@ async fn change_password_should_fail_if_old_password_is_invalid() {
 
     let password_change_data = PasswordChangeData {
         old_password: "not the correct password!".to_string(),
-        new_password: "new_password".to_string(),
+        new_password: "new_password".to_string(), // talisman-ignore-line
     };
 
     let actual_response = client
@@ -228,13 +228,13 @@ async fn change_password_should_be_successful_if_new_and_old_passwords_are_valid
         .body(
             serde_json::to_string(&LoginData {
                 username: "admin".to_string(),
-                password: "xoh7Ongui4oo".to_string(),
+                password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
             })
             .unwrap(),
         )
         .send()
         .await
-        .expect("Unable to send request.");
+        .expect("Unable to send request");
 
     let cookie = login_response
         .cookies()
@@ -242,20 +242,71 @@ async fn change_password_should_be_successful_if_new_and_old_passwords_are_valid
         .expect("Unable to get cookie");
 
     let password_change_data = PasswordChangeData {
-        old_password: "xoh7Ongui4oo".to_string(),
-        new_password: "new_password".to_string(),
+        old_password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
+        new_password: "new_password".to_string(), // talisman-ignore-line
     };
 
-    let actual_response = client
+    let change_password_response = client
         .put(format!("{address}/api/admin/change_password"))
         .header("Content-Type", "application/json")
         .header("Cookie", format!("{}={}", cookie.name(), cookie.value()))
         .body(serde_json::to_string(&password_change_data).unwrap())
         .send()
         .await
-        .expect("Unable to send request.");
+        .expect("Unable to send request");
 
-    assert_eq!(actual_response.status(), actix_web::http::StatusCode::OK);
+    assert_eq!(
+        change_password_response.status(),
+        actix_web::http::StatusCode::OK
+    );
+
+    let logout_response = client
+        .post(format!("{address}/api/admin/logout"))
+        .header("Content-Type", "application/json")
+        .header("Cookie", format!("{}={}", cookie.name(), cookie.value()))
+        .send()
+        .await
+        .expect("Unable to send request");
+
+    assert_eq!(
+        logout_response.status(),
+        actix_web::http::StatusCode::NO_CONTENT
+    );
+
+    let failed_login_response = client
+        .post(format!("{address}/api/admin/login"))
+        .header("Content-Type", "application/json")
+        .body(
+            serde_json::to_string(&LoginData {
+                username: "admin".to_string(),
+                password: "xoh7Ongui4oo".to_string(), // talisman-ignore-line
+            })
+            .unwrap(),
+        )
+        .send()
+        .await
+        .expect("Unable to send request");
+
+    assert_eq!(
+        failed_login_response.status(),
+        actix_web::http::StatusCode::FORBIDDEN
+    );
+
+    let new_login_response = client
+        .post(format!("{address}/api/admin/login"))
+        .header("Content-Type", "application/json")
+        .body(
+            serde_json::to_string(&LoginData {
+                username: "admin".to_string(),
+                password: "new_password".to_string(), // talisman-ignore-line
+            })
+            .unwrap(),
+        )
+        .send()
+        .await
+        .expect("Unable to send request");
+
+    assert_eq!(new_login_response.status(), actix_web::http::StatusCode::OK);
 }
 
 #[actix_web::test]

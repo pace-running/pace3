@@ -141,7 +141,11 @@ pub async fn change_password(
     };
     if user.eq(&login_data) {
         user_service
-            .set_password(username, change_password_data.new_password.to_string()) // talisman-ignore-line
+            .change_password(
+                username,
+                change_password_data.old_password.to_string(),
+                change_password_data.new_password.to_string(),
+            )
             .map_err(handlers::error::InternalError::from)?;
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
