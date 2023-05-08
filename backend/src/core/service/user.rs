@@ -34,7 +34,11 @@ fn password_matches_hash(
     hash: &str,
     password: &str, // talisman-ignore-line
 ) -> bool {
-    argon2::verify_encoded(hash, password.as_bytes()).is_ok_and(|is_verified| is_verified)
+    return if let Ok(is_verified) = argon2::verify_encoded(hash, password.as_bytes()) {
+        is_verified
+    } else {
+        false
+    };
 }
 
 pub struct DefaultUserService<UR: UserRepository> {
