@@ -7,6 +7,8 @@ import Checkbox from '../../components/Checkbox';
 import Button from '../../components/Button';
 import { updateTheme } from '../../apis/api';
 import router from 'next/router';
+import Head from 'next/head';
+import { Helmet } from 'react-helmet';
 
 const ChangeTheme: NextPage = () => {
   const submitForm = (values: ChangeThemeFormValues) => {
@@ -29,6 +31,13 @@ const ChangeTheme: NextPage = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ margin: '50px' }}>
+        <Helmet>
+          <html lang='de' />
+        </Helmet>
+        <Head>
+          <title>Adminbereich_/Seite_konfigurieren</title>
+        </Head>
+        <h1>Admin</h1>
         <h1>Seite konfigurieren</h1>
         <Button
           name={'back-btn-admin'}

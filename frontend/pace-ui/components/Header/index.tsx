@@ -19,7 +19,7 @@ const Header: React.FC = () => {
             </span>
           </Navbar.Brand>
         </Container>
-        <Nav className='m-auto' >
+        <Nav className='m-auto'>
           <Nav.Link
             href='/join'
             id='header-button-registration'

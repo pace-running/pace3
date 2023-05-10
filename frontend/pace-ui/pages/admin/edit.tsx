@@ -10,6 +10,8 @@ import Modal from '../../components/Modal';
 import TextInput from '../../components/TextInput';
 import { getSizeOptions, modelOptions, runningLevelOptions, startingOptions } from '../../utility/dropdownOptions';
 import { EditRunnerSchema, EditRunnerValues } from '../../utility/editRunnerSchema';
+import Head from 'next/head';
+import { Helmet } from 'react-helmet';
 
 const Edit: NextPage = () => {
   const router = useRouter();
@@ -82,6 +84,12 @@ const Edit: NextPage = () => {
 
   return (
     <div style={{ margin: '50px' }}>
+      <Helmet>
+        <html lang='de' />
+      </Helmet>
+      <Head>
+        <title>Adminbereich_/Bearbeiten</title>
+      </Head>
       <h1>Edit Runner:</h1>
       {isPageFound && (
         <form onSubmit={handleSubmit}>

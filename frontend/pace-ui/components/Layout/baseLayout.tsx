@@ -11,7 +11,7 @@ type BaseLayoutProps = {
 
 const BaseLayout: React.FC<BaseLayoutProps> = props => {
   return (
-    <div style={ { display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100vh'} }>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100vh' }}>
       <Helmet>
         <html lang='de' />
       </Helmet>
@@ -20,7 +20,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = props => {
       </Head>
 
       <Header />
-      <div style={{flexGrow: '1', marginBottom: '2rem'}}>{ props.children }</div>
+      <div style={{ flexGrow: '1', marginBottom: '2rem' }}>{props.children}</div>
       <Footer />
     </div>
   );

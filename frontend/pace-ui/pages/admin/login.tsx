@@ -5,6 +5,8 @@ import Button from '../../components/Button';
 import axios from 'axios';
 import router from 'next/router';
 import React from 'react';
+import Head from 'next/head';
+import { Helmet } from 'react-helmet';
 
 const submitForm = async (event: React.SyntheticEvent) => {
   event.preventDefault();
@@ -28,6 +30,12 @@ const Login: NextPage = () => {
     <BaseLayout pageTitle='Admin Login'>
       <form onSubmit={submitForm}>
         <div className='container'>
+          <Helmet>
+            <html lang='de' />
+          </Helmet>
+          <Head>
+            <title>Adminbereich_/Login</title>
+          </Head>
           <h1>Login</h1>
           <TextInput type={'text'} name={'username'} label={'Username'} />
           <TextInput type={'password'} name={'password'} label={'Passwort'} />

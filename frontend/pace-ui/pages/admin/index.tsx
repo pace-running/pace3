@@ -5,6 +5,8 @@ import { changePaymentStatus, fetchFilteredRunners, logOutUser } from '../../api
 import Button from '../../components/Button';
 import LoadingScreen from '../../components/LoadingScreen';
 import Checkbox from '../../components/Checkbox';
+import Head from 'next/head';
+import { Helmet } from 'react-helmet';
 
 const Admin: NextPage = () => {
   const [runnerList, setRunnerList] = useState<RunnerResponseData[]>();
@@ -41,6 +43,12 @@ const Admin: NextPage = () => {
   if (runnersLoaded) {
     return (
       <div style={{ margin: '50px' }}>
+        <Helmet>
+          <html lang='de' />
+        </Helmet>
+        <Head>
+          <title>Adminbereich</title>
+        </Head>
         <h1>Admin</h1>
         <Button
           name={'btn-finance'}

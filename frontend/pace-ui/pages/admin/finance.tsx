@@ -5,6 +5,8 @@ import { getAllRejectedTransactions, uploadPaymentCSV, logOutUser, deleteFaultyT
 import Button from '../../components/Button';
 import Checkbox from '../../components/Checkbox';
 import Modal from '../../components/Modal';
+import Head from 'next/head';
+import { Helmet } from 'react-helmet';
 
 const Finance: NextPage = () => {
   const [error, setError] = useState('');
@@ -71,6 +73,12 @@ const Finance: NextPage = () => {
 
   return (
     <div style={{ margin: '3rem', paddingBottom: '5rem' }}>
+      <Helmet>
+        <html lang='de' />
+      </Helmet>
+      <Head>
+        <title>Adminbereich_/Finanzen</title>
+      </Head>
       <h1>Finanzen</h1>
       <Button
         name={'back-btn-admin'}
