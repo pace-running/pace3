@@ -34,7 +34,7 @@ describe('test edit page', () => {
       firstname: 'Testy',
       lastname: 'McTest',
       team: 'FC St. Pauli II',
-      bsv_participant: 'true',
+      bsv_participant: true,
       email: 'test5@example.com',
       starting_point: 'other',
       running_level: 'sometimes',
