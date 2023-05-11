@@ -507,8 +507,7 @@ pub fn change_payment_status(
         .set(payment_status.eq(target_status))
         .get_result::<Runner>(conn)
         .unwrap();
-    let email_value = runner.email.as_ref().unwrap();
-    let is_email_provided = email_value.ne("");
+    let is_email_provided = runner.email.is_some();
     let is_paid = runner.payment_status;
     let mail_not_sent_yet = !runner.payment_confirmation_mail_sent;
     if is_paid && is_email_provided && mail_not_sent_yet {
