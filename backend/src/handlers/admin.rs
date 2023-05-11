@@ -226,7 +226,13 @@ fn apply_search_filter(old_list: &Vec<Runner>, cat: String, key: String) -> Vec<
         let key_number = key.parse::<i64>().unwrap_or(0);
         list.retain(|r| r.start_number == key_number);
     } else if cat == "email" {
-        list.retain(|r| r.email.as_ref().unwrap().contains(&key));
+        list.retain(|r| {
+            return if let Some(email_address) = r.email.as_ref() {
+                email_address.contains(&key)
+            } else {
+                false
+            };
+        });
     } else if cat == "reason_for_payment" {
         let uc_key = key.to_uppercase();
         list.retain(|r| r.reason_for_payment.contains(&uc_key));
