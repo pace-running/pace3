@@ -378,6 +378,35 @@ impl<'a> TestApp<'a> {
             .expect("Unable to send request.")
     }
 
+    pub async fn get_runners(
+        &self,
+        page_number: i32,
+        search_category: &str,
+        search_keyword: &str,
+        show_only_bsv: bool,
+        cookie: Option<String>,
+    ) -> Response {
+        let mut request_builder = self
+            .client
+            .get(format!("{}/api/admin/runners", self.address))
+            .query(&[
+                ("page_number", page_number.to_string().as_ref()),
+                ("search_category", search_category),
+                ("search_keyword", search_keyword), // talisman-ignore-line
+                ("show_only_bsv", show_only_bsv.to_string().as_ref()),
+            ])
+            .header("Content-Type", "application/json");
+
+        if cookie.is_some() {
+            request_builder = request_builder.header("Cookie", cookie.unwrap());
+        }
+
+        request_builder
+            .send()
+            .await
+            .expect("Unable to send request")
+    }
+
     pub fn get_client(&self) -> &Client {
         &self.client
     }
