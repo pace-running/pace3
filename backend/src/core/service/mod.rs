@@ -14,6 +14,9 @@ pub use email::NonfunctionalEmailService;
 pub use payment::DefaultPaymentService;
 pub use payment::PaymentService;
 pub use runner::DefaultRunnerService;
+pub use runner::PageParameters;
+pub use runner::RunnerSearchFilter;
+pub use runner::RunnerSearchParameters;
 pub use runner::RunnerService;
 pub use theme::DefaultThemeService;
 #[cfg(test)]

@@ -19,6 +19,26 @@ impl PostgresRunnerRepository {
     pub fn new(connection_pool: Pool<ConnectionManager<PgConnection>>) -> Self {
         Self { connection_pool }
     }
+
+    fn get_escape_char_for_search_text(search_text: &str) -> anyhow::Result<char> {
+        if !search_text.contains('\\') {
+            Ok('\\')
+        } else if !search_text.contains('!') {
+            Ok('!')
+        } else if !search_text.contains('@') {
+            Ok('@')
+        } else if !search_text.contains('#') {
+            Ok('#')
+        } else if !search_text.contains('$') {
+            Ok('$')
+        } else if !search_text.contains('^') {
+            Ok('^')
+        } else {
+            Err(anyhow::Error::msg(
+                "Unable to get escape character for search text.",
+            ))
+        }
+    }
 }
 
 #[derive(diesel::QueryableByName)]
@@ -161,7 +181,148 @@ impl RunnerRepository for PostgresRunnerRepository {
             .find(id)
             .get_result::<Runner>(&mut connection)
             .optional()
-            .expect("Failed to find runner")
+            .expect("Failed to execute `find_runner_by_id` query")
+    }
+
+    fn find_runner_by_start_number(
+        &self,
+        start_number: i64,
+        bsv_participant: Option<bool>,
+    ) -> Option<Runner> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+
+        if let Some(is_bsv_participant) = bsv_participant {
+            schema::runners::dsl::runners
+                .filter(schema::runners::dsl::start_number.eq(start_number))
+                .filter(schema::runners::dsl::bsv_participant.eq(is_bsv_participant))
+                .get_result::<Runner>(&mut connection)
+                .optional()
+                .expect("Failed to execute `find_runner_by_start_number` query")
+        } else {
+            schema::runners::dsl::runners
+                .filter(schema::runners::dsl::start_number.eq(start_number))
+                .get_result::<Runner>(&mut connection)
+                .optional()
+                .expect("Failed to execute `find_runner_by_start_number` query")
+        }
+    }
+
+    fn find_runners_by_name_containing(
+        &self,
+        search_text: &str,
+        bsv_participant: Option<bool>,
+    ) -> Vec<Runner> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+
+        let escape_char = Self::get_escape_char_for_search_text(search_text).unwrap();
+        let escaped_percentage_char = format!("{escape_char}%");
+        let escaped_underscore_char = format!("{escape_char}_");
+        let escaped_search_text = search_text
+            .replace('%', &escaped_percentage_char)
+            .replace('_', &escaped_underscore_char);
+
+        if let Some(is_bsv_participant) = bsv_participant {
+            diesel::sql_query(
+                "SELECT * FROM runners \
+                WHERE bsv_participant = $1 \
+                AND concat(firstname, ' ', lastname) ILIKE '%' || $2 || '%' ESCAPE $3;",
+            )
+            .bind::<diesel::sql_types::Bool, _>(is_bsv_participant)
+            .bind::<diesel::sql_types::Text, _>(escaped_search_text)
+            .bind::<diesel::sql_types::Text, _>(escape_char.to_string())
+            .get_results(&mut connection)
+            .expect("Failed to execute `find_runners_by_name_containing` query")
+        } else {
+            diesel::sql_query(
+                "SELECT * FROM runners WHERE concat(firstname, ' ', lastname) ILIKE '%' || $1 || '%' ESCAPE $2;",
+            )
+                .bind::<diesel::sql_types::Text, _>(escaped_search_text)
+                .bind::<diesel::sql_types::Text, _>(escape_char.to_string())
+                .get_results(&mut connection)
+                .expect("Failed to execute `find_runners_by_name_containing` query")
+        }
+    }
+
+    fn find_runners_by_email_containing(
+        &self,
+        search_text: &str,
+        bsv_participant: Option<bool>,
+    ) -> Vec<Runner> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+
+        let escape_char = Self::get_escape_char_for_search_text(search_text).unwrap();
+        let escaped_percentage_char = format!("{escape_char}%");
+        let escaped_underscore_char = format!("{escape_char}_");
+        let escaped_search_text = search_text
+            .replace('%', &escaped_percentage_char)
+            .replace('_', &escaped_underscore_char);
+
+        if let Some(is_bsv_participant) = bsv_participant {
+            diesel::sql_query(
+                "SELECT * FROM runners \
+                WHERE bsv_participant = $1 \
+                AND email ILIKE '%' || $2 || '%' ESCAPE $3;",
+            )
+            .bind::<diesel::sql_types::Bool, _>(is_bsv_participant)
+            .bind::<diesel::sql_types::Text, _>(escaped_search_text)
+            .bind::<diesel::sql_types::Text, _>(escape_char.to_string())
+            .get_results(&mut connection)
+            .expect("Failed to execute `find_runners_by_name_containing` query")
+        } else {
+            diesel::sql_query("SELECT * FROM runners WHERE email ILIKE '%' || $1 || '%' ESCAPE $2;")
+                .bind::<diesel::sql_types::Text, _>(escaped_search_text)
+                .bind::<diesel::sql_types::Text, _>(escape_char.to_string())
+                .get_results(&mut connection)
+                .expect("Failed to execute `find_runners_by_email_containing` query")
+        }
+    }
+
+    fn find_runners_by_payment_reference_containing(
+        &self,
+        search_text: &str,
+        bsv_participant: Option<bool>,
+    ) -> Vec<Runner> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+
+        let escape_char = Self::get_escape_char_for_search_text(search_text).unwrap();
+        let escaped_percentage_char = format!("{escape_char}%");
+        let escaped_underscore_char = format!("{escape_char}_");
+        let escaped_search_text = search_text
+            .replace('%', &escaped_percentage_char)
+            .replace('_', &escaped_underscore_char);
+
+        if let Some(is_bsv_participant) = bsv_participant {
+            diesel::sql_query(
+                "SELECT * FROM runners \
+                WHERE bsv_participant = $1 \
+                AND reason_for_payment ILIKE '%' || $2 || '%' ESCAPE $3;",
+            )
+            .bind::<diesel::sql_types::Bool, _>(is_bsv_participant)
+            .bind::<diesel::sql_types::Text, _>(escaped_search_text)
+            .bind::<diesel::sql_types::Text, _>(escape_char.to_string())
+            .get_results(&mut connection)
+            .expect("Failed to execute `find_runners_by_name_containing` query")
+        } else {
+            diesel::sql_query(
+                "SELECT * FROM runners WHERE reason_for_payment ILIKE '%' || $1 || '%' ESCAPE $2;",
+            )
+            .bind::<diesel::sql_types::Text, _>(escaped_search_text)
+            .bind::<diesel::sql_types::Text, _>(escape_char.to_string())
+            .get_results(&mut connection)
+            .expect("Failed to execute `find_runners_by_email_containing` query")
+        }
     }
 
     fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping> {

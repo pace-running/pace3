@@ -1,4 +1,7 @@
-use crate::core::service::{EmailService, PaymentService, RunnerService, UserService};
+use crate::core::service::{
+    EmailService, PageParameters, PaymentService, RunnerSearchFilter, RunnerSearchParameters,
+    RunnerService, UserService,
+};
 use crate::models::rejected_transaction::{
     find_duplicates, NewRejectedTransaction, RejectedTransaction,
 };
@@ -10,6 +13,7 @@ use crate::{
     retrieve_donation_by_reason_for_payment, retrieve_shipping_by_runner_id, DbPool,
 };
 use actix_identity::Identity;
+use actix_web::http::header::ContentType;
 use actix_web::http::{header, StatusCode};
 use actix_web::web::{self, Json};
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
@@ -162,82 +166,33 @@ pub async fn change_password(
 pub async fn show_runners(
     _: Identity,
     params: web::Query<QueryInfo>,
-    db_pool: web::Data<DbPool>,
+    runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
-    use crate::schema::runners::dsl::*;
-    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    let rows_per_page = 15;
     let query_info = params.into_inner();
-    let page_number = query_info.page_number;
+    let page_number = query_info.page_number - 1;
     let search_cat = query_info.search_category;
     let search_keyword = query_info.search_keyword;
     let show_only_bsv = query_info.show_only_bsv;
 
-    let database_result = runners.load::<Runner>(connection).unwrap();
-    let mut filtered_result = apply_search_filter(&database_result, search_cat, search_keyword);
-
-    if show_only_bsv {
-        filtered_result.retain(|r| r.bsv_participant);
-    }
-
-    let stats_number = filtered_result.len();
-    let mut stats_hamburg = 0;
-    let mut stats_total_donation = 0;
-    for r in &filtered_result {
-        if r.starting_point == "hamburg" {
-            stats_hamburg += 1;
-        }
-        stats_total_donation += r.donation.parse().unwrap_or(0);
-    }
-    let last_index = std::cmp::min(
-        page_number * rows_per_page,
-        stats_number.try_into().unwrap(),
+    let search_filter = RunnerSearchFilter::from_category_and_keyword(&search_cat, &search_keyword) // talisman-ignore-line
+        .map_err(|_| handlers::error::ClientError::BadRequestError)?;
+    let bsv_participant_filter = if show_only_bsv { Some(true) } else { None };
+    let page_parameters = PageParameters::try_from(page_number)
+        .map_err(|_| handlers::error::ClientError::BadRequestError)?;
+    let search_result = runner_service.find_runners_by_search_parameters(
+        RunnerSearchParameters::new(search_filter, bsv_participant_filter, page_parameters),
     );
-    filtered_result.sort_by(|a, b| a.id.partial_cmp(&b.id).unwrap());
-    if show_only_bsv {
-        filtered_result.sort_by(|a, b| a.team.cmp(&b.team));
-    }
 
-    let response = RunnerListResponse {
-        runner_list: filtered_result
-            [((page_number - 1) * rows_per_page) as usize..(last_index as usize)]
-            .to_vec(),
-        stats_number,
-        stats_hamburg,
-        stats_total_donation,
+    let response_body = RunnerListResponse {
+        runner_list: search_result.runners,
+        stats_number: search_result.stats.count_total_results,
+        stats_hamburg: search_result.stats.count_starting_point as i32,
+        stats_total_donation: search_result.stats.count_donations,
     };
-    Ok(HttpResponse::Ok()
-        .content_type("text/json")
-        .body(serde_json::to_string(&response).unwrap()))
-}
 
-fn apply_search_filter(old_list: &Vec<Runner>, cat: String, key: String) -> Vec<Runner> {
-    let mut list = old_list.to_owned();
-    if cat == "name" {
-        list.retain(|r| {
-            let full_name = format!(
-                "{} {}",
-                r.firstname.clone().unwrap_or_default(),
-                r.lastname.clone().unwrap_or_default()
-            );
-            full_name.contains(&key)
-        });
-    } else if cat == "start_number" {
-        let key_number = key.parse::<i64>().unwrap_or(0);
-        list.retain(|r| r.start_number == key_number);
-    } else if cat == "email" {
-        list.retain(|r| {
-            return if let Some(email_address) = r.email.as_ref() {
-                email_address.contains(&key)
-            } else {
-                false
-            };
-        });
-    } else if cat == "reason_for_payment" {
-        let uc_key = key.to_uppercase();
-        list.retain(|r| r.reason_for_payment.contains(&uc_key));
-    }
-    list
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .body(serde_json::to_string(&response_body)?))
 }
 
 pub async fn modify_payment_status(

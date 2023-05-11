@@ -4,7 +4,96 @@ use crate::models::runner::{
     NewRunner, Runner, RunnerRegistrationData, ShippingData, VerificationCode,
 };
 use crate::models::shipping::Shipping;
+use std::cmp::min;
+use std::num::TryFromIntError;
 use std::sync::Arc;
+
+pub enum RunnerSearchFilter {
+    StartNumberEquals(i64),
+    FullNameContaining(String),
+    EmailContaining(String),
+    PaymentReferenceContaining(String),
+}
+
+impl RunnerSearchFilter {
+    pub fn from_category_and_keyword(
+        category: &str,
+        keyword: &str, // talisman-ignore-line
+    ) -> anyhow::Result<Self> {
+        match category {
+            "start_number" => Ok(Self::StartNumberEquals(keyword.parse()?)),
+            "name" => Ok(Self::FullNameContaining(keyword.to_string())),
+            "email" => Ok(Self::EmailContaining(keyword.to_string())),
+            "reason_for_payment" => Ok(Self::PaymentReferenceContaining(keyword.to_string())),
+            unknown_category => Err(anyhow::Error::msg(format!(
+                "Unknown category: {}",
+                unknown_category
+            ))),
+        }
+    }
+}
+
+pub struct PageParameters {
+    page_number: usize,
+    page_size: usize,
+}
+
+impl PageParameters {
+    const DEFAULT_PAGE_SIZE: usize = 15;
+
+    pub fn new(page_number: usize) -> Self {
+        Self {
+            page_number,
+            page_size: Self::DEFAULT_PAGE_SIZE,
+        }
+    }
+}
+
+impl TryFrom<i32> for PageParameters {
+    type Error = TryFromIntError;
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        usize::try_from(value).map(PageParameters::new)
+    }
+}
+
+pub struct RunnerSearchParameters {
+    search_filter: RunnerSearchFilter,
+    bsv_participant_filter: Option<bool>,
+    page_parameters: PageParameters,
+}
+
+impl RunnerSearchParameters {
+    pub fn new(
+        search_filter: RunnerSearchFilter,
+        bsv_participant_filter: Option<bool>,
+        page_parameters: PageParameters,
+    ) -> Self {
+        Self {
+            search_filter,
+            bsv_participant_filter,
+            page_parameters,
+        }
+    }
+}
+
+pub struct RunnerSearchResultStats {
+    pub count_total_results: usize,
+    pub count_starting_point: usize,
+    pub count_donations: i32,
+}
+
+pub struct PageInfo {
+    pub page_size: usize,
+    pub current_page: usize,
+    pub last_page: usize,
+}
+
+pub struct RunnerSearchResult {
+    pub runners: Vec<Runner>,
+    pub stats: RunnerSearchResultStats,
+    pub page_info: PageInfo,
+}
 
 pub trait RunnerService {
     fn register_runner(
@@ -19,6 +108,11 @@ pub trait RunnerService {
         id: RunnerId,
         verification_code: &str,
     ) -> Option<Runner>;
+
+    fn find_runners_by_search_parameters(
+        &self,
+        search_parameters: RunnerSearchParameters,
+    ) -> RunnerSearchResult;
 
     fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping>;
 }
@@ -105,6 +199,79 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
     ) -> Option<Runner> {
         self.find_runner_by_id(id)
             .filter(|r| r.verification_code == verification_code)
+    }
+
+    fn find_runners_by_search_parameters(
+        &self,
+        search_parameters: RunnerSearchParameters,
+    ) -> RunnerSearchResult {
+        let mut runners: Vec<Runner> = match search_parameters.search_filter {
+            RunnerSearchFilter::StartNumberEquals(start_number) => self
+                .runner_repository
+                .find_runner_by_start_number(start_number, search_parameters.bsv_participant_filter)
+                .map_or_else(Vec::new, |r| vec![r]),
+            RunnerSearchFilter::FullNameContaining(search_text) => {
+                self.runner_repository.find_runners_by_name_containing(
+                    &search_text,
+                    search_parameters.bsv_participant_filter,
+                )
+            }
+            RunnerSearchFilter::EmailContaining(search_text) => {
+                self.runner_repository.find_runners_by_email_containing(
+                    &search_text,
+                    search_parameters.bsv_participant_filter,
+                )
+            }
+            RunnerSearchFilter::PaymentReferenceContaining(search_text) => self
+                .runner_repository
+                .find_runners_by_payment_reference_containing(
+                    &search_text,
+                    search_parameters.bsv_participant_filter,
+                ),
+        };
+
+        if search_parameters.bsv_participant_filter.is_some() {
+            runners.sort_by(|a, b| a.team.cmp(&b.team).then(a.id.cmp(&b.id)));
+        } else {
+            runners.sort_by(|a, b| a.id.cmp(&b.id));
+        }
+
+        let stats = runners.iter().fold((0, 0, 0), |acc, r| {
+            let count_total = acc.0 + 1;
+            let count_hamburg = if &r.starting_point == "hamburg" {
+                acc.1 + 1
+            } else {
+                acc.1
+            };
+            let count_donation = acc.2 + r.donation.parse::<i32>().unwrap();
+            (count_total, count_hamburg, count_donation)
+        });
+
+        let page_number = search_parameters.page_parameters.page_number;
+        let page_size = search_parameters.page_parameters.page_size;
+
+        let from = page_number * page_size;
+        let to = min((page_number + 1) * page_size, stats.0);
+
+        let last_page = if stats.0 == 0 {
+            0
+        } else {
+            (stats.0 - 1) / page_size
+        };
+
+        RunnerSearchResult {
+            runners: runners[from..to].to_vec(),
+            stats: RunnerSearchResultStats {
+                count_total_results: stats.0,
+                count_starting_point: stats.1,
+                count_donations: stats.2,
+            },
+            page_info: PageInfo {
+                page_size,
+                current_page: page_number,
+                last_page,
+            },
+        }
     }
 
     fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping> {

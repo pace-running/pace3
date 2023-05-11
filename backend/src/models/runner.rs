@@ -283,7 +283,8 @@ impl NewRunner {
     }
 }
 
-#[derive(Queryable, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Queryable, QueryableByName, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[diesel(table_name = crate::schema::runners)]
 pub struct Runner {
     pub id: i32,
     pub start_number: i64,
