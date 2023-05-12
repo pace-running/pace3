@@ -10,7 +10,7 @@ use crate::models::shipping::NewShipping;
 use crate::models::users::{LoginData, LoginResponse, PasswordChangeData};
 use crate::{
     handlers, insert_rejected_transaction, insert_shipping, is_eu_country,
-    retrieve_donation_by_reason_for_payment, retrieve_shipping_by_runner_id, DbPool,
+    retrieve_donation_by_reason_for_payment, DbPool,
 };
 use actix_identity::Identity;
 use actix_web::http::header::ContentType;
@@ -225,67 +225,51 @@ pub async fn modify_payment_status(
 
 pub async fn get_full_runner(
     _: Identity,
-    request_data: web::Path<i32>,
-    db_pool: web::Data<DbPool>,
+    runner_id: web::Path<i32>,
     runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
-    let runner_id = request_data.into_inner();
-    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
+    let runner = runner_service
+        .find_runner_by_id(runner_id.into_inner())
+        .ok_or(handlers::error::ClientError::BadRequestError)?;
+    let shipping = runner_service.find_shipping_by_runner_id(runner.id);
 
-    let retrieved_runner = runner_service
-        .find_runner_by_id(runner_id)
-        .unwrap_or_else(|| panic!("Unable to find runner with id {runner_id}."));
-    let retrieved_shipping_result = retrieve_shipping_by_runner_id(connection, runner_id);
-
-    let inner_response = Response {
-        success_message: Some("Data received".to_string()),
-        error_message: None,
-        status_code: StatusCode::OK.as_u16(),
-    };
-
-    let runner_details = Option::from(FullRunnerDetails {
-        runner_id: retrieved_runner.id.to_string(),
-        firstname: retrieved_runner.firstname.unwrap_or_default(),
-        lastname: retrieved_runner.lastname.unwrap_or_default(),
-        team: retrieved_runner.team.unwrap_or_default(),
-        bsv_participant: retrieved_runner.bsv_participant,
-        email: retrieved_runner.email.unwrap_or_default(),
-        starting_point: retrieved_runner.starting_point,
-        running_level: retrieved_runner.running_level,
-        donation: retrieved_runner.donation,
-        start_number: retrieved_runner.start_number.to_string(),
-        verification_code: retrieved_runner.verification_code,
-        reason_for_payment: retrieved_runner.reason_for_payment,
-        payment_status: retrieved_runner.payment_status,
-        payment_confirmation_mail_sent: retrieved_runner.payment_confirmation_mail_sent,
-    });
-
-    match retrieved_shipping_result {
-        Ok(shipping) => Ok(HttpResponse::Ok().json(FullRunnerResponse {
-            runner_details,
-            is_tshirt_booked: true,
-            shipping_details: Option::from(ShippingDetails {
-                tshirt_model: shipping.tshirt_model,
-                tshirt_size: shipping.tshirt_size,
-                country: shipping.country,
-                address_firstname: shipping.firstname,
-                address_lastname: shipping.lastname,
-                street_name: shipping.street_name,
-                house_number: shipping.house_number,
-                address_extra: shipping.address_extra,
-                postal_code: shipping.postal_code,
-                city: shipping.city,
-                delivery_status: shipping.delivery_status,
-            }),
-            inner_response,
-        })),
-        Err(_) => Ok(HttpResponse::Ok().json(FullRunnerResponse {
-            runner_details,
-            is_tshirt_booked: false,
-            shipping_details: None,
-            inner_response,
-        })),
-    }
+    Ok(HttpResponse::Ok().json(FullRunnerResponse {
+        is_tshirt_booked: shipping.is_some(),
+        runner_details: Some(FullRunnerDetails {
+            runner_id: runner.id.to_string(),
+            firstname: runner.firstname.unwrap_or_default(),
+            lastname: runner.lastname.unwrap_or_default(),
+            team: runner.team.unwrap_or_default(),
+            bsv_participant: runner.bsv_participant,
+            email: runner.email.unwrap_or_default(),
+            starting_point: runner.starting_point,
+            running_level: runner.running_level,
+            donation: runner.donation,
+            start_number: runner.start_number.to_string(),
+            verification_code: runner.verification_code,
+            reason_for_payment: runner.reason_for_payment,
+            payment_status: runner.payment_status,
+            payment_confirmation_mail_sent: runner.payment_confirmation_mail_sent,
+        }),
+        shipping_details: shipping.map(|s| ShippingDetails {
+            tshirt_model: s.tshirt_model,
+            tshirt_size: s.tshirt_size,
+            country: s.country,
+            address_firstname: s.firstname,
+            address_lastname: s.lastname,
+            street_name: s.street_name,
+            house_number: s.house_number,
+            address_extra: s.address_extra,
+            postal_code: s.postal_code,
+            city: s.city,
+            delivery_status: s.delivery_status,
+        }),
+        inner_response: Response {
+            success_message: Some("Data received".to_string()),
+            error_message: None,
+            status_code: StatusCode::OK.as_u16(),
+        },
+    }))
 }
 
 pub async fn edit_runner(
