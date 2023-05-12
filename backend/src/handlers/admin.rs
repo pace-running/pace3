@@ -287,11 +287,16 @@ pub async fn edit_runner(
     // println!("runner_id: {}", runner_ID);
     // println!("info: {:?}", info);
 
-    let runner_details = info.runner_details.unwrap();
+    let runner_details = info
+        .runner_details
+        .ok_or(handlers::error::ClientError::BadRequestError)?;
     // calculate new tshirt cost
     let new_tshirt_cost;
     if info.is_tshirt_booked {
-        let shipping_details = info.shipping_details.as_ref().unwrap();
+        let shipping_details = info
+            .shipping_details
+            .as_ref()
+            .ok_or(handlers::error::ClientError::BadRequestError)?;
         if shipping_details.country == "Deutschland" {
             new_tshirt_cost = "15";
         } else if is_eu_country(&shipping_details.country) {
@@ -306,7 +311,10 @@ pub async fn edit_runner(
     // change runner
     let updated_runner = diesel::update(runners.find(runner_ID))
         .set((
-            start_number.eq(runner_details.start_number.parse::<i64>().unwrap_or(-1)),
+            start_number.eq(runner_details
+                .start_number
+                .parse::<i64>()
+                .map_err(|_| handlers::error::ClientError::BadRequestError)?),
             firstname.eq(runner_details.firstname),
             lastname.eq(runner_details.lastname),
             team.eq(runner_details.team),
@@ -321,14 +329,18 @@ pub async fn edit_runner(
             tshirt_cost.eq(new_tshirt_cost),
         ))
         .get_result::<Runner>(connection)
-        .unwrap();
+        .optional()
+        .map_err(handlers::error::InternalError::from)?
+        .ok_or(handlers::error::ClientError::BadRequestError)?;
 
     // delete old shipping, then insert new one
     if info.is_tshirt_booked {
         use crate::schema::shippings::dsl::*;
         let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
 
-        let shipping_details = info.shipping_details.unwrap();
+        let shipping_details = info
+            .shipping_details
+            .ok_or(handlers::error::ClientError::BadRequestError)?;
         insert_shipping(
             connection,
             NewShipping {
@@ -339,7 +351,7 @@ pub async fn edit_runner(
                 lastname: &shipping_details.address_lastname,
                 street_name: &shipping_details.street_name,
                 house_number: &shipping_details.house_number,
-                address_extra: Some(&shipping_details.address_extra.unwrap_or_default()),
+                address_extra: shipping_details.address_extra.as_deref(),
                 postal_code: &shipping_details.postal_code,
                 city: &shipping_details.city,
                 runner_id: runner_ID,
@@ -352,7 +364,7 @@ pub async fn edit_runner(
     }
 
     Ok(HttpResponse::Ok()
-        .content_type("text/json")
+        .content_type(ContentType::json())
         .body(serde_json::to_string(&updated_runner).unwrap()))
 }
 

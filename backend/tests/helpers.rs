@@ -211,10 +211,21 @@ impl<'a> TestDatabase<'a> {
         let pg_user = "postgres";
         let pg_password = "postgres"; // talisman-ignore-line
         let database: Container<'a, Postgres> = docker.run(image);
+
+        std::thread::sleep(std::time::Duration::from_millis(50));
         let pg_port = database.get_host_port_ipv4(5432);
         let database_connection_string =
             format!("postgres://{pg_user}:{pg_password}@127.0.0.1:{pg_port}/{pg_db}"); // talisman-ignore-line
-        let connection_pool = get_connection_pool(Some(database_connection_string))
+        let connection_pool = get_connection_pool(Some(database_connection_string.clone()))
+            .or_else(|_| {
+                // Retry after one second delay in case db in container isn't ready, yet
+                std::thread::sleep(std::time::Duration::from_secs(1));
+                get_connection_pool(Some(database_connection_string.clone())).or_else(|_| {
+                    // Second retry after one second delay in case db in container isn't ready, yet
+                    std::thread::sleep(std::time::Duration::from_secs(1));
+                    get_connection_pool(Some(database_connection_string))
+                })
+            })
             .expect("Could not initialize connection pool");
         (database, connection_pool)
     }
