@@ -13,6 +13,8 @@ pub use email::MockEmailService;
 pub use email::NonfunctionalEmailService;
 pub use payment::DefaultPaymentService;
 pub use payment::PaymentService;
+pub use payment::PaymentStatus;
+pub use payment::PaymentUpdateError;
 pub use runner::DefaultRunnerService;
 pub use runner::PageParameters;
 pub use runner::RunnerSearchFilter;

@@ -197,8 +197,10 @@ pub fn run(
             Arc::new(DefaultThemeService::new(theme_repository));
 
         let payment_repository = PostgresPaymentRepository::new(db_pool.clone());
-        let payment_service: Arc<dyn PaymentService> =
-            Arc::new(DefaultPaymentService::new(payment_repository));
+        let payment_service: Arc<dyn PaymentService> = Arc::new(DefaultPaymentService::new(
+            payment_repository,
+            email_service.clone(),
+        ));
 
         let session_middleware =
             SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())

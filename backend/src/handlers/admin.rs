@@ -1,6 +1,6 @@
 use crate::core::service::{
-    EmailService, PageParameters, PaymentService, RunnerSearchFilter, RunnerSearchParameters,
-    RunnerService, UserService,
+    EmailService, PageParameters, PaymentService, PaymentStatus, PaymentUpdateError,
+    RunnerSearchFilter, RunnerSearchParameters, RunnerService, UserService,
 };
 use crate::models::rejected_transaction::{
     find_duplicates, NewRejectedTransaction, RejectedTransaction,
@@ -197,22 +197,30 @@ pub async fn show_runners(
 
 pub async fn modify_payment_status(
     _: Identity,
-    r_id: web::Path<i32>,
+    runner_id: web::Path<i32>,
     target_status: web::Json<bool>,
-    db_pool: web::Data<DbPool>,
-    email_service: web::Data<dyn EmailService>,
+    payment_service: web::Data<dyn PaymentService>,
 ) -> Result<HttpResponse, Error> {
-    let runner_id = r_id.into_inner();
-    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    let result = change_payment_status(
-        connection,
-        runner_id,
-        target_status.into_inner(),
-        &email_service,
-    );
+    let payment_status = if target_status.into_inner() {
+        PaymentStatus::Paid
+    } else {
+        PaymentStatus::Pending
+    };
+
+    let runner = payment_service
+        .set_payment_status(runner_id.into_inner(), payment_status)
+        .map_err(|e| match e {
+            PaymentUpdateError::UserNotFound => {
+                Error::from(handlers::error::ClientError::BadRequestError)
+            }
+            PaymentUpdateError::UnableToSendEmail => {
+                Error::from(handlers::error::InternalError::from(e))
+            }
+        })?;
+
     Ok(HttpResponse::Ok()
-        .content_type("text/json")
-        .body(serde_json::to_string(&result).unwrap()))
+        .content_type(ContentType::json())
+        .body(serde_json::to_string(&runner).unwrap()))
 }
 
 pub async fn get_full_runner(

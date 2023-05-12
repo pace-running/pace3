@@ -197,7 +197,6 @@ impl ValidateFrom<Info> for RunnerRegistrationData {
     }
 }
 
-pub type PaymentStatus = bool;
 pub type VerificationCode = String;
 pub type TShirtCost = String;
 
