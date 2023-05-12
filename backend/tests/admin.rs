@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 pub mod helpers;
 pub use helpers::{TestApp, TestDatabase};
+use pace::models::runner::Runner;
 
 #[test]
 fn put_rejected_transaction_into_database() {
@@ -812,4 +813,86 @@ VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
             .unwrap(),
         73i64
     );
+}
+
+#[actix_web::test]
+async fn update_payment_status_should_fail_if_user_is_unauthorized() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let result = test_app.update_payment_status(1, true, None).await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::UNAUTHORIZED);
+}
+
+#[actix_web::test]
+async fn update_payment_status_should_set_correct_value_in_db() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '10', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap()
+    .id;
+
+    let result = test_app
+        .update_payment_status(runner_id, true, Some(test_app.get_admin_cookie().await))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+
+    let runner = diesel::sql_query("SELECT * FROM runners WHERE id = $1;")
+        .bind::<diesel::sql_types::Integer, i32>(runner_id)
+        .get_result::<Runner>(&mut test_app.get_connection())
+        .unwrap();
+    assert!(runner.payment_status);
+}
+
+#[actix_web::test]
+async fn update_payment_status_should_send_email_if_payment_status_is_true_and_email_provided() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '10', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap();
+
+    let result = test_app
+        .update_payment_status(runner.id, true, Some(test_app.get_admin_cookie().await))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+
+    let test_email_server = test_app.get_email_server().unwrap();
+
+    assert_eq!(
+        test_email_server.get_last_recipient_email_addresses(),
+        vec![runner.email.unwrap()]
+    );
+    assert!(test_email_server
+        .get_last_mail_data()
+        .unwrap()
+        .contains(&runner.verification_code));
 }

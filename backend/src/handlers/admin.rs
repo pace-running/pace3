@@ -15,7 +15,7 @@ use crate::{
 use actix_identity::Identity;
 use actix_web::http::header::ContentType;
 use actix_web::http::{header, StatusCode};
-use actix_web::web::{self, Json};
+use actix_web::web;
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
@@ -102,7 +102,7 @@ pub struct RunnerListResponse {
 
 pub async fn login(
     request: HttpRequest,
-    login_data: Json<LoginData>,
+    login_data: web::Json<LoginData>,
     user_service: web::Data<dyn UserService>,
 ) -> Result<HttpResponse, Error> {
     let user = user_service
@@ -125,7 +125,7 @@ pub async fn login(
 
 pub async fn change_password(
     current_user: Identity,
-    change_password_data: Json<PasswordChangeData>, // talisman-ignore-line
+    change_password_data: web::Json<PasswordChangeData>, // talisman-ignore-line
     user_service: web::Data<dyn UserService>,
 ) -> Result<HttpResponse, Error> {
     let username = current_user.id().unwrap();
@@ -198,7 +198,7 @@ pub async fn show_runners(
 pub async fn modify_payment_status(
     _: Identity,
     r_id: web::Path<i32>,
-    target_status: Json<bool>,
+    target_status: web::Json<bool>,
     db_pool: web::Data<DbPool>,
     email_service: web::Data<dyn EmailService>,
 ) -> Result<HttpResponse, Error> {
@@ -283,7 +283,7 @@ pub async fn get_full_runner(
 pub async fn edit_runner(
     _: Identity,
     request_data: web::Path<i32>,
-    form: Json<FullRunnerInfo>,
+    form: web::Json<FullRunnerInfo>,
     db_pool: web::Data<DbPool>,
 ) -> Result<HttpResponse, Error> {
     #[allow(non_snake_case)] // not snake case to avoid confusion with shippings column
