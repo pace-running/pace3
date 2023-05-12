@@ -449,6 +449,31 @@ impl<'a> TestApp<'a> {
             .expect("Unable to send request")
     }
 
+    pub async fn update_runner(
+        &self,
+        runner_id: i32,
+        body: String,
+        cookie: Option<String>,
+    ) -> Response {
+        let mut request_builder = self
+            .client
+            .put(format!(
+                "{}/api/admin/full_runner/{runner_id}",
+                self.address
+            ))
+            .header("Content-Type", "application/json")
+            .body(body);
+
+        if cookie.is_some() {
+            request_builder = request_builder.header("Cookie", cookie.unwrap());
+        }
+
+        request_builder
+            .send()
+            .await
+            .expect("Unable to send request")
+    }
+
     pub fn get_client(&self) -> &Client {
         &self.client
     }

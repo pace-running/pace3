@@ -289,9 +289,9 @@ pub async fn edit_runner(
 
     let runner_details = info.runner_details.unwrap();
     // calculate new tshirt cost
-    let shipping_details = info.shipping_details.unwrap();
     let new_tshirt_cost;
     if info.is_tshirt_booked {
+        let shipping_details = info.shipping_details.as_ref().unwrap();
         if shipping_details.country == "Deutschland" {
             new_tshirt_cost = "15";
         } else if is_eu_country(&shipping_details.country) {
@@ -328,6 +328,7 @@ pub async fn edit_runner(
         use crate::schema::shippings::dsl::*;
         let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
 
+        let shipping_details = info.shipping_details.unwrap();
         insert_shipping(
             connection,
             NewShipping {

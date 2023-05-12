@@ -6,6 +6,7 @@ use std::collections::HashMap;
 pub mod helpers;
 pub use helpers::{TestApp, TestDatabase};
 use pace::models::runner::Runner;
+use pace::models::shipping::Shipping;
 
 #[test]
 fn put_rejected_transaction_into_database() {
@@ -1003,4 +1004,185 @@ VALUES ('unisex', 'm', 'Deutschland', 'Testy', 'McTest',
             .map(|v| v.as_str().unwrap()),
         Some("Noch nicht verschickt")
     );
+}
+
+#[actix_web::test]
+async fn update_runner_should_fail_if_user_is_unauthorized() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '15', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap()
+    .id;
+
+    let body = format!(
+        "{{\
+            \"is_tshirt_booked\": false,\
+            \"runner_id\": \"{runner_id}\",\
+            \"firstname\": \"Tasty\",\
+            \"lastname\": \"McTest\",\
+            \"team\": \"Team Tasty\",\
+            \"bsv_participant\": false,\
+            \"email\": \"tasty@nomnom.com\",\
+            \"starting_point\": \"nowhere\",\
+            \"running_level\": \"over 9000\",\
+            \"donation\": \"10\",\
+            \"start_number\": \"42\",\
+            \"verification_code\": \"befcf8a1-5acf-4590-ba96-9e95a3f82251\",\
+            \"reason_for_payment\": \"LGR-TASTY\",\
+            \"payment_status\": false,\
+            \"payment_confirmation_mail_sent\": false\
+        }}"
+    );
+
+    let result = test_app.update_runner(runner_id, body, None).await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::UNAUTHORIZED);
+}
+
+#[actix_web::test]
+async fn update_runner_should_update_runner_info() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '15', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap()
+    .id;
+
+    let body = format!(
+        "{{\
+            \"is_tshirt_booked\": false,\
+            \"runner_id\": \"{runner_id}\",\
+            \"firstname\": \"Tasty\",\
+            \"lastname\": \"McTest\",\
+            \"team\": \"Team Tasty\",\
+            \"bsv_participant\": false,\
+            \"email\": \"tasty@nomnom.com\",\
+            \"starting_point\": \"nowhere\",\
+            \"running_level\": \"over 9000\",\
+            \"donation\": \"10\",\
+            \"start_number\": \"42\",\
+            \"verification_code\": \"befcf8a1-5acf-4590-ba96-9e95a3f82251\",\
+            \"reason_for_payment\": \"LGR-TASTY\",\
+            \"payment_status\": false,\
+            \"payment_confirmation_mail_sent\": false\
+        }}"
+    );
+
+    let result = test_app
+        .update_runner(runner_id, body, Some(test_app.get_admin_cookie().await))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+
+    let runner = diesel::sql_query("SELECT * FROM runners WHERE id = $1;")
+        .bind::<diesel::sql_types::Integer, i32>(runner_id)
+        .get_result::<Runner>(&mut test_app.get_connection())
+        .unwrap();
+
+    assert_eq!(runner.email, Some("tasty@nomnom.com".to_string()));
+}
+
+#[actix_web::test]
+async fn update_runner_should_update_shipping_info_if_present() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '15', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap()
+    .id;
+
+    diesel::sql_query(
+        "\
+INSERT INTO shippings (tshirt_model, tshirt_size, country, firstname, lastname,
+                       street_name, house_number, address_extra, postal_code,
+                       city, runner_id)
+VALUES ('unisex', 'm', 'Deutschland', 'Testy', 'McTest',
+        'Testy-McTest-Str', '42', NULL, '12345',
+        'Metropolis', $1);",
+    )
+    .bind::<diesel::sql_types::Integer, i32>(runner_id)
+    .execute(&mut test_app.get_connection())
+    .unwrap();
+
+    let body = format!(
+        "{{\
+            \"is_tshirt_booked\": true,\
+            \"runner_id\": \"{runner_id}\",\
+            \"firstname\": \"Tasty\",\
+            \"lastname\": \"McTest\",\
+            \"team\": \"Team Tasty\",\
+            \"bsv_participant\": false,\
+            \"email\": \"tasty@nomnom.com\",\
+            \"starting_point\": \"nowhere\",\
+            \"running_level\": \"over 9000\",\
+            \"donation\": \"10\",\
+            \"start_number\": \"42\",\
+            \"verification_code\": \"befcf8a1-5acf-4590-ba96-9e95a3f82251\",\
+            \"reason_for_payment\": \"LGR-TASTY\",\
+            \"payment_status\": false,\
+            \"payment_confirmation_mail_sent\": false,\
+            \"tshirt_model\": \"unisex\",\
+            \"tshirt_size\": \"l\",\
+            \"country\": \"Deutschland\",\
+            \"address_firstname\": \"Tasty\",\
+            \"address_lastname\": \"McTest\",\
+            \"street_name\": \"Tasty-McTest-Str\",\
+            \"house_number\": \"42\",\
+            \"postal_code\": \"12345\",\
+            \"city\": \"Metropolis\",\
+            \"delivery_status\": \"Noch nicht verschickt\"\
+        }}"
+    );
+
+    let result = test_app
+        .update_runner(runner_id, body, Some(test_app.get_admin_cookie().await))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+
+    use diesel::{prelude::*, QueryDsl, RunQueryDsl};
+
+    let shipping = pace::schema::shippings::dsl::shippings
+        .filter(pace::schema::shippings::dsl::runner_id.eq(&runner_id))
+        .get_result::<Shipping>(&mut test_app.get_connection())
+        .unwrap();
+
+    assert_eq!(shipping.tshirt_size, "l");
 }
