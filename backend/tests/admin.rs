@@ -896,3 +896,111 @@ RETURNING *;",
         .unwrap()
         .contains(&runner.verification_code));
 }
+
+#[actix_web::test]
+async fn get_full_runner_should_fail_if_user_is_unauthorized() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let result = test_app.get_full_runner(1, None).await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::UNAUTHORIZED);
+}
+
+#[actix_web::test]
+async fn get_full_runner_should_only_return_runner_info_if_no_shipping_info_exists() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '0', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap()
+    .id;
+
+    let result = test_app
+        .get_full_runner(runner_id, Some(test_app.get_admin_cookie().await))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+    let json_body = result.json::<serde_json::Value>().await.unwrap();
+    assert_eq!(
+        json_body
+            .get("runner_id")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .parse::<i32>()
+            .unwrap(),
+        runner_id
+    );
+    assert!(json_body.get("delivery_status").is_none());
+}
+
+#[actix_web::test]
+async fn get_full_runner_should_include_shipping_info_if_matching_exists() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Team Testy', 'some.email@example.com',
+        'somewhere', 'super-duper', '10',
+        'LGR-TESTY', false, 'befcf8a1-5acf-4590-ba96-9e95a3f82251',
+        false, '15', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut test_app.get_connection())
+    .unwrap()
+    .id;
+
+    diesel::sql_query(
+        "\
+INSERT INTO shippings (tshirt_model, tshirt_size, country, firstname, lastname,
+                       street_name, house_number, address_extra, postal_code,
+                       city, runner_id)
+VALUES ('unisex', 'm', 'Deutschland', 'Testy', 'McTest',
+        'Testy-McTest-Str', '42', NULL, '12345',
+        'Metropolis', $1);",
+    )
+    .bind::<diesel::sql_types::Integer, i32>(runner_id)
+    .execute(&mut test_app.get_connection())
+    .unwrap();
+
+    let result = test_app
+        .get_full_runner(runner_id, Some(test_app.get_admin_cookie().await))
+        .await;
+
+    assert_eq!(result.status(), actix_web::http::StatusCode::OK);
+    let json_body = result.json::<serde_json::Value>().await.unwrap();
+    assert_eq!(
+        json_body
+            .get("runner_id")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .parse::<i32>()
+            .unwrap(),
+        runner_id
+    );
+    assert_eq!(
+        json_body
+            .get("delivery_status")
+            .map(|v| v.as_str().unwrap()),
+        Some("Noch nicht verschickt")
+    );
+}
