@@ -13,6 +13,8 @@ fileignoreconfig:
   checksum: d69b07fae1e9e1ef48f4c3cb712ba6418affd49204e9d395d965dca4920132cf
 - filename: backend/tests/admin.rs
   checksum: ad7d7e45ff37458842f2401a3f0efc353477ca588035f01587cce9e1a6c8a1f9
+- filename: frontend/pace-ui/__tests__/change_password/change_password.test.js
+  checksum: 80ac29bab2180fc828366cfbf1c7084c05ffa96896a7ae63ba6d92c61c64c19d
 - filename: backend/migrations/**/*.sql
   ignore_detectors: ["filename"]
 allowed_patterns:

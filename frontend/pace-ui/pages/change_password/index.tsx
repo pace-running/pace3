@@ -33,12 +33,17 @@ const ChangePassword: NextPage = () => {
     try {
       await savePassword({ oldPassword: values.oldPassword, newPassword: values.newPassword });
       await router.push('/admin');
-    } catch (error: any) {
-      // @ts-ignore
-      // TODO: create Type for the error response
-      if ((error as AxiosError) && (error as AxiosError).response?.data?.error_message) {
-        // @ts-ignore
-        setServerError((error as AxiosError).response.data.error_message);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        // TODO: create Type for the error response
+        if (error.response?.status == 403) {
+          setServerError('Änderung fehlgeschlagen. Ist möglicherweise das alte Passwort ist nicht korrekt?');
+        } else if (error.response?.data?.error_message) {
+          setServerError(error.response.data.error_message);
+        } else {
+          console.error('Unknown error: ', error);
+          setServerError('Unbekannter Fehler');
+        }
       } else {
         console.error('Unknown error: ', error);
         setServerError('Unbekannter Fehler');

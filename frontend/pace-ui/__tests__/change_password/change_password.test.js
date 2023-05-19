@@ -127,7 +127,7 @@ describe('change password page', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Passwort speichern' }));
 
       // throws 'Async error message'
-      expect(await screen.findByText('Das alte Passwort ist nicht korrekt')).toBeInTheDocument();
+      expect(await screen.findByText('Änderung fehlgeschlagen. Ist möglicherweise das alte Passwort ist nicht korrekt?')).toBeInTheDocument();
 
       expect(router.push).not.toHaveBeenCalledWith('/admin/change_password');
     });

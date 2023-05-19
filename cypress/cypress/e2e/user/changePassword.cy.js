@@ -26,7 +26,7 @@ describe("changing the password", () => {
     cy.get("#password_input").type("newPassword");
     cy.get('[data-testid="btn-login"]').click();
 
-    cy.contains("Registrierte Teilnehmende:");
+    cy.location("pathname").should("eq", "/admin");
 
     cy.visit("/change_password");
     changePassword("newPassword", "xoh7Ongui4oo");
@@ -41,6 +41,6 @@ describe("changing the password", () => {
     // location did not change
     cy.location("pathname").should("eq", "/change_password");
 
-    cy.contains("Das alte Passwort ist nicht korrekt");
+    cy.contains("Änderung fehlgeschlagen. Ist möglicherweise das alte Passwort ist nicht korrekt?");
   });
 });
