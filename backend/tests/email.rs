@@ -1,17 +1,24 @@
 use pace::core::service::{EmailService, LettreTeraEmailService};
 use pace::models::runner::{PaymentReference, Runner};
+use std::sync::Arc;
 
 pub mod helpers;
+use crate::helpers::TestDatabase;
 pub use helpers::TestEmailServer;
+use pace::repository::PostgresThemeRepository;
 
 #[test]
 fn send_registration_confirmation_should_send_mail_containing_payment_reference_to_server() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
     let test_email_server = TestEmailServer::new(None).unwrap();
 
     let email_service = LettreTeraEmailService::new(
         test_email_server.get_configuration(),
         &helpers::TEMPLATES,
         Some("foo.com".to_string()),
+        Arc::new(PostgresThemeRepository::new(pool.clone())),
     )
     .unwrap();
 
@@ -57,12 +64,16 @@ fn send_registration_confirmation_should_send_mail_containing_payment_reference_
 
 #[test]
 fn send_payment_confirmation_should_send_mail_containing_verification_code_to_server() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
     let test_email_server = TestEmailServer::new(None).unwrap();
 
     let email_service = LettreTeraEmailService::new(
         test_email_server.get_configuration(),
         &helpers::TEMPLATES,
         Some("foo.com".to_string()),
+        Arc::new(PostgresThemeRepository::new(pool.clone())),
     )
     .unwrap();
 

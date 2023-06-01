@@ -1,25 +1,32 @@
 use crate::{core::repository::ThemeRepository, models::theme::Theme};
+use std::sync::Arc;
 
+use crate::models::theme::ThemeSetting;
 use anyhow::Ok;
 #[cfg(test)]
 use mockall::automock;
 
 #[cfg_attr(test, automock)]
 pub trait ThemeService {
+    fn get_theme_entries(&self) -> anyhow::Result<Vec<ThemeSetting>>;
     fn update_theme(&self, theme: Theme) -> anyhow::Result<()>;
 }
 
-pub struct DefaultThemeService<TR: ThemeRepository> {
-    theme_repository: TR,
+pub struct DefaultThemeService<TR: ThemeRepository + ?Sized> {
+    theme_repository: Arc<TR>,
 }
 
-impl<TR: ThemeRepository> DefaultThemeService<TR> {
-    pub fn new(theme_repository: TR) -> Self {
+impl<TR: ThemeRepository + ?Sized> DefaultThemeService<TR> {
+    pub fn new(theme_repository: Arc<TR>) -> Self {
         Self { theme_repository }
     }
 }
 
-impl<TR: ThemeRepository> ThemeService for DefaultThemeService<TR> {
+impl<TR: ThemeRepository + ?Sized> ThemeService for DefaultThemeService<TR> {
+    fn get_theme_entries(&self) -> anyhow::Result<Vec<ThemeSetting>> {
+        self.theme_repository.get_theme_entries()
+    }
+
     fn update_theme(&self, theme: Theme) -> anyhow::Result<()> {
         self.theme_repository
             .update_theme(theme)
@@ -51,7 +58,7 @@ mod tests {
             .times(1)
             .returning(|_| Ok(()));
 
-        let theme_service = DefaultThemeService::new(theme_repository);
+        let theme_service = DefaultThemeService::new(Arc::new(theme_repository));
 
         let result = theme_service.update_theme(theme);
 

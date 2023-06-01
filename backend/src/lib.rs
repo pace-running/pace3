@@ -22,6 +22,7 @@ pub mod schema;
 pub mod validation;
 
 use crate::app_config::routes;
+use crate::core::repository::ThemeRepository;
 use crate::core::service::{
     DefaultPaymentService, DefaultRunnerService, DefaultThemeService, DefaultUserService,
     EmailConfiguration, EmailService, LettreTeraEmailService, NonfunctionalEmailService,
@@ -171,13 +172,21 @@ pub fn run(
         .build()
         .unwrap();
     let server = HttpServer::new(move || {
+        let theme_repository: Arc<dyn ThemeRepository> =
+            Arc::new(PostgresThemeRepository::new(db_pool.clone()));
+
         let email_service: Arc<dyn EmailService> = if let Some(configuration) = email_configuration
             .clone()
             .or_else(|| EmailConfiguration::from_env().ok())
         {
             Arc::new({
-                LettreTeraEmailService::new(configuration, &TEMPLATES, None)
-                    .expect("Unable to instantiate EmailService")
+                LettreTeraEmailService::new(
+                    configuration,
+                    &TEMPLATES,
+                    None,
+                    theme_repository.clone(),
+                )
+                .expect("Unable to instantiate EmailService")
             })
         } else {
             Arc::new(NonfunctionalEmailService {})
@@ -192,9 +201,8 @@ pub fn run(
         let user_repository = PostgresUserRepository::new(db_pool.clone());
         let user_service: Arc<dyn UserService> = Arc::new(DefaultUserService::new(user_repository));
 
-        let theme_repository = PostgresThemeRepository::new(db_pool.clone());
         let theme_service: Arc<dyn ThemeService> =
-            Arc::new(DefaultThemeService::new(theme_repository));
+            Arc::new(DefaultThemeService::new(theme_repository.clone()));
 
         let payment_repository = PostgresPaymentRepository::new(db_pool.clone());
         let payment_service: Arc<dyn PaymentService> = Arc::new(DefaultPaymentService::new(

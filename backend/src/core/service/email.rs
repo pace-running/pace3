@@ -1,9 +1,11 @@
+use crate::core::repository::ThemeRepository;
 use crate::models::runner::Runner;
 use lettre::transport::smtp::client::{Certificate, Tls, TlsParametersBuilder};
 use log::warn;
 #[cfg(test)]
 use mockall::automock;
 use std::env::VarError;
+use std::sync::Arc;
 
 #[cfg_attr(test, automock)]
 pub trait EmailService {
@@ -136,6 +138,7 @@ pub struct LettreTeraEmailService {
     lettre_configuration: LettreConfiguration,
     templates: &'static tera::Tera,
     application_domain: String,
+    theme_repository: Arc<dyn ThemeRepository>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -145,6 +148,11 @@ struct TeraEmailInfo {
     donation: String,
     reason_for_payment: String,
     verification_code: String,
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
+struct TeraEventInfo {
+    event_name: String,
 }
 
 impl From<Runner> for TeraEmailInfo {
@@ -180,6 +188,7 @@ impl LettreTeraEmailService {
         email_configuration: EmailConfiguration,
         templates: &'static tera::Tera,
         application_domain: Option<String>,
+        theme_repository: Arc<dyn ThemeRepository>,
     ) -> anyhow::Result<Self> {
         let application_domain = application_domain
             .ok_or_else(|| anyhow::Error::msg("Value for `application_domain` neither provided as parameter nor as env variable `URL_HOST`"))
@@ -192,6 +201,7 @@ impl LettreTeraEmailService {
             lettre_configuration,
             templates,
             application_domain,
+            theme_repository,
         })
     }
 
@@ -203,6 +213,15 @@ impl LettreTeraEmailService {
         context: &mut tera::Context,
     ) -> anyhow::Result<()> {
         use lettre::Transport;
+
+        let event_name = self
+            .theme_repository
+            .get_theme_value("event_name")?
+            .unwrap_or_else(|| "Lauf gegen Rechts".to_string());
+
+        let event_info = TeraEventInfo { event_name };
+
+        context.insert("event_info", &event_info);
 
         let body = self.templates.render(template_name, context)?;
 

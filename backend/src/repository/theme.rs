@@ -1,8 +1,9 @@
+use crate::models::theme::ThemeSetting;
 use crate::schema::theme::dsl::theme as theme_table;
 use crate::schema::theme::event_value;
 use crate::{core::repository::ThemeRepository, models::theme::Theme};
 use diesel::r2d2::ConnectionManager;
-use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
+use diesel::{ExpressionMethods, OptionalExtension, PgConnection, QueryDsl, RunQueryDsl};
 use r2d2::Pool;
 
 pub struct PostgresThemeRepository {
@@ -16,6 +17,33 @@ impl PostgresThemeRepository {
 }
 
 impl ThemeRepository for PostgresThemeRepository {
+    fn get_theme_value(
+        &self,
+        theme_key: &str, // talisman-ignore-line
+    ) -> anyhow::Result<Option<String>> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+        let theme_setting: Option<ThemeSetting> = crate::schema::theme::dsl::theme
+            .find(theme_key)
+            .get_result::<ThemeSetting>(&mut connection)
+            .optional()?;
+
+        Ok(theme_setting.map(|s| s.event_value))
+    }
+
+    fn get_theme_entries(&self) -> anyhow::Result<Vec<ThemeSetting>> {
+        let mut connection = self
+            .connection_pool
+            .get()
+            .expect("Unable to get connection");
+        let theme_entries =
+            crate::schema::theme::dsl::theme.load::<ThemeSetting>(&mut connection)?;
+
+        Ok(theme_entries)
+    }
+
     fn update_theme(&self, theme: Theme) -> anyhow::Result<()> {
         let mut connection = self
             .connection_pool
