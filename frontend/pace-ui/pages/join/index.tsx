@@ -390,7 +390,7 @@ const Join: NextPage = () => {
                   <a className='link' href='/privacy_notice' target='_blank'>
                     Datenschutzbestimmungen
                   </a>{' '}
-                  der Website lauf-gegen-rechts.de erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung
+                  dieser Website erfolgt. Ich weiß, dass meine Einwilligung bezüglich der Verarbeitung
                   meiner Daten (Vorname, Nachname, E-Mail, Teamname) freiwillig ist und ich sie jederzeit widerrufen
                   kann.
                 </span>

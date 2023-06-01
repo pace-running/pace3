@@ -121,7 +121,7 @@ const StatusContent: React.FC<Props> = props => {
       {props.statusContent?.is_paid && (
         <div>
           <p>Vielen Dank für deine Anmeldung. Wir wünschen dir viel Spaß!</p>
-          <p>Das Lauf-gegen-Rechts Team</p>
+          <p>Das Organisationsteam</p>
         </div>
       )}
     </div>
