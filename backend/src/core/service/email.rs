@@ -1,5 +1,6 @@
 use crate::core::repository::ThemeRepository;
 use crate::models::runner::Runner;
+use lettre::message::Mailbox;
 use lettre::transport::smtp::client::{Certificate, Tls, TlsParametersBuilder};
 use log::warn;
 #[cfg(test)]
@@ -52,7 +53,7 @@ impl EmailConfiguration {
         let sender_display_name = std::env::var("SENDER_DISPLAY_NAME")
             .map(Some)
             .or_else(|e| match e {
-                VarError::NotPresent => Ok(Some("Lauf gegen Rechts".to_string())),
+                VarError::NotPresent => Ok(None),
                 VarError::NotUnicode(_) => Err(e),
             })?;
         let smtp_username = std::env::var("SMTP_USER")?;
@@ -205,6 +206,16 @@ impl LettreTeraEmailService {
         })
     }
 
+    fn get_event_info(&self) -> anyhow::Result<TeraEventInfo> {
+        let event_name = self
+            .theme_repository
+            .get_theme_value("event_name")?
+            .unwrap_or_else(|| "Lauf gegen Rechts".to_string());
+
+        let event_info = TeraEventInfo { event_name };
+        Ok(event_info)
+    }
+
     fn send_email(
         &self,
         receiver_email: &str,
@@ -214,19 +225,19 @@ impl LettreTeraEmailService {
     ) -> anyhow::Result<()> {
         use lettre::Transport;
 
-        let event_name = self
-            .theme_repository
-            .get_theme_value("event_name")?
-            .unwrap_or_else(|| "Lauf gegen Rechts".to_string());
-
-        let event_info = TeraEventInfo { event_name };
-
-        context.insert("event_info", &event_info);
-
         let body = self.templates.render(template_name, context)?;
 
+        let mailbox = if self.lettre_configuration.sender_mailbox.name.is_some() {
+            self.lettre_configuration.sender_mailbox.clone()
+        } else {
+            Mailbox {
+                name: Some(self.get_event_info()?.event_name),
+                email: self.lettre_configuration.sender_mailbox.email.clone(),
+            }
+        };
+
         let email_content = lettre::message::Message::builder()
-            .from(self.lettre_configuration.sender_mailbox.clone())
+            .from(mailbox)
             .to(receiver_email.parse()?)
             .subject(subject)
             .header(lettre::message::header::ContentType::TEXT_HTML)
@@ -260,9 +271,12 @@ impl LettreTeraEmailService {
 impl EmailService for LettreTeraEmailService {
     fn send_registration_confirmation(&self, runner: Runner) -> anyhow::Result<()> {
         let mut context = tera::Context::new();
-        context.insert("url_host", &self.application_domain);
+
+        let event_info = self.get_event_info()?;
+        context.insert("event_info", &event_info);
         let email_info: TeraEmailInfo = (&runner).into();
         context.insert("email_info", &email_info);
+        context.insert("url_host", &self.application_domain);
 
         self.send_email(
             &runner.email.ok_or_else(|| {
@@ -271,7 +285,7 @@ impl EmailService for LettreTeraEmailService {
                     runner.id
                 ))
             })?,
-            "Lauf gegen Rechts - Deine Anmeldung",
+            &format!("{} - Deine Anmeldung", &event_info.event_name),
             "registration_mail.html",
             &mut context,
         )
@@ -279,9 +293,12 @@ impl EmailService for LettreTeraEmailService {
 
     fn send_payment_confirmation(&self, runner: Runner) -> anyhow::Result<()> {
         let mut context = tera::Context::new();
-        context.insert("url_host", &self.application_domain);
+
+        let event_info = self.get_event_info()?;
+        context.insert("event_info", &event_info);
         let email_info: TeraEmailInfo = (&runner).into();
         context.insert("email_info", &email_info);
+        context.insert("url_host", &self.application_domain);
 
         self.send_email(
             &runner.email.ok_or_else(|| {
@@ -290,7 +307,7 @@ impl EmailService for LettreTeraEmailService {
                     runner.id
                 ))
             })?,
-            "Lauf gegen Rechts - Zahlung bestätigt",
+            &format!("{} - Zahlung bestätigt", &event_info.event_name),
             "payment_confirmation_mail.html",
             &mut context,
         )
