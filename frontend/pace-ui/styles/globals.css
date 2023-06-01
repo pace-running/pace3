@@ -4139,12 +4139,6 @@ select.stack:focus+select {
     background-color: red;
 }
 
-.loading-screen {
-    font-size: 5vw;
-    text-align: center;
-    margin-top: 10rem;
-}
-
 .admin-btn {
     margin: 1rem;
 
@@ -4205,4 +4199,59 @@ select.stack:focus+select {
     width:19%;
     margin-left:0;
     margin-top: 0;
+}
+
+.loading-screen {
+    font-size: 3rem;
+    text-align: center;
+    margin-top: 10rem;
+}
+
+.loader {
+    margin: 0 auto;
+    width: 4rem;
+    aspect-ratio: 8/5;
+    mask:
+            radial-gradient(rgba(0,0,0,.9) 68%, transparent 71%) 0 0 / 25% 40% no-repeat,
+            radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 50% 0 / 25% 40% no-repeat,
+            radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 100% 0 / 25% 40% no-repeat;
+    background-color: #000000;
+    animation: load 2s infinite linear;
+}
+
+@keyframes load {
+    20% {
+        mask:
+                radial-gradient(rgba(0,0,0,.6) 68%, transparent 71%) 0 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.9) 68%, transparent 71%) 50% 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 100% 0 / 25% 40% no-repeat;
+    }
+    40% {
+        mask:
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 0 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.6) 68%, transparent 71%) 50% 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.9) 68%, transparent 71%) 100% 0 / 25% 40% no-repeat;
+    }
+    60% {
+        mask:
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 0 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 50% 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.6) 68%, transparent 71%) 100% 0 / 25% 40% no-repeat;
+    }
+    80% {
+        mask:
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 0 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 50% 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 100% 0 / 25% 40% no-repeat;
+    }
+}
+
+@media (prefers-reduced-motion) {
+    .loader {
+        animation-play-state: paused;
+        mask:
+                radial-gradient(rgba(0,0,0,.3) 68%, transparent 71%) 0 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.6) 68%, transparent 71%) 50% 0 / 25% 40% no-repeat,
+                radial-gradient(rgba(0,0,0,.9) 68%, transparent 71%) 100% 0 / 25% 40% no-repeat;
+    }
 }
