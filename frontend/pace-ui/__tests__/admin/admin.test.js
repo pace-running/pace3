@@ -58,7 +58,7 @@ describe('admin main page', () => {
     fetchFilteredRunners.mockRejectedValueOnce();
     await act(async () => render(<Admin />));
     expect(router.push).toHaveBeenCalledWith('/admin/login');
-    expect(screen.getByText('Seite lädt...'));
+    expect(screen.getByText('Seite lädt'));
   });
 
   test('runners are displayed in table', async () => {

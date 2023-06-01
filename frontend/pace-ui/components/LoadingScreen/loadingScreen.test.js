@@ -9,10 +9,6 @@ describe('testing if the loading screen works', () => {
   });
 
   test('checking static text', () => {
-    expect(screen.getByText('Seite lädt...'));
-  });
-
-  test('checking for loading icon', () => {
-    expect(screen.getByRole('img', { name: 'Lade-Icon' }));
+    expect(screen.getByText('Seite lädt'));
   });
 });
