@@ -1,7 +1,7 @@
 use crate::core::repository::{RunnerId, RunnerRepository};
 use crate::core::service::EmailService;
 use crate::models::runner::{
-    NewRunner, Runner, RunnerRegistrationData, ShippingData, VerificationCode,
+    NewRunner, Runner, RunnerRegistrationData, RunnerUpdateData, ShippingData, VerificationCode,
 };
 use crate::models::shipping::Shipping;
 use std::cmp::min;
@@ -101,6 +101,12 @@ pub trait RunnerService {
         runner_registration_data: RunnerRegistrationData,
     ) -> anyhow::Result<Runner>;
 
+    fn update_runner(
+        &self,
+        runner_id: RunnerId,
+        runner_update_data: RunnerUpdateData,
+    ) -> anyhow::Result<Runner>;
+
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner>;
 
     fn find_runner_by_id_and_verification_code(
@@ -186,6 +192,17 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
                 }
                 Ok(r)
             })
+    }
+
+    fn update_runner(
+        &self,
+        runner_id: RunnerId,
+        runner_update_data: RunnerUpdateData,
+    ) -> anyhow::Result<Runner> {
+        self.runner_repository
+            .update_runner(runner_id, runner_update_data)
+
+        // TODO send email if changed?
     }
 
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner> {

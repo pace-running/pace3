@@ -1,10 +1,12 @@
 use diesel::{prelude::*, QueryDsl, RunQueryDsl};
 use pace::core::repository::RunnerRepository;
+use pace::core::service::PaymentStatus;
 use pace::models::donation::Donation;
 use pace::models::runner::{
-    NewRunner, PaymentReference, Runner, RunnerRegistrationData, ShippingData,
+    NewRunner, PaymentReference, Runner, RunnerRegistrationData, RunnerUpdateData, ShippingData,
+    ShippingUpdateData,
 };
-use pace::models::shipping::Shipping;
+use pace::models::shipping::{DeliveryStatus, Shipping};
 use pace::models::start_number::StartNumber;
 use pace::repository::PostgresRunnerRepository;
 use pace::schema::{runners, shippings};
@@ -608,7 +610,7 @@ fn find_shipping_by_runner_id_should_return_shipping_with_given_runner_id_if_pre
 
     let runner_in_db: Runner = diesel::insert_into(runners::table)
         .values(&new_runner)
-        .get_result(&mut pool.get().expect("Unable to get connection."))
+        .get_result(&mut pool.get().expect("Unable to get connection"))
         .expect("Error saving runner");
 
     let shipping_in_db: Shipping = diesel::insert_into(shippings::table)
@@ -618,4 +620,218 @@ fn find_shipping_by_runner_id_should_return_shipping_with_given_runner_id_if_pre
 
     let result = runner_repository.find_shipping_by_runner_id(runner_in_db.id);
     assert_eq!(result, Some(shipping_in_db))
+}
+
+fn get_example_runner_update_data(shipping_data: Option<()>) -> RunnerUpdateData {
+    RunnerUpdateData {
+        start_number: StartNumber::new(42).unwrap(),
+        firstname: Some("Testy".to_string()),
+        lastname: Some("McTest".to_string()),
+        team: Some("Go Team!".to_string()),
+        bsv_participant: false,
+        email: Some("Testy.McTest@example.com".to_string()),
+        starting_point: "hamburg".to_string(),
+        running_level: "9k".to_string(),
+        donation: "10".to_string(),
+        payment_reference: "LGR-TESTY".parse().unwrap(),
+        payment_status: PaymentStatus::Pending,
+        verification_code: "a3fea912-9c2a-40ee-bce4-c6fb3b3235c8".to_string(),
+        shipping_data: shipping_data.map(|_| ShippingUpdateData {
+            t_shirt_model: "unisex".to_string(),
+            t_shirt_size: "l".to_string(),
+            country: "Deutschland".to_string(),
+            firstname: "Testy".to_string(),
+            lastname: "McTest".to_string(),
+            street_name: "Testy-McTest-Str.".to_string(),
+            house_number: "42".to_string(),
+            address_extra: None,
+            postal_code: "54321".to_string(),
+            city: "Metropolis".to_string(),
+            delivery_status: DeliveryStatus::PROCESSED,
+        }),
+    }
+}
+
+#[test]
+fn update_runner_should_fail_if_given_runner_id_is_not_present() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+
+    let runner_repository = PostgresRunnerRepository::new(pool);
+    let result: anyhow::Result<Runner> =
+        runner_repository.update_runner(73i32, get_example_runner_update_data(None));
+
+    assert!(result.is_err())
+}
+
+#[test]
+fn update_runner_should_update_runner_data() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+    let runner_update_data = get_example_runner_update_data(None);
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Go Team!', 'Testy.McTest@example.com',
+        'other', '9k', '10',
+        'LGR-TESTY', false, 'a3fea912-9c2a-40ee-bce4-c6fb3b3235c8',
+        false, '0', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut (&pool).get().expect("Unable to get connection"))
+    .unwrap()
+    .id;
+
+    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let result: anyhow::Result<Runner> =
+        runner_repository.update_runner(runner_id, runner_update_data);
+
+    assert!(result.is_ok());
+
+    let runner = runners::dsl::runners
+        .filter(runners::dsl::id.eq(&runner_id))
+        .get_result::<Runner>(&mut (&pool).get().expect("Unable to get connection"))
+        .unwrap();
+
+    assert_eq!(runner.starting_point, "hamburg".to_string());
+}
+
+#[test]
+fn update_runner_should_update_shipping_data() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+    let runner_update_data = get_example_runner_update_data(Some(()));
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Go Team!', 'Testy.McTest@example.com',
+        'hamburg', '9k', '10',
+        'LGR-TESTY', false, 'a3fea912-9c2a-40ee-bce4-c6fb3b3235c8',
+        false, '0', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut (&pool).get().expect("Unable to get connection"))
+    .unwrap()
+    .id;
+
+    diesel::sql_query(
+        "\
+INSERT INTO shippings (tshirt_model, tshirt_size, country, firstname, lastname,
+                       street_name, house_number, address_extra, postal_code,
+                       city, runner_id)
+VALUES ('unisex', 's', 'Deutschland', 'Testy', 'McTest',
+        'Testy-McTest-Str.', '42', NULL, '54321',
+        'Metropolis', $1);",
+    )
+    .bind::<diesel::sql_types::Integer, i32>(runner_id)
+    .execute(&mut (&pool).get().expect("Unable to get connection"))
+    .unwrap();
+
+    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    runner_repository
+        .update_runner(runner_id, runner_update_data)
+        .unwrap();
+
+    let shipping = shippings::dsl::shippings
+        .filter(shippings::runner_id.eq(&runner_id))
+        .get_result::<Shipping>(&mut (&pool).get().expect("Unable to get connection"))
+        .unwrap();
+
+    assert_eq!(shipping.tshirt_size, "l");
+}
+
+#[test]
+fn update_runner_should_add_shipping_data_if_prior_not_present() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+    let runner_update_data = get_example_runner_update_data(Some(()));
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Go Team!', 'Testy.McTest@example.com',
+        'hamburg', '9k', '10',
+        'LGR-TESTY', false, 'a3fea912-9c2a-40ee-bce4-c6fb3b3235c8',
+        false, '0', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut (&pool).get().expect("Unable to get connection"))
+    .unwrap()
+    .id;
+
+    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let result: anyhow::Result<Runner> =
+        runner_repository.update_runner(runner_id, runner_update_data);
+
+    assert!(result.is_ok());
+
+    let shipping_rows = diesel::sql_query("SELECT runner_id FROM shippings;")
+        .execute(&mut (&pool).get().expect("Unable to get connection"))
+        .unwrap();
+
+    assert_eq!(shipping_rows, 1_usize);
+}
+
+#[test]
+fn update_runner_should_remove_shipping_data_if_no_longer_present() {
+    let cli = testcontainers::clients::Cli::default();
+    let database = TestDatabase::with_migrations(&cli);
+    let pool = database.get_connection_pool();
+    let runner_update_data = get_example_runner_update_data(None);
+
+    let runner_id = diesel::sql_query(
+        "\
+INSERT INTO runners (start_number, firstname, lastname, team, email,
+                     starting_point, running_level, donation,
+                     reason_for_payment, payment_status, verification_code,
+                     payment_confirmation_mail_sent, tshirt_cost, bsv_participant)
+VALUES (42, 'Testy', 'McTest', 'Go Team!', 'Testy.McTest@example.com',
+        'hamburg', '9k', '10',
+        'LGR-TESTY', false, 'a3fea912-9c2a-40ee-bce4-c6fb3b3235c8',
+        false, '0', false)
+RETURNING *;",
+    )
+    .get_result::<Runner>(&mut (&pool).get().expect("Unable to get connection"))
+    .unwrap()
+    .id;
+
+    diesel::sql_query(
+        "\
+INSERT INTO shippings (tshirt_model, tshirt_size, country, firstname, lastname,
+                       street_name, house_number, address_extra, postal_code,
+                       city, runner_id)
+VALUES ('unisex', 'l', 'Deutschland', 'Testy', 'McTest',
+        'Testy-McTest-Str.', '42', NULL, '54321',
+        'Metropolis', $1);",
+    )
+    .bind::<diesel::sql_types::Integer, i32>(runner_id)
+    .execute(&mut (&pool).get().expect("Unable to get connection"))
+    .unwrap();
+
+    let runner_repository = PostgresRunnerRepository::new(pool.clone());
+    let result: anyhow::Result<Runner> =
+        runner_repository.update_runner(runner_id, runner_update_data);
+
+    assert!(result.is_ok());
+
+    let shipping_rows = diesel::sql_query("SELECT runner_id FROM shippings;")
+        .execute(&mut (&pool).get().expect("Unable to get connection"))
+        .unwrap();
+
+    assert_eq!(shipping_rows, 0_usize);
 }

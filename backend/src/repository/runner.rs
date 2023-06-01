@@ -1,12 +1,12 @@
 use crate::core::repository::{RunnerId, RunnerRepository};
 use crate::models::payment::PaymentReference;
-use crate::models::runner::{NewRunner, Runner, ShippingData};
+use crate::models::runner::{NewRunner, Runner, RunnerUpdateData, ShippingData};
 use crate::models::start_number::StartNumber;
 use crate::schema;
 use diesel::r2d2::ConnectionManager;
 use diesel::sql_types::BigInt;
 use diesel::{OptionalExtension, PgConnection, QueryDsl, RunQueryDsl};
-use r2d2::Pool;
+use r2d2::{Pool, PooledConnection};
 
 use crate::models::shipping::{DeliveryStatus, Shipping};
 use diesel::prelude::*;
@@ -38,6 +38,12 @@ impl PostgresRunnerRepository {
                 "Unable to get escape character for search text.",
             ))
         }
+    }
+
+    fn get_connection(&self) -> PooledConnection<ConnectionManager<PgConnection>> {
+        self.connection_pool
+            .get()
+            .expect("Unable to get connection")
     }
 }
 
@@ -122,10 +128,7 @@ impl<'insert> diesel::Insertable<schema::shippings::table> for &'insert (&Shippi
 
 impl RunnerRepository for PostgresRunnerRepository {
     fn insert_new_runner(&self, new_runner: NewRunner) -> anyhow::Result<Runner> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection.");
+        let mut connection = self.get_connection();
 
         diesel::insert_into(schema::runners::table)
             .values(&new_runner)
@@ -146,11 +149,107 @@ impl RunnerRepository for PostgresRunnerRepository {
             })
     }
 
+    fn update_runner(
+        &self,
+        runner_id: RunnerId,
+        runner_update_data: RunnerUpdateData,
+    ) -> anyhow::Result<Runner> {
+        let mut connection = self.get_connection();
+
+        connection.build_transaction().read_write().run(|conn| {
+            let updated_runner = diesel::update(schema::runners::dsl::runners.find(&runner_id))
+                .set((
+                    schema::runners::start_number.eq(i64::from(&runner_update_data.start_number)),
+                    schema::runners::firstname.eq(&runner_update_data.firstname),
+                    schema::runners::lastname.eq(&runner_update_data.lastname),
+                    schema::runners::team.eq(&runner_update_data.team),
+                    schema::runners::bsv_participant.eq(&runner_update_data.bsv_participant),
+                    schema::runners::email.eq(&runner_update_data.email),
+                    schema::runners::starting_point.eq(&runner_update_data.starting_point),
+                    schema::runners::running_level.eq(&runner_update_data.running_level),
+                    schema::runners::donation.eq(&runner_update_data.donation),
+                    schema::runners::reason_for_payment
+                        .eq(&runner_update_data.payment_reference.to_string()),
+                    schema::runners::payment_status
+                        .eq(bool::from(&runner_update_data.payment_status)),
+                    schema::runners::verification_code.eq(&runner_update_data.verification_code),
+                    schema::runners::tshirt_cost
+                        .eq(runner_update_data.get_t_shirt_cost().unwrap_or("0")),
+                ))
+                .get_result::<Runner>(conn)?;
+
+            let preexisting_shipping = schema::shippings::dsl::shippings
+                .filter(schema::shippings::runner_id.eq(&runner_id))
+                .get_result::<Shipping>(conn)
+                .optional()?;
+
+            let _updated_shipping = match (preexisting_shipping, runner_update_data.shipping_data) {
+                (Some(_), Some(shipping_update_data)) => {
+                    let shipping = diesel::update(
+                        schema::shippings::dsl::shippings
+                            .filter(schema::shippings::runner_id.eq(&runner_id)),
+                    )
+                    .set((
+                        schema::shippings::tshirt_model.eq(shipping_update_data.t_shirt_model),
+                        schema::shippings::tshirt_size.eq(shipping_update_data.t_shirt_size),
+                        schema::shippings::country.eq(shipping_update_data.country),
+                        schema::shippings::firstname.eq(shipping_update_data.firstname),
+                        schema::shippings::lastname.eq(shipping_update_data.lastname),
+                        schema::shippings::street_name.eq(shipping_update_data.street_name),
+                        schema::shippings::house_number.eq(shipping_update_data.house_number),
+                        shipping_update_data
+                            .address_extra
+                            .map(|x| schema::shippings::address_extra.eq(x)),
+                        schema::shippings::postal_code.eq(shipping_update_data.postal_code),
+                        schema::shippings::city.eq(shipping_update_data.city),
+                        schema::shippings::delivery_status
+                            .eq(shipping_update_data.delivery_status.as_ref()),
+                    ))
+                    .get_result::<Shipping>(conn)?;
+
+                    Some(shipping)
+                }
+                (Some(_), None) => {
+                    diesel::delete(
+                        schema::shippings::dsl::shippings
+                            .filter(schema::shippings::runner_id.eq(&runner_id)),
+                    )
+                    .execute(conn)?;
+
+                    None
+                }
+                (None, Some(shipping_update_data)) => {
+                    let new_shipping = diesel::insert_into(schema::shippings::table)
+                        .values((
+                            schema::shippings::tshirt_model.eq(shipping_update_data.t_shirt_model),
+                            schema::shippings::tshirt_size.eq(shipping_update_data.t_shirt_size),
+                            schema::shippings::country.eq(shipping_update_data.country),
+                            schema::shippings::firstname.eq(shipping_update_data.firstname),
+                            schema::shippings::lastname.eq(shipping_update_data.lastname),
+                            schema::shippings::street_name.eq(shipping_update_data.street_name),
+                            schema::shippings::house_number.eq(shipping_update_data.house_number),
+                            shipping_update_data
+                                .address_extra
+                                .map(|x| schema::shippings::address_extra.eq(x)),
+                            schema::shippings::postal_code.eq(shipping_update_data.postal_code),
+                            schema::shippings::city.eq(shipping_update_data.city),
+                            schema::shippings::runner_id.eq(&runner_id),
+                            schema::shippings::delivery_status
+                                .eq(shipping_update_data.delivery_status.as_ref()),
+                        ))
+                        .get_result::<Shipping>(conn)?;
+
+                    Some(new_shipping)
+                }
+                (None, None) => None,
+            };
+
+            anyhow::Ok(updated_runner)
+        })
+    }
+
     fn get_next_start_number(&self) -> StartNumber {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection.");
+        let mut connection = self.get_connection();
 
         loop {
             let candidate = diesel::sql_query(
@@ -172,10 +271,7 @@ impl RunnerRepository for PostgresRunnerRepository {
     }
 
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection");
+        let mut connection = self.get_connection();
 
         schema::runners::dsl::runners
             .find(id)
@@ -189,10 +285,7 @@ impl RunnerRepository for PostgresRunnerRepository {
         start_number: i64,
         bsv_participant: Option<bool>,
     ) -> Option<Runner> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection");
+        let mut connection = self.get_connection();
 
         if let Some(is_bsv_participant) = bsv_participant {
             schema::runners::dsl::runners
@@ -215,10 +308,7 @@ impl RunnerRepository for PostgresRunnerRepository {
         search_text: &str,
         bsv_participant: Option<bool>,
     ) -> Vec<Runner> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection");
+        let mut connection = self.get_connection();
 
         let escape_char = Self::get_escape_char_for_search_text(search_text).unwrap();
         let escaped_percentage_char = format!("{escape_char}%");
@@ -254,10 +344,7 @@ impl RunnerRepository for PostgresRunnerRepository {
         search_text: &str,
         bsv_participant: Option<bool>,
     ) -> Vec<Runner> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection");
+        let mut connection = self.get_connection();
 
         let escape_char = Self::get_escape_char_for_search_text(search_text).unwrap();
         let escaped_percentage_char = format!("{escape_char}%");
@@ -291,10 +378,7 @@ impl RunnerRepository for PostgresRunnerRepository {
         search_text: &str,
         bsv_participant: Option<bool>,
     ) -> Vec<Runner> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection");
+        let mut connection = self.get_connection();
 
         let escape_char = Self::get_escape_char_for_search_text(search_text).unwrap();
         let escaped_percentage_char = format!("{escape_char}%");
@@ -326,10 +410,7 @@ impl RunnerRepository for PostgresRunnerRepository {
     }
 
     fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping> {
-        let mut connection = self
-            .connection_pool
-            .get()
-            .expect("Unable to get connection");
+        let mut connection = self.get_connection();
 
         schema::shippings::dsl::shippings
             .filter(schema::shippings::dsl::runner_id.eq(runner_id))

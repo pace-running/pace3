@@ -5,16 +5,17 @@ use crate::core::service::{
 use crate::models::rejected_transaction::{
     find_duplicates, NewRejectedTransaction, RejectedTransaction,
 };
-use crate::models::runner::Runner;
-use crate::models::shipping::NewShipping;
+use crate::models::runner::{Runner, RunnerUpdateData, ShippingUpdateData};
+use crate::models::shipping::DeliveryStatus;
+use crate::models::start_number::StartNumber;
 use crate::models::users::{LoginData, LoginResponse, PasswordChangeData};
+use crate::validation::ValidationError;
 use crate::{
-    handlers, insert_rejected_transaction, insert_shipping, is_eu_country,
-    retrieve_donation_by_reason_for_payment, DbPool,
+    handlers, insert_rejected_transaction, retrieve_donation_by_reason_for_payment, DbPool,
 };
 use actix_identity::Identity;
 use actix_web::http::header::ContentType;
-use actix_web::http::{header, StatusCode};
+use actix_web::http::StatusCode;
 use actix_web::web;
 use actix_web::{error, Error, HttpMessage, HttpRequest, HttpResponse};
 use diesel::prelude::*;
@@ -49,6 +50,96 @@ pub struct FullRunnerDetails {
     reason_for_payment: String,
     payment_status: bool,
     payment_confirmation_mail_sent: bool,
+}
+
+impl TryFrom<FullRunnerInfo> for RunnerUpdateData {
+    type Error = handlers::error::ClientError;
+
+    fn try_from(value: FullRunnerInfo) -> Result<Self, Self::Error> {
+        let runner_details = value
+            .runner_details
+            .ok_or(handlers::error::ClientError::BadRequestError)?;
+
+        let shipping_data = if value.is_tshirt_booked {
+            let shipping_details = value
+                .shipping_details
+                .ok_or(handlers::error::ClientError::BadRequestError)?;
+
+            Some(ShippingUpdateData {
+                t_shirt_model: shipping_details.tshirt_model,
+                t_shirt_size: shipping_details.tshirt_size,
+                country: shipping_details.country,
+                firstname: shipping_details.address_firstname,
+                lastname: shipping_details.address_lastname,
+                street_name: shipping_details.street_name,
+                house_number: shipping_details.house_number,
+                address_extra: shipping_details
+                    .address_extra
+                    .map(|v| v.trim().to_string())
+                    .filter(|v| !v.is_empty()),
+                postal_code: shipping_details.postal_code,
+                city: shipping_details.city,
+                delivery_status: match shipping_details.delivery_status.as_str() {
+                    "In Bearbeitung" => Ok(DeliveryStatus::PROCESSED),
+                    "Versendet" => Ok(DeliveryStatus::SHIPPED),
+                    "Zugestellt" => Ok(DeliveryStatus::DELIVERED),
+                    _ => Err(handlers::error::ClientError::ValidationError(
+                        ValidationError::new(
+                            "shipping_data",
+                            HashMap::from([("delivery_status", vec!["UNKNOWN_STATUS"])]),
+                        ),
+                    )),
+                }?,
+            })
+        } else {
+            None
+        };
+
+        let start_number = runner_details.start_number.parse().map_err(|_| {
+            handlers::error::ClientError::ValidationError(ValidationError::new(
+                "runner_data",
+                HashMap::from([("start_number", vec!["NOT_A_NUMBER"])]),
+            ))
+        })?;
+
+        Ok(RunnerUpdateData {
+            start_number: StartNumber::new(start_number).map_err(|_| {
+                handlers::error::ClientError::ValidationError(ValidationError::new(
+                    "runner_data",
+                    HashMap::from([("start_number", vec!["INVALID_VALUE"])]),
+                ))
+            })?,
+            firstname: Some(runner_details.firstname)
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty()),
+            lastname: Some(runner_details.lastname)
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty()),
+            team: Some(runner_details.team)
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty()),
+            bsv_participant: runner_details.bsv_participant,
+            email: Some(runner_details.email)
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty()),
+            starting_point: runner_details.starting_point,
+            running_level: runner_details.running_level,
+            donation: runner_details.donation,
+            payment_reference: runner_details.reason_for_payment.parse().map_err(|_| {
+                handlers::error::ClientError::ValidationError(ValidationError::new(
+                    "runner_data",
+                    HashMap::from([("payment_reference", vec!["INVALID_VALUE"])]),
+                ))
+            })?,
+            payment_status: if runner_details.payment_status {
+                PaymentStatus::Paid
+            } else {
+                PaymentStatus::Pending
+            },
+            verification_code: runner_details.verification_code,
+            shipping_data,
+        })
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Eq)]
@@ -114,7 +205,7 @@ pub async fn login(
         let json = serde_json::to_string(&response)?;
         Identity::login(&request.extensions(), response.username).unwrap();
         Ok(HttpResponse::Ok()
-            .content_type(header::ContentType::json())
+            .content_type(ContentType::json())
             .body(json))
     } else {
         Err(Error::from(
@@ -154,7 +245,7 @@ pub async fn change_password(
         let response = LoginResponse::from(&user);
         let json = serde_json::to_string(&response)?;
         Ok(HttpResponse::Ok()
-            .content_type(header::ContentType::json())
+            .content_type(ContentType::json())
             .body(json))
     } else {
         Err(Error::from(
@@ -276,92 +367,14 @@ pub async fn edit_runner(
     _: Identity,
     request_data: web::Path<i32>,
     form: web::Json<FullRunnerInfo>,
-    db_pool: web::Data<DbPool>,
+    runner_service: web::Data<dyn RunnerService>,
 ) -> Result<HttpResponse, Error> {
-    #[allow(non_snake_case)] // not snake case to avoid confusion with shippings column
-    let runner_ID = request_data.into_inner();
-    let info = form.into_inner();
-    use crate::schema::runners::dsl::*;
-
-    let connection = &mut db_pool.get().map_err(error::ErrorInternalServerError)?;
-    // println!("runner_id: {}", runner_ID);
-    // println!("info: {:?}", info);
-
-    let runner_details = info
-        .runner_details
-        .ok_or(handlers::error::ClientError::BadRequestError)?;
-    // calculate new tshirt cost
-    let new_tshirt_cost;
-    if info.is_tshirt_booked {
-        let shipping_details = info
-            .shipping_details
-            .as_ref()
-            .ok_or(handlers::error::ClientError::BadRequestError)?;
-        if shipping_details.country == "Deutschland" {
-            new_tshirt_cost = "15";
-        } else if is_eu_country(&shipping_details.country) {
-            new_tshirt_cost = "17";
-        } else {
-            new_tshirt_cost = "20";
-        }
-    } else {
-        new_tshirt_cost = "0";
-    }
-
-    // change runner
-    let updated_runner = diesel::update(runners.find(runner_ID))
-        .set((
-            start_number.eq(runner_details
-                .start_number
-                .parse::<i64>()
-                .map_err(|_| handlers::error::ClientError::BadRequestError)?),
-            firstname.eq(runner_details.firstname),
-            lastname.eq(runner_details.lastname),
-            team.eq(runner_details.team),
-            bsv_participant.eq(runner_details.bsv_participant),
-            email.eq(runner_details.email),
-            starting_point.eq(runner_details.starting_point),
-            running_level.eq(runner_details.running_level),
-            donation.eq(runner_details.donation),
-            reason_for_payment.eq(runner_details.reason_for_payment),
-            payment_status.eq(runner_details.payment_status),
-            verification_code.eq(runner_details.verification_code),
-            tshirt_cost.eq(new_tshirt_cost),
-        ))
-        .get_result::<Runner>(connection)
-        .optional()
-        .map_err(handlers::error::InternalError::from)?
-        .ok_or(handlers::error::ClientError::BadRequestError)?;
-
-    // delete old shipping, then insert new one
-    if info.is_tshirt_booked {
-        use crate::schema::shippings::dsl::*;
-        let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
-
-        let shipping_details = info
-            .shipping_details
-            .ok_or(handlers::error::ClientError::BadRequestError)?;
-        insert_shipping(
-            connection,
-            NewShipping {
-                tshirt_model: &shipping_details.tshirt_model,
-                tshirt_size: &shipping_details.tshirt_size,
-                country: &shipping_details.country,
-                firstname: &shipping_details.address_firstname,
-                lastname: &shipping_details.address_lastname,
-                street_name: &shipping_details.street_name,
-                house_number: &shipping_details.house_number,
-                address_extra: shipping_details.address_extra.as_deref(),
-                postal_code: &shipping_details.postal_code,
-                city: &shipping_details.city,
-                runner_id: runner_ID,
-                delivery_status: &shipping_details.delivery_status,
-            },
-        );
-    } else {
-        use crate::schema::shippings::dsl::*;
-        let _ = diesel::delete(shippings.filter(runner_id.eq(runner_ID))).execute(connection);
-    }
+    let updated_runner = runner_service
+        .update_runner(
+            request_data.into_inner(),
+            RunnerUpdateData::try_from(form.into_inner())?,
+        )
+        .map_err(handlers::error::InternalError::from)?;
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())

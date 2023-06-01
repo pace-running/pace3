@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use std::convert::AsRef;
 use strum_macros::AsRefStr;
 
-#[derive(AsRefStr)]
+#[derive(AsRefStr, Clone, Debug, PartialEq, Eq)]
 #[allow(dead_code, clippy::upper_case_acronyms)]
 pub enum DeliveryStatus {
     #[strum(serialize = "In Bearbeitung")]

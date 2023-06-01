@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum PaymentStatus {
     Pending,
     Paid,
@@ -14,6 +15,15 @@ pub enum PaymentStatus {
 impl From<PaymentStatus> for bool {
     fn from(value: PaymentStatus) -> Self {
         match value {
+            PaymentStatus::Pending => false,
+            PaymentStatus::Paid => true,
+        }
+    }
+}
+
+impl From<&PaymentStatus> for bool {
+    fn from(value: &PaymentStatus) -> Self {
+        match *value {
             PaymentStatus::Pending => false,
             PaymentStatus::Paid => true,
         }

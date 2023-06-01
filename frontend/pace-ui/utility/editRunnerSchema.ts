@@ -3,13 +3,18 @@ import * as Yup from 'yup';
 export const EditRunnerSchema = Yup.object().shape({
   firstname: Yup.string()
     .min(2, 'Vorname muss mindestens zwei Zeichen enthalten!')
-    .max(50, 'Vorname darf maximal 50 Zeichen enthalten!'),
+    .max(50, 'Vorname darf maximal 50 Zeichen enthalten!')
+    .nullable(),
   lastname: Yup.string()
     .min(2, 'Nachname muss mindestens zwei Zeichen enthalten!')
-    .max(50, 'Nachname darf maximal 50 Zeichen enthalten!'),
-  team: Yup.string(),
+    .max(50, 'Nachname darf maximal 50 Zeichen enthalten!')
+    .nullable(),
+  team: Yup.string()
+    .nullable(),
   bsv_participant: Yup.boolean(),
-  email: Yup.string().email(),
+  email: Yup.string()
+    .email()
+    .nullable(),
   starting_point: Yup.string().required('Bitte wählen Sie eine Option aus!'),
   running_level: Yup.string().required('Bitte wählen Sie eine Option aus!'),
   donation: Yup.number()
@@ -46,7 +51,9 @@ export const EditRunnerSchema = Yup.object().shape({
     is: true,
     then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')
   }),
-  address_extra: Yup.string(),
+  address_extra: Yup
+      .string()
+      .nullable(),
   postal_code: Yup.string().when('is_tshirt_booked', {
     is: true,
     then: Yup.string().required('Bitte geben Sie die notwendigen Lieferinformationen an!')

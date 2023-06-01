@@ -5,10 +5,12 @@ use serde::Serialize;
 use std::collections::HashMap;
 
 use crate::constants::VERIFICATION_CODE_LENGTH;
+use crate::core::service::PaymentStatus;
 
 pub use crate::models::donation::Donation;
 use crate::models::info::{Info, ShippingInfo};
 pub use crate::models::payment::PaymentReference;
+use crate::models::shipping::DeliveryStatus;
 use crate::models::start_number::StartNumber;
 use crate::validation::{Validate, ValidateFrom, ValidationError};
 
@@ -279,6 +281,54 @@ impl NewRunner {
     }
     pub fn shipping_data(&self) -> Option<&ShippingData> {
         self.shipping_data.as_ref()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ShippingUpdateData {
+    pub t_shirt_model: String,
+    pub t_shirt_size: String,
+    pub country: String,
+    pub firstname: String,
+    pub lastname: String,
+    pub street_name: String,
+    pub house_number: String,
+    pub address_extra: Option<String>,
+    pub postal_code: String,
+    pub city: String,
+    pub delivery_status: DeliveryStatus,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RunnerUpdateData {
+    pub start_number: StartNumber,
+    pub firstname: Option<String>,
+    pub lastname: Option<String>,
+    pub team: Option<String>,
+    pub bsv_participant: bool,
+    pub email: Option<String>,
+    pub starting_point: String,
+    pub running_level: String,
+    pub donation: String,
+    pub payment_reference: PaymentReference,
+    pub payment_status: PaymentStatus,
+    pub verification_code: String,
+    pub shipping_data: Option<ShippingUpdateData>,
+}
+
+impl RunnerUpdateData {
+    pub fn get_t_shirt_cost(&self) -> Option<&str> {
+        use crate::EU_COUNTRIES;
+
+        self.shipping_data.as_ref().map(|s| {
+            if s.country == "Deutschland" {
+                "15"
+            } else if EU_COUNTRIES.contains(&s.country.as_str()) {
+                "17"
+            } else {
+                "20"
+            }
+        })
     }
 }
 

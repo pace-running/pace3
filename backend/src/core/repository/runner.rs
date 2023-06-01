@@ -1,4 +1,4 @@
-use crate::models::runner::{NewRunner, PaymentReference, Runner};
+use crate::models::runner::{NewRunner, PaymentReference, Runner, RunnerUpdateData};
 use crate::models::shipping::Shipping;
 use crate::models::start_number::StartNumber;
 #[cfg(test)]
@@ -9,6 +9,11 @@ pub type RunnerId = i32;
 #[cfg_attr(test, automock)]
 pub trait RunnerRepository {
     fn insert_new_runner(&self, new_runner: NewRunner) -> anyhow::Result<Runner>;
+    fn update_runner(
+        &self,
+        runner_id: RunnerId,
+        runner_update_data: RunnerUpdateData,
+    ) -> anyhow::Result<Runner>;
     fn get_next_start_number(&self) -> StartNumber;
     fn generate_unique_payment_reference(&self) -> PaymentReference;
     fn find_runner_by_id(&self, id: RunnerId) -> Option<Runner>;

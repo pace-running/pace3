@@ -1167,7 +1167,7 @@ VALUES ('unisex', 'm', 'Deutschland', 'Testy', 'McTest',
             \"house_number\": \"42\",\
             \"postal_code\": \"12345\",\
             \"city\": \"Metropolis\",\
-            \"delivery_status\": \"Noch nicht verschickt\"\
+            \"delivery_status\": \"In Bearbeitung\"\
         }}"
     );
 
