@@ -9,7 +9,8 @@ export const ChangeThemeSchema = Yup.object().shape({
     .max(2000, 'Der Beschreibung des Events darf maximal 2000 Zeichen beinhalten!'),
   closedRegistrationMessage: Yup.string().max(500, 'Die Nachricht darf maximal 500 Zeichen enthalten!'),
   isRegistrationOpen: Yup.boolean(),
-  tshirtsEnabled: Yup.boolean()
+  tshirtsEnabled: Yup.boolean(),
+  decentralSignupEnabled: Yup.boolean(),
 });
 
 export type ChangeThemeFormValues = {
@@ -18,4 +19,5 @@ export type ChangeThemeFormValues = {
   closedRegistrationMessage: string;
   isRegistrationOpen: boolean;
   tshirtsEnabled: boolean;
+  decentralSignupEnabled: boolean;
 };
