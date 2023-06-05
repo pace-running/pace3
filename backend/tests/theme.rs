@@ -37,6 +37,7 @@ async fn update_theme_should_be_successful_with_valid_data() {
         closed_registration_message: "registration is closed".to_string(),
         is_registration_open: false,
         tshirts_enabled: true,
+        decentral_signup: true,
     };
 
     let admin_cookie = test_app.get_admin_cookie().await;
@@ -55,6 +56,7 @@ async fn update_theme_should_fail_without_login() {
         closed_registration_message: "registration is closed".to_string(),
         is_registration_open: false,
         tshirts_enabled: true,
+        decentral_signup: true,
     };
 
     let response = test_app.update_theme(data, None).await;

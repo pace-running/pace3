@@ -17,6 +17,7 @@ pub struct ThemeData {
     pub closed_registration_message: String,
     pub is_registration_open: bool,
     pub tshirts_enabled: bool,
+    pub decentral_signup: bool,
 }
 impl TryFrom<ThemeData> for Theme {
     type Error = anyhow::Error;
@@ -27,6 +28,7 @@ impl TryFrom<ThemeData> for Theme {
             value.closed_registration_message,
             value.is_registration_open,
             value.tshirts_enabled,
+            value.decentral_signup,
         )
     }
 }
