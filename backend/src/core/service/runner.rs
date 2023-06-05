@@ -1,4 +1,4 @@
-use crate::core::repository::{RunnerId, RunnerRepository};
+use crate::core::repository::{RunnerId, RunnerRepository, ThemeRepository};
 use crate::core::service::EmailService;
 use crate::models::runner::{
     NewRunner, Runner, RunnerRegistrationData, RunnerUpdateData, ShippingData, VerificationCode,
@@ -123,17 +123,25 @@ pub trait RunnerService {
     fn find_shipping_by_runner_id(&self, runner_id: RunnerId) -> Option<Shipping>;
 }
 
-pub struct DefaultRunnerService<RR: RunnerRepository, ES: EmailService + ?Sized> {
+pub struct DefaultRunnerService<
+    RR: RunnerRepository,
+    TR: ThemeRepository + ?Sized,
+    ES: EmailService + ?Sized,
+> {
     runner_repository: RR,
+    theme_repository: Arc<TR>,
     email_service: Arc<ES>,
 }
 
-impl<RR: RunnerRepository, ES: EmailService + ?Sized> DefaultRunnerService<RR, ES> {
+impl<RR: RunnerRepository, TR: ThemeRepository + ?Sized, ES: EmailService + ?Sized>
+    DefaultRunnerService<RR, TR, ES>
+{
     const VERIFICATION_CODE_LENGTH: usize = 64;
 
-    pub fn new(runner_repository: RR, email_service: Arc<ES>) -> Self {
+    pub fn new(runner_repository: RR, theme_repository: Arc<TR>, email_service: Arc<ES>) -> Self {
         DefaultRunnerService {
             runner_repository,
+            theme_repository,
             email_service,
         }
     }
@@ -158,13 +166,32 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> DefaultRunnerService<RR, E
     }
 }
 
-impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
-    for DefaultRunnerService<RR, ES>
+impl<RR: RunnerRepository, TR: ThemeRepository + ?Sized, ES: EmailService + ?Sized> RunnerService
+    for DefaultRunnerService<RR, TR, ES>
 {
     fn register_runner(
         &self,
         runner_registration_data: RunnerRegistrationData,
     ) -> anyhow::Result<Runner> {
+        if runner_registration_data.shipping_data().is_some() {
+            let is_t_shirt_order_enabled = self
+                .theme_repository
+                .get_theme_value("enable_tshirts")?
+                .unwrap_or_else(|| {
+                    log::warn!(
+                        "No value set for theme setting `enable_tshirts`. Defaulting to `false`."
+                    );
+                    "false".to_string()
+                })
+                .parse::<bool>()?;
+
+            if !is_t_shirt_order_enabled {
+                return Err(anyhow::Error::msg(
+                    "T-Shirt ordering is not enabled but shipping data was still provided!",
+                ));
+            }
+        }
+
         let start_number = self.runner_repository.get_next_start_number();
         let payment_reference = self.runner_repository.generate_unique_payment_reference();
         let verification_code = self.generate_verification_code();
@@ -299,7 +326,7 @@ impl<RR: RunnerRepository, ES: EmailService + ?Sized> RunnerService
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::repository::MockRunnerRepository;
+    use crate::core::repository::{MockRunnerRepository, MockThemeRepository};
     use crate::core::service::MockEmailService;
     use crate::models::donation::Donation;
     use crate::models::runner::PaymentReference;
@@ -342,6 +369,8 @@ mod tests {
             .expect_send_registration_confirmation()
             .times(0);
 
+        let theme_repository = MockThemeRepository::new();
+
         let mut runner_repository = MockRunnerRepository::new();
 
         runner_repository
@@ -377,7 +406,11 @@ mod tests {
                 })
             });
 
-        let runner_service = DefaultRunnerService::new(runner_repository, Arc::new(email_service));
+        let runner_service = DefaultRunnerService::new(
+            runner_repository,
+            Arc::new(theme_repository),
+            Arc::new(email_service),
+        );
         let result = runner_service
             .register_runner(unregistered_runner)
             .expect("Unable to register runner");
@@ -427,6 +460,8 @@ mod tests {
             .times(1)
             .returning(|_r| Ok(()));
 
+        let theme_repository = MockThemeRepository::new();
+
         let mut runner_repository = MockRunnerRepository::new();
 
         runner_repository
@@ -444,7 +479,11 @@ mod tests {
             .times(1)
             .returning(move |_nr| Ok(runner.clone()));
 
-        let runner_service = DefaultRunnerService::new(runner_repository, Arc::new(email_service));
+        let runner_service = DefaultRunnerService::new(
+            runner_repository,
+            Arc::new(theme_repository),
+            Arc::new(email_service),
+        );
         let result = runner_service
             .register_runner(unregistered_runner)
             .expect("Unable to register runner");
@@ -461,10 +500,14 @@ mod tests {
             .times(1)
             .returning(|_r| Some(EXAMPLE_RUNNER));
 
-        let mock_email_service = MockEmailService::new();
+        let theme_repository = MockThemeRepository::new();
+        let email_service = MockEmailService::new();
 
-        let runner_service =
-            DefaultRunnerService::new(runner_repository, Arc::new(mock_email_service));
+        let runner_service = DefaultRunnerService::new(
+            runner_repository,
+            Arc::new(theme_repository),
+            Arc::new(email_service),
+        );
         let result = runner_service.find_runner_by_id(EXAMPLE_RUNNER.id);
 
         assert_eq!(result, Some(EXAMPLE_RUNNER))
@@ -480,10 +523,14 @@ mod tests {
             .times(1)
             .returning(|_r| Some(EXAMPLE_RUNNER));
 
-        let mock_email_service = MockEmailService::new();
+        let theme_repository = MockThemeRepository::new();
+        let email_service = MockEmailService::new();
 
-        let runner_service =
-            DefaultRunnerService::new(runner_repository, Arc::new(mock_email_service));
+        let runner_service = DefaultRunnerService::new(
+            runner_repository,
+            Arc::new(theme_repository),
+            Arc::new(email_service),
+        );
 
         let result = runner_service
             .find_runner_by_id_and_verification_code(EXAMPLE_RUNNER.id, "not-the-right-value");
@@ -500,10 +547,14 @@ mod tests {
             .times(1)
             .returning(|_r| Some(EXAMPLE_RUNNER));
 
-        let mock_email_service = MockEmailService::new();
+        let theme_repository = MockThemeRepository::new();
+        let email_service = MockEmailService::new();
 
-        let runner_service =
-            DefaultRunnerService::new(runner_repository, Arc::new(mock_email_service));
+        let runner_service = DefaultRunnerService::new(
+            runner_repository,
+            Arc::new(theme_repository),
+            Arc::new(email_service),
+        );
 
         let result = runner_service.find_runner_by_id_and_verification_code(
             EXAMPLE_RUNNER.id,

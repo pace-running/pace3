@@ -110,9 +110,21 @@ pub async fn create_runner(
     let runner_registration_data = form
         .validate_into()
         .map_err(crate::handlers::error::ClientError::ValidationError)?;
-    let returned_runner = runner_service
-        .register_runner(runner_registration_data)
-        .map_err(crate::handlers::error::InternalError::from)?;
+    let returned_runner_result = runner_service.register_runner(runner_registration_data);
+
+    if returned_runner_result.is_err() {
+        let e = returned_runner_result.unwrap_err();
+        return if e
+            .to_string()
+            .contains("T-Shirt ordering is not enabled but shipping data was still provided!")
+        {
+            Err(crate::handlers::error::ClientError::BadRequestError.into())
+        } else {
+            Err(crate::handlers::error::InternalError::from(e).into())
+        };
+    }
+
+    let returned_runner = returned_runner_result.unwrap();
 
     let has_provided_email_address = returned_runner.email.is_some();
 

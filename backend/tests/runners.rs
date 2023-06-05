@@ -1,5 +1,6 @@
 use actix_web::http::StatusCode;
 use actix_web::web::Json;
+use diesel::RunQueryDsl;
 use pace::builders::InfoBuilder;
 use pace::handlers::runners::{
     Response, ResponseWithBody, RunnerDetails, RunnerResponse, ShippingDetails,
@@ -84,6 +85,23 @@ async fn create_runner_should_fail_if_participant_info_is_incomplete() {
         "Validation errors in shipping_info: field `house_number` must not be empty",
         response_json.get("error_message").unwrap()
     )
+}
+
+#[actix_web::test]
+async fn create_runner_should_fail_if_t_shirt_orders_are_deactivated_but_shipping_info_is_provided()
+{
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    diesel::sql_query("UPDATE theme SET event_value = 'false' WHERE event_key = 'enable_tshirts';") // talisman-ignore-line
+        .execute(&mut test_app.get_connection())
+        .unwrap();
+
+    let participant = InfoBuilder::default_info().build();
+
+    let actual_response = test_app.create_runner(participant).await;
+
+    assert_eq!(actual_response.status(), StatusCode::BAD_REQUEST);
 }
 
 #[actix_web::test]
