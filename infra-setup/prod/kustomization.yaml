@@ -7,3 +7,8 @@ bases:
 patchesStrategicMerge:
   - ingress.yaml
 
+configMapGenerator:
+  - name: pace3-configuration
+    behavior: merge
+    literals:
+     - URL_HOST=www.stadtpark-marathon.de

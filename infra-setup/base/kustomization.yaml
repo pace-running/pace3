@@ -12,3 +12,7 @@ resources:
   - service.yaml
   - backup.yaml
 
+configMapGenerator:
+  - name: pace3-configuration
+    literals:
+     - URL_HOST=pace3.lauf-gegen-rechts.de

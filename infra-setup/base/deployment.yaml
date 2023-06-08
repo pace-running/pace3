@@ -26,8 +26,6 @@ spec:
           env:
             - name: HTTPS_ENABLED
               value: "true"
-            - name: URL_HOST
-              value: "lauf-gegen-rechts.de"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -58,7 +56,11 @@ spec:
                 secretKeyRef:
                   name: session
                   key: KEY
-
+            - name: URL_HOST
+              valueFrom:
+               configMapKeyRef:
+                 name: pace3-configuration
+                 key: URL_HOST
         - name: pace-frontend
           image: registry.k3s.colodeck.de/pace3-frontend:latest
           ports:
