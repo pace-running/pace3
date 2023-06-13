@@ -118,7 +118,9 @@ pub async fn create_runner(
             .to_string()
             .contains("T-Shirt ordering is not enabled but shipping data was still provided!")
         {
-            Err(crate::handlers::error::ClientError::BadRequestError.into())
+            Err(actix_web::error::ErrorBadRequest(
+                "T-Shirt ordering has been disabled. Please to not try to enable it.",
+            ))
         } else {
             Err(crate::handlers::error::InternalError::from(e).into())
         };
