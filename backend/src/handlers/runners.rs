@@ -118,9 +118,14 @@ pub async fn create_runner(
             .to_string()
             .contains("T-Shirt ordering is not enabled but shipping data was still provided!")
         {
-            Err(actix_web::error::ErrorBadRequest(
-                "T-Shirt ordering has been disabled. Please to not try to enable it.",
-            ))
+            Ok(HttpResponse::BadRequest().json(Response {
+                success_message: None,
+                error_message: Some(
+                    "T-Shirt-Bestellungen wurden deaktiviert. Bitte überprüfe deine Daten."
+                        .to_string(),
+                ),
+                status_code: StatusCode::BAD_REQUEST.as_u16(),
+            }))
         } else {
             Err(crate::handlers::error::InternalError::from(e).into())
         };

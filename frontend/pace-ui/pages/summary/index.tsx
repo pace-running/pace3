@@ -32,10 +32,18 @@ const mapJoinFormDataToRequestData = (formData: JoinFormValues) => ({
   city: formData.city ?? ''
 });
 
+interface Failure {
+  type: number;
+  message: string;
+}
+
+type SubmitResult = 'UNSENT' | 'SUCCESS' | Failure;
+
 const SummaryPage: NextPage = () => {
   const router = useRouter();
   const { joinFormData } = useJoinFormContext();
   const [formData, setFormData] = useState(joinFormData);
+  const [submitResult, setSubmitResult] = useState('UNSENT' as SubmitResult);
 
   const { setInfoResponseData } = RunnerContext.useRunnerContext();
 
@@ -56,7 +64,7 @@ const SummaryPage: NextPage = () => {
   const handleSubmit = useCallback(async () => {
     if (formData) {
       const response = await submitJoinInfo(mapJoinFormDataToRequestData(formData));
-      if (response.data.status_code === 200) {
+      if (response.status === 200) {
         const runner_id = response.data.runner_id.toString();
         const start_number = response.data.start_number.toString();
         const donation = response.data.donation.toString();
@@ -76,14 +84,27 @@ const SummaryPage: NextPage = () => {
         await router.push({
           pathname: '/confirmation',
           query: { runner_id, start_number, donation, tshirt_cost, payment, email_provided }
+        }).then(() => setSubmitResult('SUCCESS'));
+      } else {
+        setSubmitResult({
+          type: response.status,
+          message: response.data.message || `Unbekannter Fehler (${ response.status })`,
         });
       }
+    } else if (submitResult !== 'UNSENT') {
+      setSubmitResult('UNSENT');
     }
   }, [formData]);
 
   return (
     <BaseLayout pageTitle='Zusammenfassung'>
       <div className='container' style={{ maxWidth: '800px', textAlign: 'center' }}>
+
+        {submitResult !== 'UNSENT' && submitResult !== 'SUCCESS' && <aside role='alert'>
+            <h2>Anmeldung fehlgeschlagen!</h2>
+            <p><span>Grund: </span><span>{submitResult.message}</span></p>
+        </aside>}
+
         <h1>Zusammenfassung</h1>
         <p>Bitte überprüfe deine Daten</p>
         <div
