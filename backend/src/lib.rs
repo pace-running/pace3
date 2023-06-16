@@ -9,7 +9,6 @@ use r2d2::PooledConnection;
 use repository::PostgresThemeRepository;
 
 use self::models::runner::Runner;
-use self::models::shipping::{NewShipping, Shipping};
 
 pub mod app_config;
 pub mod builders;
@@ -89,36 +88,6 @@ pub fn retrieve_donation_by_reason_for_payment(
         .get_result::<Runner>(conn)
 }
 
-pub fn retrieve_shipping_by_runner_id(
-    conn: &mut PgConnection,
-    queried_id: i32,
-) -> Result<Shipping, Error> {
-    use crate::schema::shippings::dsl::*;
-
-    shippings
-        .filter(runner_id.eq(queried_id))
-        .get_result::<Shipping>(conn)
-}
-
-pub fn insert_shipping(conn: &mut PgConnection, new_shipping: NewShipping) -> Shipping {
-    use crate::schema::shippings;
-
-    diesel::insert_into(shippings::table)
-        .values(&new_shipping)
-        .get_result(conn)
-        .expect("Error saving shipping")
-}
-
-pub fn get_next_start_number(conn: &mut PgConnection) -> i64 {
-    use self::models::start_number::StartNumber;
-    use diesel::sql_query;
-
-    sql_query("SELECT nextval('runner_start_number_seq') AS start_number")
-        .get_result::<StartNumber>(conn)
-        .expect("Error getting start number")
-        .into()
-}
-
 pub const EU_COUNTRIES: [&str; 26] = [
     "Belgien",
     "Bulgarien",
@@ -147,10 +116,6 @@ pub const EU_COUNTRIES: [&str; 26] = [
     "Ungarn",
     "Zypern",
 ];
-
-pub fn is_eu_country(country: &str) -> bool {
-    EU_COUNTRIES.contains(&country)
-}
 
 lazy_static! {
     static ref TEMPLATES: tera::Tera = {
