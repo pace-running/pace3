@@ -88,7 +88,7 @@ const SummaryPage: NextPage = () => {
       } else {
         setSubmitResult({
           type: response.status,
-          message: response.data.message || `Unbekannter Fehler (${ response.status })`,
+          message: response.data.error_message || `Unbekannter Fehler (${ response.status })`,
         });
       }
     } else if (submitResult !== 'UNSENT') {
@@ -99,11 +99,6 @@ const SummaryPage: NextPage = () => {
   return (
     <BaseLayout pageTitle='Zusammenfassung'>
       <div className='container' style={{ maxWidth: '800px', textAlign: 'center' }}>
-
-        {submitResult !== 'UNSENT' && submitResult !== 'SUCCESS' && <aside role='alert'>
-            <h2>Anmeldung fehlgeschlagen!</h2>
-            <p><span>Grund: </span><span>{submitResult.message}</span></p>
-        </aside>}
 
         <h1>Zusammenfassung</h1>
         <p>Bitte überprüfe deine Daten</p>
@@ -169,7 +164,7 @@ const SummaryPage: NextPage = () => {
           </div>
         )}
 
-        <div style={{ textAlign: 'left', margin: '30px', padding: '20px' }}>
+        <div style={{ textAlign: 'left', margin: '30px 30px 15px', padding: '20px' }}>
           <p>Spendenbeitrag: {formData?.donation}€</p>
           {formData?.tshirt_toggle && (
             <div>
@@ -191,6 +186,12 @@ const SummaryPage: NextPage = () => {
             €
           </p>
         </div>
+
+        {submitResult !== 'UNSENT' && submitResult !== 'SUCCESS' && <aside role='alert' className='alert-message'>
+            <h2>Anmeldung fehlgeschlagen!</h2>
+            <p><span>Grund: </span><strong>{submitResult.message}</strong></p>
+        </aside>}
+
         <div style={{ textAlign: 'center' }}>
           <Button
             name={'goBackButton'}
