@@ -44,6 +44,7 @@ jobs:
           context: ./backend/
           file: ./backend/Dockerfile
           push: true
+          provenance: false
           tags: registry.k3s.colodeck.de/pace3:latest
       - name: Build and push migration
         uses: docker/build-push-action@v3
