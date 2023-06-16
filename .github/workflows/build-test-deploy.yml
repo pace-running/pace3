@@ -39,7 +39,7 @@ jobs:
           username: github
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and push pace3
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./backend/
           file: ./backend/Dockerfile
@@ -47,18 +47,20 @@ jobs:
           provenance: false
           tags: registry.k3s.colodeck.de/pace3:latest
       - name: Build and push migration
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./backend/
           file: ./backend/Dockerfile.migration
           push: true
+          provenance: false
           tags: registry.k3s.colodeck.de/pace3-migration:latest
       - name: Build and push pace3 frontend
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./frontend/pace-ui/
           file: ./frontend/pace-ui/Dockerfile
           push: true
+          provenance: false
           tags: registry.k3s.colodeck.de/pace3-frontend:latest
   deploy-dev:
     if: github.ref == 'refs/heads/main'
