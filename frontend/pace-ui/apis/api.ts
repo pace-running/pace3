@@ -14,7 +14,10 @@ export async function updateTheme(data: ChangeThemeFormValues) {
 
 export async function submitJoinInfo(data: InfoRequestData) {
   return await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/runners`, data, {
-    headers: { 'content-type': 'application/json' }
+    headers: { 'content-type': 'application/json' },
+    validateStatus: function () {
+      return true; // don't throw error because of status code - will be handled by user of function
+    },
   });
 }
 
