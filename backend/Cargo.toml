@@ -13,41 +13,41 @@ path = "src/bin/main.rs"
 name = "pace"
 
 [dependencies]
+actix-cors = "0.6.3"
+actix-files = "0.6.2"
+actix-identity = "0.5.2"
+actix-rt = "2.7.0"
+actix-session = { version = "0.7", features = ["cookie-session"]}
 actix-web = "4.2.1"
 actix-web-prom = "0.6.0"
-actix-files = "0.6.2"
-actix-rt = "2.7.0"
-actix-cors = "0.6.3"
-actix-identity = "0.5.2"
-actix-session = { version = "0.7", features = ["cookie-session"]}
-serde = { version = "1.0.140", features = ["derive"] }
-serde_json = "1.0.85"
-tera = { version = "1", default-features = false }
+anyhow = "1.0.70"
+csv = "1.1.6"
 diesel = { version = "2.0.0-rc.0", features = ["postgres", "r2d2", "time"] }
 dotenvy = "0.15"
-rust-argon2 = "1.0"
-rand = "0.8.5"
-lettre = "0.10"
-strum = "0.24.1"
-strum_macros = "0.24.1"
+env_logger = "0.10"
 futures-util = "0.3.25"
-csv = "1.1.6"
-time = "0.3"
-r2d2 = "0.8.10"
+lazy_static = "1"
+lettre = "0.10"
+log = "0.4"
 mockall = "0.11.4"
 mockall_double = "0.3.0"
+r2d2 = "0.8.10"
+rand = "0.8.5"
+rust-argon2 = "1.0"
+serde = { version = "1.0.140", features = ["derive"] }
+serde_json = "1.0.85"
+strum = "0.24.1"
+strum_macros = "0.24.1"
+tera = { version = "1", default-features = false }
+time = "0.3"
 tokio = "1.27.0"
-anyhow = "1.0.70"
-env_logger = "0.10"
-log = "0.4"
-lazy_static = "1"
 
 [dev-dependencies]
-reqwest = { version = "0.11", features = ["json", "cookies"] }
 diesel_migrations = "2.0.0-rc.0"
-testcontainers = "0.14"
 mailin-embedded = { version = "0.8", features = ["ossl"] }
-rcgen = "0.10"
+num_cpus = "1.15.0"
 openssl = "0.10"
 pem = "2.0.1"
-num_cpus = "1.15.0"
+rcgen = "0.10"
+reqwest = { version = "0.11", features = ["json", "cookies"] }
+testcontainers = "0.14"
