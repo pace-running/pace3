@@ -173,6 +173,21 @@ impl<RR: RunnerRepository, TR: ThemeRepository + ?Sized, ES: EmailService + ?Siz
         &self,
         runner_registration_data: RunnerRegistrationData,
     ) -> anyhow::Result<Runner> {
+        let is_registration_open = self
+            .theme_repository
+            .get_theme_value("is_registration_open")?
+            .unwrap_or_else(|| {
+                log::warn!(
+                    "No value set for theme setting `is_registration_open`. Defaulting to `false`."
+                );
+                "false".to_string()
+            })
+            .parse::<bool>()?;
+
+        if !is_registration_open {
+            return Err(anyhow::Error::msg("Registration is not enabled!"));
+        }
+
         if runner_registration_data.shipping_data().is_some() {
             let is_t_shirt_order_enabled = self
                 .theme_repository

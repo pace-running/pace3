@@ -126,6 +126,12 @@ pub async fn create_runner(
                 ),
                 status_code: StatusCode::BAD_REQUEST.as_u16(),
             }))
+        } else if e.to_string().contains("Registration is not enabled!") {
+            Ok(HttpResponse::BadRequest().json(Response {
+                success_message: None,
+                error_message: Some("Die Registrierung ist leider geschlossen.".to_string()),
+                status_code: StatusCode::BAD_REQUEST.as_u16(),
+            }))
         } else {
             Err(crate::handlers::error::InternalError::from(e).into())
         };

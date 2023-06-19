@@ -105,6 +105,24 @@ async fn create_runner_should_fail_if_t_shirt_orders_are_deactivated_but_shippin
 }
 
 #[actix_web::test]
+async fn create_runner_should_fail_if_registration_is_disabled() {
+    let docker = testcontainers::clients::Cli::default();
+    let test_app = TestApp::new(&docker).await;
+
+    diesel::sql_query(
+        "UPDATE theme SET event_value = 'false' WHERE event_key = 'is_registration_open';", // talisman-ignore-line
+    )
+    .execute(&mut test_app.get_connection())
+    .unwrap();
+
+    let participant = InfoBuilder::default_info().build();
+
+    let actual_response = test_app.create_runner(participant).await;
+
+    assert_eq!(actual_response.status(), StatusCode::BAD_REQUEST);
+}
+
+#[actix_web::test]
 async fn get_runner_should_return_runner_info_for_correct_runner_id_and_verification_code() {
     let docker = testcontainers::clients::Cli::default();
     let test_app = TestApp::new(&docker).await;
