@@ -26,11 +26,15 @@ diesel = { version = "2.0.0-rc.0", features = ["postgres", "r2d2", "time"] }
 dotenvy = "0.15"
 env_logger = "0.10"
 futures-util = "0.3.25"
+image = "0.24"
 lazy_static = "1"
 lettre = "0.10"
 log = "0.4"
+lopdf = "0.31"
+miniz_oxide = "0.7"
 mockall = "0.11.4"
 mockall_double = "0.3.0"
+pdf-writer = "0.7"
 r2d2 = "0.8.10"
 rand = "0.8.5"
 rust-argon2 = "1.0"
@@ -38,9 +42,11 @@ serde = { version = "1.0.140", features = ["derive"] }
 serde_json = "1.0.85"
 strum = "0.24.1"
 strum_macros = "0.24.1"
+svg2pdf = "0.5"
 tera = { version = "1", default-features = false }
 time = "0.3"
 tokio = "1.27.0"
+usvg = { version = "0.32", default-features = false }
 
 [dev-dependencies]
 diesel_migrations = "2.0.0-rc.0"

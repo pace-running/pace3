@@ -8,7 +8,7 @@ fileignoreconfig:
 - filename: infra-setup/deployment.yaml
   checksum: d278c6399ef66176d2bbc2696fd65a08531493e92b77b7ac8c73a6ad94d7ca8e
 - filename: backend/Cargo.lock
-  checksum: 316028bdf6d98896949dc868ba3d2eebb084bd3d7ca3a965f268c7fd1c1bde54
+  checksum: 96da0759105fc20905a7257997f4d6b6bad5a90e0e261753179c258e9e4a458b
 - filename: backend/src/lib.rs
   checksum: d69b07fae1e9e1ef48f4c3cb712ba6418affd49204e9d395d965dca4920132cf
 - filename: backend/tests/admin.rs
