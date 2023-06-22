@@ -15,6 +15,7 @@ pub struct Theme {
     closed_registration_message: String,
     is_registration_open: bool,
     tshirts_enabled: bool,
+    decentral_signup: bool,
 }
 
 impl Theme {
@@ -24,6 +25,7 @@ impl Theme {
         closed_registration_message: String,
         is_registration_open: bool,
         tshirts_enabled: bool,
+        decentral_signup: bool,
     ) -> anyhow::Result<Self> {
         if event_title.len() < 3 {
             return Err(anyhow::Error::msg(
@@ -53,6 +55,7 @@ impl Theme {
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         })
     }
 
@@ -88,12 +91,14 @@ mod tests {
         let closed_registration_message = "".to_string();
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_ok());
     }
@@ -105,12 +110,14 @@ mod tests {
         let closed_registration_message = "m".repeat(500);
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_ok());
     }
@@ -122,12 +129,14 @@ mod tests {
         let closed_registration_message = "msg".to_string();
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_err());
     }
@@ -139,12 +148,14 @@ mod tests {
         let closed_registration_message = "msg".to_string();
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_err());
     }
@@ -156,12 +167,14 @@ mod tests {
         let closed_registration_message = "msg".to_string();
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_err());
     }
@@ -173,12 +186,14 @@ mod tests {
         let closed_registration_message = "msg".to_string();
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_err());
     }
@@ -190,12 +205,14 @@ mod tests {
         let closed_registration_message = "m".repeat(501);
         let is_registration_open = true;
         let tshirts_enabled = false;
+        let decentral_signup = false;
         let result = Theme::new(
             event_title,
             event_description,
             closed_registration_message,
             is_registration_open,
             tshirts_enabled,
+            decentral_signup,
         );
         assert!(result.is_err());
     }

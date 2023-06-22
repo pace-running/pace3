@@ -49,6 +49,7 @@ mod tests {
             "registration is closed!".to_string(),
             true,
             false,
+            true,
         )
         .unwrap();
 

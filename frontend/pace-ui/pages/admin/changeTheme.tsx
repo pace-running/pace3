@@ -22,7 +22,8 @@ const ChangeTheme: NextPage = () => {
       eventDescription: getThemeVar('event_description'),
       closedRegistrationMessage: getThemeVar('closed_registration_message'),
       isRegistrationOpen: getThemeVar('is_registration_open') === 'true' ? true : false,
-      tshirtsEnabled: getThemeVar('enable_tshirts') === 'true' ? true : false
+      tshirtsEnabled: getThemeVar('enable_tshirts') === 'true' ? true : false,
+      decentralSignupEnabled: getThemeVar('decentral_signup') === 'true' ? true : false,
     },
     validationSchema: ChangeThemeSchema,
     onSubmit: submitForm
@@ -99,6 +100,16 @@ const ChangeTheme: NextPage = () => {
             setFieldValue('tshirtsEnabled', !values.tshirtsEnabled);
           }}
         />
+        <Checkbox
+          name={'decentralSignupEnabled'}
+          check={values.decentralSignupEnabled}
+          label={'Kann auch dezentral gelaufen werden?'}
+          role='switch'
+          onChange={() => {
+            setFieldValue('decentralSignupEnabled', !values.decentralSignupEnabled);
+          }}
+        />
+
 
         <Button
           name={'btn-submit-theme'}
