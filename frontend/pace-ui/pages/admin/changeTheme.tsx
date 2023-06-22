@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { useFormik } from 'formik';
-import { getThemeVar } from '../../utility/theme';
+import { getThemeVar, initTheme, reloadTheme } from '../../utility/theme';
 import { ChangeThemeFormValues, ChangeThemeSchema } from '../../utility/changeThemeSchema';
 import TextInput from '../../components/TextInput';
 import Checkbox from '../../components/Checkbox';
@@ -12,8 +12,7 @@ import { Helmet } from 'react-helmet';
 
 const ChangeTheme: NextPage = () => {
   const submitForm = (values: ChangeThemeFormValues) => {
-    updateTheme(values);
-    router.push('/admin');
+    updateTheme(values).then(() => reloadTheme()).then(() => router.push('/admin'));
   };
 
   const { handleChange, setFieldValue, values, handleSubmit, errors, isValid } = useFormik<ChangeThemeFormValues>({
@@ -21,8 +20,8 @@ const ChangeTheme: NextPage = () => {
       eventTitle: getThemeVar('event_name'),
       eventDescription: getThemeVar('event_description'),
       closedRegistrationMessage: getThemeVar('closed_registration_message'),
-      isRegistrationOpen: getThemeVar('is_registration_open') === 'true' ? true : false,
-      tshirtsEnabled: getThemeVar('enable_tshirts') === 'true' ? true : false
+      isRegistrationOpen: getThemeVar('is_registration_open') === 'true',
+      tshirtsEnabled: getThemeVar('enable_tshirts') === 'true'
     },
     validationSchema: ChangeThemeSchema,
     onSubmit: submitForm

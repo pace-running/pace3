@@ -31,3 +31,18 @@ export async function initTheme(): Promise<boolean> {
   themeVarsLoading = false;
   return true;
 }
+
+export async function reloadTheme(): Promise<boolean> {
+  if (themeVarsLoading) {
+    return false;
+  }
+  themeVarsLoading = true;
+  const response = await fetchTheme();
+  if (response.status !== 200) {
+    throw new Error('Could not fetch theme from backend');
+  }
+  themeVars = response.data;
+  themeVarsLoaded = true;
+  themeVarsLoading = false;
+  return true;
+}
