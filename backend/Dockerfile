@@ -28,9 +28,9 @@ RUN cargo build --release
 ####################################################################################################
 ## Final image
 ####################################################################################################
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install libpq5 ca-certificates -y
+RUN apt-get update && apt-get install libpq5 ca-certificates  libssl3 -y
 RUN update-ca-certificates
 
 # Import from builder.
