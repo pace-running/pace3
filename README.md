@@ -1,5 +1,6 @@
 [![BuildTestDeploy](https://github.com/pace-running/pace3/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/pace-running/pace3/actions/workflows/build-test-deploy.yml)
 [![Dependencies](https://github.com/pace-running/pace3/actions/workflows/dependencies.yml/badge.svg)](https://github.com/pace-running/pace3/actions/workflows/dependencies.yml)
+[![Cypress End-to-End Tests](https://github.com/pace-running/pace3/actions/workflows/cypress.yml/badge.svg)](https://github.com/pace-running/pace3/actions/workflows/cypress.yml)
 
 # pace
 
