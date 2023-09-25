@@ -30,7 +30,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - pg_dump -d pace -h pace3-postgresql -U postgres > /data/$(date +%y-%m-%d)_dump.sql
+                - pg_dump -d postgres -h pace3-postgresql -U postgres > /data/$(date +%y-%m-%d)_dump.sql
           restartPolicy: OnFailure
 ---
 apiVersion: v1
